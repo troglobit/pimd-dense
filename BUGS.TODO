@@ -1,0 +1,62 @@
+$Id: BUGS.TODO,v 1.8 1998/12/31 19:28:39 kurtw Exp $
+
+THIS LIST IS FAR AWAY FROM BEING COMPLETE, so these are the few things 
+that came up at the right moment to be written down.
+
+-------
+KURT:
+
+  * FIXED ? DR does not go to highest IP when new neighbor appears!!!
+
+  * Sync with changes in the lastest Sparse-Mode pimd release 
+    Pimd-dense is now synched up to alpha21.
+
+  * The mrtentry preference/metrics should be used to indicate the
+    pref/metric for the upstream assert winner for comparison with
+    assert messages received from upstream.  When lacking upstream
+    pref/metric info (before assert or after assert times out),
+    should the mrtentry pref/metric be set to 0/0 (or some other 
+    arbitrary values) or to the pref/metric of the source for the
+    local router (which should always be greater than those
+    received from asserts)???  I think the current scheme is okay:
+    set to 0/0 when allocating mrtentry and source pref/metric when
+    creating route before assert or when timing out assert.
+
+-------
+  * Use NetBSD's definition for IPADDR (netinet/in.h):
+#ifdef _KERNEL
+#define __IPADDR(x)     ((u_int32_t) htonl((u_int32_t)(x)))
+#else
+#define __IPADDR(x)     ((u_int32_t)(x))
+#endif
+
+  * Check whether the kernel code sends CACHE_MISS and WRONG_IIF for
+    the LAN-scoped addresses
+
+  * If a new interface is configured, include it automatically
+
+  * Don't create routing entries for local link scoped groups
+
+  * Implement adm. scoped filters
+
+  * Do more precise error check for the received PIM messages. In most cases, 
+  the whole message must be parsed completely before starting processing it.
+
+  * Clean up the debugging messages.
+
+  * Use Patricia tree to search the routing table 
+  (There is a nice paper in Sigcomm '97 about fast routing tables
+  implementation, so need to check it as well)
+
+  * Change all countdown timers to events timeout (callout.c)
+  (The current implementation is very unefficient if the routing table becomes
+  very large)
+
+  * Fix the code allowing interface UP/DOWN without restarting pimd.
+
+  * Test the RSRR (RSVP support) code
+
+  * Send Initial_Reply RSRR message if the interfaces detected by pimd change
+
+  * SNMP support 
+

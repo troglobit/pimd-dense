@@ -1,0 +1,19 @@
+
+Neighbor establishment					passes manual
+Neighbor addition w/ state (potential flood)		passes manual
+Neighbor timeout 					passes manual
+Neighbor timeout w/ state (potential prune)		passes manual
+Cache miss-create S,G state				passes manual
+Packet forwarding on flood (fwd to nbr)			passes manual
+Packet forwarding on flood (fwd to host)		passes manual
+MRT entry refresh on data				passes manual
+MRT entry timeout					passes manual
+IGMP group membership caching w/o state			passes manual
+IGMP group membership report w/ state			passes manual
+IGMP group membership leave w/ state			passes manual
+<join/prune>						passes manual
+<graft>							passes manual
+<assert>						passes manual
+
+<cisco interop>
+<gated interop>

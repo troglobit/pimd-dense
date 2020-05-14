@@ -1,0 +1,30 @@
+The first public version of pimd-dense is now available 
+Pimd-dense is a lightweight, stand-alone PIM-Dense Mode
+implementation that may be freely distributed or deployed.  
+Pimd-Dense implements the full PIM-DM specification with a few 
+noted exceptions (See the release notes).
+
+PimD-Dense is currently ALPHA-version software that still 
+requires extensive testing.  If you choose to use it, send any 
+comments or bug reports to kurtw@antc.uoregon.edu.
+
+PimD-Dense should compile and run on most UNIX varieties, including
+FreeBSD, BSDI, NetBSD, SunOS, IRIX, Solaris 2.5, Solaris 2.6, and Linux
+(however it has not yet been tested on all these).
+
+The software and information may be obtained from the website of
+the University of Oregon's Advanced Network Technology Center (ANTC).
+
+For more information:
+  http://www.antc.uoregon.edu/PIMDM/pimd-dense.html
+
+For anonymous FTP:
+  ftp://ns.uoregon.edu/pub/src/pimd-dense.tar.gz
+
+-----------------------------------------------------------------------
+Kurt Windisch                                    kurtw@antc.uoregon.edu
+Network Engineer/Research Asst.                      (TEL) 541-346-1698
+Advanced Network Technology Center (ANTC)            (FAX) 541-346-4397
+University of Oregon                  http://www.cs.uoregon.edu/~kurtw/
+PGP figerprint: 33 2A 7E 38 24 36 03 11  DB BF 22 DA C4 28 CC 23
+

@@ -1,0 +1,68 @@
+  $Id: CHANGES,v 1.8 1998/12/30 20:26:20 kurtw Exp $
+ * December 30, 1998
+   Fixed entry timer initialization in route.c:process_cache_miss()
+
+ * December 22, 1998
+   Synch'ed with latest releave pimd (sparse) from USC:
+
+   - XXX Timer changes in defs.h compatible with entry/prune timeout changes?
+
+   - BUG FIX: fix TIMEOUT definitions in difs.h (bug report by Nidhi Bhaskar)
+     (originally, if timer value less than 5 seconds, it won't become 0)
+   - (Almost) all timers manipulation now use macros
+   - pim.h and pim_var.h are in separate common directory
+   - added BSDI definition to pim_var.h (thanks to Hitoshi Adaeda)
+   - Now compiles under Linux (haven't check whether the PIMv2 kernel
+     support in linux-2.1.103 works)
+   - allpimrouters deleted from igmp.c (already defined in pim.c)
+   - igmpmsg defined for IRIX 
+
+ * December 21, 1998
+   Linux patches to pim.c and defs.h 
+   (contributed by Jonathan Day <j.c.day@larc.nasa.gov>)
+
+   Notes from Jonathan:
+   I'd like to report some bugs in the current version of PimD-Dense, which
+   cause compilation to fail under Linux. In defs.h, external variables that
+   have already been defined are being re-defined, causing the compilation to
+   fail. In pim.c, there is a typing error - if->ip_len is referred to, as
+   opposed to ip->ip_len. I've included the changes I've been using to fix
+   these bugs.
+
+ * December 21, 1998
+   Fixed delay time for LAN prune scheduling to 4 seconds to comply
+   with spec, which says that prunes should be delayed for time
+   strictly greater than the maximum join delay of 3 seconds.
+
+ * December 21, 1998
+   Fixed Prune timeout behavior:
+   - Prune timeout now triggers graft
+   - If prune and entry timeout simultaneously, the prune is timed out
+     first, triggering an entry timer refresh.
+
+ * December 21, 1998
+   Fixed Assert sending so that asserts sent from upstream routers
+   without routes to the source send pref and metric of 0x7fffffff.
+
+ * June 19, 1998
+   Modifications to comply with the latest PIM-DM spec revision:
+   - Graft retransmission period is now 3 seconds
+   - Random Join/Prune delay is 3 seconds
+   Some still unresolved issues:
+   - Upstream Address field in Graft and Graft-Ack
+
+ * Version 0.2.1.0-alpha15, May 29, 1998
+   Synched in fixes from Pavlin's pimd-2.1.0-alpha15:
+   - few bug fixes related to NetBSD definitions 
+     (thanks to Heiko W.Rupp <hwr@pilhuhn.de>)
+   - MRT_PIM completely replaced by MRT_ASSERT
+
+ * Version 0.2.1.0-alpha11, May 29, 1998
+   This is the first release of the the PIM Dense-Mode version of pimd.
+   For now, I have simply prepended "0." onto the version number for 
+   Pavlin Ivanov Radoslavov's Sparse-Mode pimd, from which this code 
+   was derived.  A new 1.0.x-alpha version number will be assigned 
+   upon the initial public release of this code.
+
+
+

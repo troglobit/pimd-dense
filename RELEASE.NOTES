@@ -1,0 +1,41 @@
+Second Pre-release December 31, 1998 (Happy New Year)
+
+* Fixed a variety of bugs and updated the implementation to comply
+  with some sublte points and revisions of the PIM-DM specification.
+
+* Also synch'ed with the latest pimd from Pavlin and added patches
+  for Linux, which were contributed by Jonathan Day <j.c.day@larc.nasa.gov>.
+  Thanks Jonathan.
+
+
+First Pre-release June 5, 1997
+
+* Pimd-dense requires kernel patches to the current ip_mroute kernel 
+  in order to operate correctly.  This is due to bugs in the ipmroute
+  kernel code currently being distributed (at least for FreeBSD).
+  I've tested pimdd with both Rusty's GateD patches (to be depricated)
+  and Pavlin's combined patches, which are available at:
+    ftp://catarina.usc.edu/pub/pim/pimd/experimental/one-pimd-gated-kernel
+  It should also work with any of the other recent patch kits that Pavlin
+  has produced for use with Sparse-mode pimd.
+
+* Since pimd cannot reliably get preference and metric info from the kernel
+  a configuration option is provided to specify a preference with which to
+  advertise sources when sending PIM-Assert messages.  The phyint command
+  in pimd.conf allows you to specify a default perference for each
+  interface.  If no preference is specified, prefs will default to 101, 
+  which is high enough that default preferences advertised by either
+  Cisco or Gated routers (both having better information on unicast routes)
+  will will over pimd preferences.  Directly connected sources will always
+  be asserted with a preference of 0.
+
+* Because unicast routes are obtained from the kernel, only the prefered
+  route is available.  Pimd cannot determine the existence of 
+  equal-cost-multipaths, and thus does not implement the addressing of
+  joins and prunes to 0.0.0.0.
+
+* RSRR support is currently rough and completely untested.
+
+
+
+

@@ -1,0 +1,91 @@
+<HTML>
+<HEAD>
+<TITLE>PIM-Dense Routing Daemon Software</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>Protocol Independent Multicast - Dense Mode (PIM-DM)</H1>
+<H2>Routing Daemon Software</H2><P>
+
+Kurt Windisch<BR>
+<A HREF="http://www.antc.uoregon.edu/">Advanced Network Technology Center</A><BR>
+<I><A HREF="mailto:kurtw@antc.uoregon.edu">kurtw@antc.uoregon.edu</A></I><BR>
+</CENTER><P><P>
+
+<B><I>Pimd-dense</I></B> is a lightweight, stand-alone PIM-Dense Mode
+implementation that may be freely deployed or distributed.  Pimd-Dense
+implements the full 
+<A HREF="ftp://ftp.ietf.org/internet-drafts/draft-ietf-pim-v2-dm-01.txt">PIM-DM specification</A> with a few exceptions
+noted in the <A HREF="RELEASE.NOTES">Release Notes</A>.
+<P>
+
+The code from Pimd-dense is heavily based on the PIM-Sparse Mode daemon
+implementation by Puneet Sharma and Charley Liu (USC), Ahmed Helmy (SGI/USC),
+and Pavlin Ivanov Radoslavov (USC).  For more info on PimD-Sparse, see the
+<A HREF="http://netweb.usc.edu/pim/">PIM Home Page at USC</A><P>
+
+Use of PimD-Dense for multicast routing requires a separate facility for
+unicast routing such as (1) static routes via the UNIX <I>route</I> command,
+(2) RIP routes via the standard UNIX <I>routed</I> routing daemon, or
+(3) other dynamic unicast routing protocols such as those provided by the
+<A HREF="http://www.gated.org/">GateD</A> multiprotocol routing daemon.<P>
+
+<HR>
+<H2>The Software</H2>
+
+PimD-Dense is currently <I>ALPHA</I>-version software that yet requires
+extensive testing.  If you choose to use it, information about any
+bugs or problems sent to 
+<A HREF="kurtw@antc.uoregon.edu">kurtw@antc.uoregon.edu</A> would be
+greatly appreciated and will be investigated ASAP.<P>
+
+PimD-Dense should compile and run on most UNIX varieties, including
+FreeBSD, BSDI, NetBSD, SunOS, IRIX, Solaris 2.5, Solaris 2.6, and Linux
+(however it has not yet been tested on all these).<P>
+
+Many current version of the IP MRouting kernel code requires patches
+to correct certain bugs in order to work correctly with PimD-Dense.
+Before using PimD-Dense, you should apply one of the current
+patches available for PimD-Sparse from USC's
+<A HREF="ftp://catarina.usc.edu/pub/pim/">
+PIM FTP site</A>.  Several are available.<P>
+
+<UL>
+<LI> PimD-Dense software:
+     <A HREF="ftp://ns.uoregon.edu/pub/src/multicast/pimd-dense.tar.gz">
+     pimd-dense.tar.gz</A>
+<LI> Recommended PIM Kernel Patches: 
+     <A HREF="ftp://catarina.usc.edu/pub/pim/pimd/experimental/one-pimd-gated-kernel/">FTP from catarina.usc.edu</A>
+<LI> <A HREF="README">README</A>
+<LI> <A HREF="RELEASE.NOTES">RELEASE NOTES</A>
+<LI> <A HREF="LICENSE">LICENSE</A>
+</UL>
+
+<HR>
+<H2>Testing</H2>
+In the future, a suite of test scripts will be included that will test
+the basic functionality of this, or other, PIM-DM implemenations.
+This test suite will use George (Rusty) Eddy's 
+<A HREF="http://www.isi.edu/~eddy/pkt/">PKT toolkit</A>.
+
+<HR>
+<H2>PIM Links</H2>
+<UL>
+<LI> <A HREF="http://netweb.usc.edu/pim/">PIM Home Page at USC</A>
+<LI> <A HREF="http://www.antc.uoregon.edu/GATED/">GateD PIM-DM implementation
+     </A>
+<LI> PIM-DM Specification: <A HREF="ftp://ftp.ietf.org/internet-drafts/draft-ietf-pim-v2-dm-01.txt">draft-ietf-pim-v2-dm-01.txt</A>
+<LI> <A HREF="http://www.antc.uoregon.edu/">Advanced Network Technology Center
+     at the UofO</A>
+<LI> <A HREF="http://www.cs.uoregon.edu/~kurtw/">Kurt Windisch's Home Page</A>
+</UL>
+
+
+<HR>
+    <address><a href="mailto:kurtw@network-services.uoregon.edu">Kurt Windisch</a></address>
+<!-- Created: Wed Jul  8 08:29:08 PDT 1998 -->
+<!-- hhmts start -->
+Last modified: Thu Dec 31 11:23:53 PST 1998
+<!-- hhmts end -->
+</BODY>
+</HTML>
