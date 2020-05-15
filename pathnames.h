@@ -47,7 +47,9 @@
  */
 
 
+#ifndef _PATH_PIMD_CONF
 #define _PATH_PIMD_CONF		"/etc/pimd.conf"
+#endif
 
 #if (defined(BSD) && (BSD >= 199103))
 #define _PATH_PIMD_PID		"/var/run/pimdd.pid"

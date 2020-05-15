@@ -53,9 +53,9 @@ PROG_CVS_LAST_VERSION = ${PROG_NAME}_${CVS_LAST_VERSION}
 # Support for Resource Reservations), currently used by RSVP.
 RSRRDEF=	-DRSRR
 
-CC =		gcc
+CC?=		gcc
 MCAST_INCLUDE=	-Iinclude
-LDFLAGS=
+LDFLAGS?=
 
 #CONFIGCONFIGCONFIG
 PURIFY=		purify -cache-dir=/tmp -collector=/import/pkgs/gcc/lib/gcc-lib/sparc-sun-sunos4.1.3_U1/2.7.2.2/ld
@@ -63,7 +63,7 @@ PURIFY=		purify -cache-dir=/tmp -collector=/import/pkgs/gcc/lib/gcc-lib/sparc-su
 #CONFIGCONFIGCONFIG
 ### Compilation flags for different platforms. Uncomment only one of them
 ## FreeBSD
-CFLAGS= -Wall -g	-Iinclude/freebsd ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM
+CFLAGS+=	${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlog=logit ${CPPFLAGS}
 
 ## NetBSD   -DNetBSD is done by OS
 #CFLAGS= -Wall -g	-Iinclude/netbsd ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DPIM
