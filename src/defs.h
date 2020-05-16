@@ -227,8 +227,8 @@ extern int              rsrr_socket;
 extern u_long		virtual_time;
 extern char		configfilename[];
 
-extern u_int32          default_source_metric;
-extern u_int32          default_source_preference;
+extern u_int32          default_route_metric;
+extern u_int32          default_route_distance;
 
 extern srcentry_t 	*srclist;
 extern grpentry_t 	*grplist;

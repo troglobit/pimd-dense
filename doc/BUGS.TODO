@@ -12,14 +12,14 @@ KURT:
     Pimd-dense is now synched up to alpha21.
 
   * The mrtentry preference/metrics should be used to indicate the
-    pref/metric for the upstream assert winner for comparison with
+    distance/metric for the upstream assert winner for comparison with
     assert messages received from upstream.  When lacking upstream
-    pref/metric info (before assert or after assert times out),
+    distance/metric info (before assert or after assert times out),
     should the mrtentry pref/metric be set to 0/0 (or some other 
-    arbitrary values) or to the pref/metric of the source for the
+    arbitrary values) or to the distance/metric of the source for the
     local router (which should always be greater than those
     received from asserts)???  I think the current scheme is okay:
-    set to 0/0 when allocating mrtentry and source pref/metric when
+    set to 0/0 when allocating mrtentry and source distance/metric when
     creating route before assert or when timing out assert.
 
 -------

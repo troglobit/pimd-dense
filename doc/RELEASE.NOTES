@@ -19,23 +19,19 @@ First Pre-release June 5, 1997
   It should also work with any of the other recent patch kits that Pavlin
   has produced for use with Sparse-mode pimd.
 
-* Since pimd cannot reliably get preference and metric info from the kernel
-  a configuration option is provided to specify a preference with which to
+* Since pimd cannot reliably get distance and metric info from the kernel
+  a configuration option is provided to specify a distance with which to
   advertise sources when sending PIM-Assert messages.  The phyint command
-  in pimd.conf allows you to specify a default perference for each
-  interface.  If no preference is specified, prefs will default to 101, 
-  which is high enough that default preferences advertised by either
-  Cisco or Gated routers (both having better information on unicast routes)
-  will will over pimd preferences.  Directly connected sources will always
-  be asserted with a preference of 0.
+  in pimd.conf allows you to specify a default distance for each interface.
+  If no distance is specified, it defaults to 101, which is high enough that
+  default distance advertised by either Cisco or Gated routers (both having
+  better information on unicast routes) will win over pimd distances.
+  Directly connected sources will always be asserted with a distance of 0.
 
-* Because unicast routes are obtained from the kernel, only the prefered
-  route is available.  Pimd cannot determine the existence of 
+* Because unicast routes are obtained from the kernel, only the preferred
+  route is available.  pimd cannot determine, or handle, the existence of 
   equal-cost-multipaths, and thus does not implement the addressing of
   joins and prunes to 0.0.0.0.
 
 * RSRR support is currently rough and completely untested.
-
-
-
 

@@ -47,8 +47,8 @@
 static void   process_cache_miss  (struct igmpmsg *igmpctl);
 static void   process_wrong_iif   (struct igmpmsg *igmpctl);
 
-u_int32         default_source_preference = DEFAULT_LOCAL_PREF;
-u_int32         default_source_metric     = DEFAULT_LOCAL_METRIC;
+u_int32         default_route_distance = DEFAULT_LOCAL_PREF;
+u_int32         default_route_metric   = DEFAULT_LOCAL_METRIC;
 
 /* Return the iif for given address */
 vifi_t

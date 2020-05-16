@@ -48,6 +48,11 @@
 
 #include "defs.h"
 
+#define CONF_UNKNOWN                           -1
+#define CONF_EMPTY                              1
+#define CONF_PHYINT                             2
+#define CONF_DEFAULT_ROUTE_METRIC               3
+#define CONF_DEFAULT_ROUTE_DISTANCE             4
 
 /*
  * Forward declarations.
@@ -228,8 +233,8 @@ config_vifs_from_kernel()
 	RESET_TIMER(v->uv_pim_hello_timer);
 	RESET_TIMER(v->uv_gq_timer);
 	v->uv_pim_neighbors	= (struct pim_nbr_entry *)NULL;
-	v->uv_local_pref        = default_source_preference;
-	v->uv_local_metric      = default_source_metric;
+	v->uv_local_pref        = default_route_distance;
+	v->uv_local_metric      = default_route_metric;
 	
 #ifdef __linux__
 	/* On Linux we can enumerate using ifindex, no need for an IP address */
@@ -257,34 +262,31 @@ config_vifs_from_kernel()
     }
 }
 
-
-#define UNKNOWN        -1
-#define EMPTY           1
-#define PHYINT          2
-#define DEFAULT_SOURCE_METRIC     3
-#define DEFAULT_SOURCE_PREFERENCE 4
-
 /*
- * function name: wordToOption
+ * function name: parse_option
  * input: char *word, a pointer to the word
  * output: int; a number corresponding to the code of the word
  * operation: converts the result of the string comparisons into numerics.
  * comments: called by config_vifs_from_file()
  */
-int 
-wordToOption(word)
+static int
+parse_option(word)
     char *word;
 {
     if (EQUAL(word, ""))
-	return EMPTY;
+	return CONF_EMPTY;
     if (EQUAL(word, "phyint"))
-	return PHYINT;
-    if (EQUAL(word, "default_source_metric"))
-        return DEFAULT_SOURCE_METRIC;
-    if (EQUAL(word, "default_source_preference"))
-        return DEFAULT_SOURCE_PREFERENCE;
+	return CONF_PHYINT;
+    if (EQUAL(word, "default_source_metric"))     /* compat */
+        return CONF_DEFAULT_ROUTE_METRIC;
+    if (EQUAL(word, "default-route-metric"))
+        return CONF_DEFAULT_ROUTE_METRIC;
+    if (EQUAL(word, "default_source_preference")) /* compat */
+        return CONF_DEFAULT_ROUTE_DISTANCE;
+    if (EQUAL(word, "default-route-distance"))
+        return CONF_DEFAULT_ROUTE_DISTANCE;
 
-    return UNKNOWN;
+    return CONF_UNKNOWN;
 }
 
 /*
@@ -318,20 +320,14 @@ parse_phyint(s)
     }		/* invalid address */
     
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
-	if (vifi == numvifs) {
-	    logit(LOG_WARNING, 0,
-		"phyint %s in %s is not a configured interface",
-		inet_fmt(local, s1), configfilename);
-	    return(FALSE);
-	}	/* if vifi == numvifs */
-	
 	if (local != v->uv_lcl_addr)
 	    continue;
 	
 	while (!EQUAL((w = next_word(&s)), "")) {
-	    if (EQUAL(w, "disable"))
+	    if (EQUAL(w, "disable")) {
 		v->uv_flags |= VIFF_DISABLED;
-	    else if(EQUAL(w, "preference")) 
+	    }
+	    else if(EQUAL(w, "distance")) {
                 if(EQUAL((w = next_word(&s)), "")) 
                     logit(LOG_WARNING, 0,
                         "Missing preference for phyint %s in %s",
@@ -349,7 +345,7 @@ parse_phyint(s)
 			    inet_fmt(local, s1), n);
 		    v->uv_local_pref = n;
 		}
-	    
+	    }
 	    else if(EQUAL(w, "metric")) {
                 if(EQUAL((w = next_word(&s)), "")) 
                     logit(LOG_WARNING, 0,
@@ -377,18 +373,18 @@ parse_phyint(s)
 
 
 /*
- * function name: parse_default_source_metric
+ * function name: parse_default_route_metric
  * input: char *s
  * output: int
  * operation: reads and assigns the default source metric, if no reliable
  *            unicast routing information available.
  *            General form: 
- *              'default_source_metric <number>'.
+ *              'default-route-metric <number>'.
  *            default pref and metric statements should precede all phyint
  *            statements in the config file.
  */
 int
-parse_default_source_metric(s)
+parse_default_route_metric(s)
     char *s;
 {
     char *w;
@@ -407,30 +403,29 @@ parse_default_source_metric(s)
             DEFAULT_LOCAL_METRIC);
         value = DEFAULT_LOCAL_METRIC;
     }
-    default_source_metric = value;
-    logit(LOG_INFO, 0, "default_source_metric is %u", value);
+    default_route_metric = value;
+    logit(LOG_INFO, 0, "default_route_metric is %u", value);
 
-    for (vifi = 0, v = uvifs; vifi < MAXVIFS; ++vifi, ++v) {
-	v->uv_local_metric = default_source_metric;
-    }
+    for (vifi = 0, v = uvifs; vifi < MAXVIFS; ++vifi, ++v)
+	v->uv_local_metric = default_route_metric;
 	
     return(TRUE);
 }
 
 
 /*
- * function name: parse_default_source_preference
+ * function name: parse_default_route_distance
  * input: char *s
  * output: int
  * operation: reads and assigns the default source preference, if no reliable
  *            unicast routing information available.
  *            General form: 
- *              'default_source_preference <number>'.
+ *              'default-route-distance <number>'.
  *            default pref and metric statements should precede all phyint
  *            statements in the config file.
 */
 int
-parse_default_source_preference(s)
+parse_default_route_distance(s)
     char *s;
 {
     char *w;
@@ -449,11 +444,11 @@ parse_default_source_preference(s)
             DEFAULT_LOCAL_PREF);
         value = DEFAULT_LOCAL_PREF;
     }
-    default_source_preference = value;
-    logit(LOG_INFO, 0, "default_source_preference is %u", value);
+    default_route_distance = value;
+    logit(LOG_INFO, 0, "default_route_distance is %u", value);
 
     for (vifi = 0, v = uvifs; vifi < MAXVIFS; ++vifi, ++v) {
-	v->uv_local_pref = default_source_preference;
+	v->uv_local_pref = default_route_distance;
     }
 
     return(TRUE);
@@ -469,7 +464,6 @@ config_vifs_from_file()
     char linebuf[100];
     char *w, *s;
     struct ifconf ifc;
-    int option;
     int lineno = 0;
     char ifbuf[BUFSIZ];
 
@@ -490,13 +484,12 @@ config_vifs_from_file()
 	s = linebuf;
 	w = next_word(&s);
 
-	option = wordToOption(w);
-	switch(option) {
-	case EMPTY:
+	switch(parse_option(w)) {
+	case CONF_EMPTY:
 	    continue;
 	    break;
 
-	case PHYINT:
+	case CONF_PHYINT:
 	    parse_phyint(s);
 	    break;
 
