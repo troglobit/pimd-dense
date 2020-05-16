@@ -30,6 +30,7 @@
  * Modified by Kurtw Windisch (kurtw@antc.uoregon.edu) for use with 
  * Dense-mode pimd.
  */
+#include <config.h>
 
 /* May 1995 -- Added support for Route Change Notification */
 
@@ -54,13 +55,13 @@ char *rsrr_recv_buf;    	/* RSRR receive buffer */
 char *rsrr_send_buf;    	/* RSRR send buffer */
 
 struct sockaddr_un client_addr;
-int client_length = sizeof(client_addr);
+socklen_t client_length = sizeof(client_addr);
 
 
 /*
  * Local functions definition
  */
-static void	rsrr_accept    __P((int recvlen));
+static void	rsrr_accept    __P((size_t recvlen));
 static void	rsrr_accept_iq __P((void));
 static int	rsrr_accept_rq __P((struct rsrr_rq *route_query, u_int8 flags,
 				    struct gtable *gt_notify));
@@ -107,7 +108,7 @@ rsrr_read(f, rfd)
 	int f;
 	fd_set *rfd;
 {
-    int rsrr_recvlen;
+    ssize_t rsrr_recvlen;
     
     bzero((char *) &client_addr, sizeof(client_addr));
     rsrr_recvlen = recvfrom(rsrr_socket, rsrr_recv_buf, sizeof(rsrr_recv_buf),
@@ -127,7 +128,7 @@ rsrr_read(f, rfd)
  */
 static void
 rsrr_accept(recvlen)
-    int recvlen;
+    size_t recvlen;
 {
     struct rsrr_header *rsrr;
     struct rsrr_rq *route_query;
