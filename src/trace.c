@@ -494,8 +494,8 @@ accept_neighbor_request2(src, dst)
     datalen = 0;
 
     for (vifi = 0, v = uvifs; vifi < numvifs; vifi++, v++) {
-        register u_int32 vflags = v->uv_flags;
-        register u_char rflags = 0;
+        u_int32 vflags = v->uv_flags;
+        u_char rflags = 0;
         if (vflags & VIFF_TUNNEL)
             rflags |= DVMRP_NF_TUNNEL;
         if (vflags & VIFF_SRCRT)

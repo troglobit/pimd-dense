@@ -258,7 +258,7 @@ stop_vif(vifi)
 {
     struct uvif *v;
     struct listaddr *a;
-    register pim_nbr_entry_t *n, *next;
+    pim_nbr_entry_t *n, *next;
     struct vif_acl *acl;
     
     /*
@@ -322,8 +322,8 @@ stop_vif(vifi)
 void
 check_vif_state()
 {
-    register vifi_t vifi;
-    register struct uvif *v;
+    vifi_t vifi;
+    struct uvif *v;
     struct ifreq ifr;
     static int checking_vifs = 0;
 
@@ -381,8 +381,8 @@ find_vif_direct(src)
     u_int32 src;
 {
     vifi_t vifi;
-    register struct uvif *v;
-    register struct phaddr *p;
+    struct uvif *v;
+    struct phaddr *p;
 	
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN | VIFF_TUNNEL))
@@ -415,7 +415,7 @@ local_address(src)
     u_int32 src;
 {
     vifi_t vifi;
-    register struct uvif *v;
+    struct uvif *v;
     
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN))
@@ -440,8 +440,8 @@ find_vif_direct_local(src)
     u_int32 src;
 {
     vifi_t vifi;
-    register struct uvif *v;
-    register struct phaddr *p;
+    struct uvif *v;
+    struct phaddr *p;
 	
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN | VIFF_TUNNEL))

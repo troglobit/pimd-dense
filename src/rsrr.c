@@ -107,7 +107,7 @@ rsrr_read(f, rfd)
 	int f;
 	fd_set *rfd;
 {
-    register int rsrr_recvlen;
+    int rsrr_recvlen;
     
     bzero((char *) &client_addr, sizeof(client_addr));
     rsrr_recvlen = recvfrom(rsrr_socket, rsrr_recv_buf, sizeof(rsrr_recv_buf),

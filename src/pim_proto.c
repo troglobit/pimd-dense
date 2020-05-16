@@ -75,12 +75,12 @@ vifbitmap_t nbr_vifs;    /* Vifs that have one or more neighbors attached */
 int
 receive_pim_hello(src, dst, pim_message, datalen)
     u_int32 src, dst;
-    register char *pim_message;
+    char *pim_message;
     ssize_t datalen;
 {
     vifi_t vifi;
     struct uvif *v;
-    register pim_nbr_entry_t *nbr, *prev_nbr, *new_nbr;
+    pim_nbr_entry_t *nbr, *prev_nbr, *new_nbr;
     u_int16 holdtime;
     u_int8  *data_ptr;
     int state_change;
@@ -534,7 +534,7 @@ int
 receive_pim_join_prune(src, dst, pim_message, datalen)
     u_int32 src, dst;
     char *pim_message;
-    register int datalen;
+    int datalen;
 {
     vifi_t vifi;
     struct uvif *v;
@@ -859,7 +859,7 @@ send_pim_jp(mrtentry_ptr, action, vifi, target_addr, holdtime)
 int
 receive_pim_assert(src, dst, pim_message, datalen)
     u_int32 src, dst;
-    register char *pim_message;
+    char *pim_message;
     int datalen;
 {
     vifi_t vifi;
@@ -1244,7 +1244,7 @@ retransmit_all_pim_grafts(arg)
 int
 receive_pim_graft(src, dst, pim_message, datalen, pimtype)
     u_int32 src, dst;
-    register char *pim_message;
+    char *pim_message;
     int datalen;
     int pimtype;
 {

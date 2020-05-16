@@ -110,7 +110,7 @@ igmp_read(i, rfd)
     int i;
     fd_set *rfd;
 {
-    register ssize_t igmp_recvlen;
+    ssize_t igmp_recvlen;
     socklen_t dummy = 0;
     
     igmp_recvlen = recvfrom(igmp_socket, igmp_recv_buf, RECV_BUF_SIZE,
@@ -135,7 +135,7 @@ static void
 accept_igmp(recvlen)
     ssize_t recvlen;
 {
-    register u_int32 src, dst, group;
+    u_int32 src, dst, group;
     struct ip *ip;
     struct igmp *igmp;
     int ipdatalen, iphdrlen, igmpdatalen;

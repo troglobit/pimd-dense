@@ -64,8 +64,8 @@ void
 dvmrp_accept_report(src, dst, p, datalen, level)
     u_int32 src;
     u_int32 dst; 
-    register char *p;
-    register int datalen;
+    char *p;
+    int datalen;
     u_int32 level;
 {
     return;

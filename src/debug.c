@@ -311,7 +311,7 @@ dump_vifs(fp)
     FILE *fp;
 {	
     vifi_t vifi;
-    register struct uvif *v;
+    struct uvif *v;
     pim_nbr_entry_t *n;
     int width;
     int i;
@@ -449,8 +449,8 @@ dump_pim_mrt(fp)
     FILE *fp;
 {
     grpentry_t *g;
-    register mrtentry_t *r;
-    register vifi_t vifi;
+    mrtentry_t *r;
+    vifi_t vifi;
     u_int number_of_groups = 0;
     char oifs[(sizeof(vifbitmap_t)<<3)+1];
     char pruned_oifs[(sizeof(vifbitmap_t)<<3)+1];

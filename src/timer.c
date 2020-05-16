@@ -109,8 +109,8 @@ void
 age_vifs()
 {
     vifi_t vifi;
-    register struct uvif *v;
-    register pim_nbr_entry_t *next_nbr, *curr_nbr;
+    struct uvif *v;
+    pim_nbr_entry_t *next_nbr, *curr_nbr;
 
 /* XXX: TODO: currently, sending to qe* interface which is DOWN
  * doesn't return error (ENETDOWN) on my Solaris machine,

@@ -128,8 +128,8 @@ set_incoming(srcentry_ptr, srctype)
     struct rpfctl rpfc;
     u_int32 source = srcentry_ptr->address;
     u_int32 neighbor_addr;
-    register struct uvif *v;
-    register pim_nbr_entry_t *n;
+    struct uvif *v;
+    pim_nbr_entry_t *n;
 
     /* Preference will be 0 if directly connected */
     srcentry_ptr->preference = 0; 
@@ -464,7 +464,7 @@ max_prune_timeout(mrtentry_ptr)
 
 void process_kernel_call()
 {
-    register struct igmpmsg *igmpctl; /* igmpmsg control struct */
+    struct igmpmsg *igmpctl; /* igmpmsg control struct */
     
     igmpctl = (struct igmpmsg *) igmp_recv_buf;
     

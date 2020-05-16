@@ -97,12 +97,12 @@ pim_read(f, rfd)
     int f;
     fd_set *rfd;
 {
-    register ssize_t pim_recvlen;
-    int dummy = 0;
+    ssize_t pim_recvlen;
+    socklen_t dummy = 0;
 #ifdef SYSV
     sigset_t block, oblock;
 #else
-    register int omask;
+    int omask;
 #endif
     
     pim_recvlen = recvfrom(pim_socket, pim_recv_buf, RECV_BUF_SIZE,
@@ -139,8 +139,8 @@ accept_pim(recvlen)
     ssize_t recvlen;
 {
     u_int32 src, dst;
-    register struct ip *ip;
-    register pim_header_t *pim;
+    struct ip *ip;
+    pim_header_t *pim;
     ssize_t iphdrlen, pimlen;
     
     if (recvlen < (ssize_t)sizeof(struct ip)) {

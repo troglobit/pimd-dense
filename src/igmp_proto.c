@@ -77,9 +77,9 @@ static int SetQueryTimer __P((struct listaddr *g, vifi_t vifi, int to_expire,
  */
 void
 query_groups(v)
-    register struct uvif *v;
+    struct uvif *v;
 {
-    register struct listaddr *g;
+    struct listaddr *g;
     
     v->uv_gq_timer = IGMP_QUERY_INTERVAL;
     if (v->uv_flags & VIFF_QUERIER)
@@ -107,8 +107,8 @@ accept_membership_query(src, dst, group, tmo)
     u_int32 src, dst, group;
     int  tmo;
 {
-    register vifi_t vifi;
-    register struct uvif *v;
+    vifi_t vifi;
+    struct uvif *v;
     
     /* Ignore my own membership query */
     if (local_address(src) != NO_VIF)
@@ -197,7 +197,7 @@ accept_membership_query(src, dst, group, tmo)
      */
     if (!(v->uv_flags & VIFF_IGMPV1) && group != 0 &&
 	src != v->uv_lcl_addr) {
-        register struct listaddr *g;
+        struct listaddr *g;
 	
         IF_DEBUG(DEBUG_IGMP)
 	    log(LOG_DEBUG, 0,
@@ -234,9 +234,9 @@ accept_group_report(src, dst, group, igmp_report_type)
     u_int32 src, dst, group;
     int  igmp_report_type;
 {
-    register vifi_t vifi;
-    register struct uvif *v;
-    register struct listaddr *g;
+    vifi_t vifi;
+    struct uvif *v;
+    struct listaddr *g;
 
     if ((vifi = find_vif_direct_local(src)) == NO_VIF) {
 	IF_DEBUG(DEBUG_IGMP)
@@ -308,9 +308,9 @@ void
 accept_leave_message(src, dst, group)
     u_int32 src, dst, group;
 {
-    register vifi_t vifi;
-    register struct uvif *v;
-    register struct listaddr *g;
+    vifi_t vifi;
+    struct uvif *v;
+    struct listaddr *g;
 
     /* TODO: modify for DVMRP ??? */    
     if ((vifi = find_vif_direct_local(src)) == NO_VIF) {
@@ -451,7 +451,7 @@ SendQuery(arg)
     void *arg;
 {
     cbk_t *cbk = (cbk_t *)arg;
-    register struct uvif *v = &uvifs[cbk->vifi];
+    struct uvif *v = &uvifs[cbk->vifi];
 
     if (v->uv_flags & VIFF_QUERIER)
 	send_igmp(igmp_send_buf, v->uv_lcl_addr, cbk->g->al_addr,
@@ -488,7 +488,7 @@ int check_grp_membership(v, group)
     struct uvif *v;
     u_int32 group;
 {
-    register struct listaddr *g;
+    struct listaddr *g;
 
     /*
      * Look for the group in our group list;

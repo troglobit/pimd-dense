@@ -344,9 +344,9 @@ delete_mrtentry(mrtentry_ptr)
 static int
 search_srclist(source, sourceEntry)
     u_int32 source;
-    register srcentry_t **sourceEntry;
+    srcentry_t **sourceEntry;
 {
-    register srcentry_t *s_prev,*s;
+    srcentry_t *s_prev,*s;
     u_int32 source_h = ntohl(source);
     
     for (s_prev = srclist, s = s_prev->next; s != (srcentry_t *)NULL;
@@ -370,9 +370,9 @@ search_srclist(source, sourceEntry)
 static int
 search_grplist(group, groupEntry)
     u_int32 group;
-    register grpentry_t **groupEntry;
+    grpentry_t **groupEntry;
 {
-    register grpentry_t *g_prev, *g;
+    grpentry_t *g_prev, *g;
     u_int32 group_h = ntohl(group);
     
     for (g_prev = grplist, g = g_prev->next; g != (grpentry_t *)NULL;
@@ -397,7 +397,7 @@ static srcentry_t *
 create_srcentry(source)
     u_int32 source;
 {
-    register srcentry_t *srcentry_ptr;
+    srcentry_t *srcentry_ptr;
     srcentry_t *srcentry_prev;
 
     if (search_srclist(source, &srcentry_prev) == TRUE)
@@ -438,7 +438,7 @@ static grpentry_t *
 create_grpentry(group)
     u_int32 group;
 {
-    register grpentry_t *grpentry_ptr;
+    grpentry_t *grpentry_ptr;
     grpentry_t *grpentry_prev;
 
     if (search_grplist(group, &grpentry_prev) == TRUE)
@@ -478,8 +478,8 @@ search_srcmrtlink(srcentry_ptr, group, mrtPtr)
     u_int32 group;
     mrtentry_t **mrtPtr;
 {
-    register mrtentry_t *mrtentry_ptr;
-    register mrtentry_t *m_prev = (mrtentry_t *)NULL;
+    mrtentry_t *mrtentry_ptr;
+    mrtentry_t *m_prev = (mrtentry_t *)NULL;
     u_int32 group_h = ntohl(group);
     
     for(mrtentry_ptr = srcentry_ptr->mrtlink;
@@ -512,8 +512,8 @@ search_grpmrtlink(grpentry_ptr, source, mrtPtr)
     u_int32 source;
     mrtentry_t **mrtPtr;
 {
-    register mrtentry_t *mrtentry_ptr;
-    register mrtentry_t *m_prev = (mrtentry_t *)NULL;
+    mrtentry_t *mrtentry_ptr;
+    mrtentry_t *m_prev = (mrtentry_t *)NULL;
     u_int32 source_h = ntohl(source);
     
     for (mrtentry_ptr = grpentry_ptr->mrtlink;
@@ -586,7 +586,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     srcentry_t *srcentry_ptr;
     grpentry_t *grpentry_ptr;
 {
-    register mrtentry_t *mrtentry_ptr;
+    mrtentry_t *mrtentry_ptr;
     u_int16 i, *i_ptr;
     u_long  *il_ptr;
     u_int8  vif_numbers;

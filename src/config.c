@@ -64,8 +64,8 @@ void
 config_vifs_from_kernel()
 {
     struct ifreq *ifrp, *ifend;
-    register struct uvif *v;
-    register vifi_t vifi;
+    struct uvif *v;
+    vifi_t vifi;
     int n;
     u_int32 addr, mask, subnet;
     short flags;
