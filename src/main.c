@@ -180,6 +180,29 @@ ihfunc_t func;
     return 0;
 }
 
+int usage(int code)
+{
+    struct debugname *d;
+    int tmpd;
+    char c;
+
+    tmpd = 0xffffffff;
+    fprintf(stderr, "usage: pimdd [-c configfile] [-d [debug_level][,debug_level]]\n");
+    fprintf(stderr, "debug levels: ");
+    c = '(';
+    for (d = debugnames; d < debugnames +
+	     sizeof(debugnames) / sizeof(debugnames[0]); d++) {
+	if ((tmpd & d->level) == d->level) {
+	    tmpd &= ~d->level;
+	    fprintf(stderr, "%c%s", c, d->name);
+	    c = ',';
+	}
+    }
+    fprintf(stderr, ")\n");
+
+    return code;
+}
+
 int
 main(argc, argv)
     int argc;
@@ -240,7 +263,7 @@ main(argc, argv)
 			    }
 			}
 			putc('\n', stderr);
-			goto usage;
+			return usage(1);
 		    }
 		    debug |= d->level;
 		    p = q;
@@ -255,7 +278,7 @@ main(argc, argv)
 		strcpy(configfilename, *argv);
 	    }
 	    else
-		goto usage;
+		return usage(1);
 /* TODO: not implemented */
 #ifdef SNMP
 	}
@@ -268,30 +291,16 @@ main(argc, argv)
 		dest_port = DEFAULT_PORT;
 #endif
 	}
+	else if (strcmp(*argv, "-h") == 0)
+	    return usage(0);
 	else
-	    goto usage;
+	    return usage(1);
 	argv++; argc--;
     }
 
-    if (argc > 0) {
-    usage:
-	tmpd = 0xffffffff;
-	fprintf(stderr, "usage: pimdd [-c configfile] [-d [debug_level][,debug_level]]\n");
-	
-	fprintf(stderr, "debug levels: ");
-    c = '(';
-    for (d = debugnames; d < debugnames +
-	     sizeof(debugnames) / sizeof(debugnames[0]); d++) {
-	if ((tmpd & d->level) == d->level) {
-	    tmpd &= ~d->level;
-	    fprintf(stderr, "%c%s", c, d->name);
-	    c = ',';
-	}
-    }
-    fprintf(stderr, ")\n");
-    exit(1);
-    }	
-    
+    if (argc > 0)
+	return usage(1);
+
     if (debug != 0) {
 	tmpd = debug;
 	fprintf(stderr, "debug level 0x%lx ", debug);
