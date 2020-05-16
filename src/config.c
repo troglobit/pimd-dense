@@ -309,14 +309,14 @@ parse_phyint(s)
     
     if (EQUAL((w = next_word(&s)), "")) {
 	logit(LOG_WARNING, 0, "Missing phyint address in %s", configfilename);
-	return(FALSE);
+	return FALSE;
     }		/* if empty */
     
     local = inet_parse(w, 4);
     if (!inet_valid_host(local)) {
 	logit(LOG_WARNING, 0, "Invalid phyint address '%s' in %s", w,
 	    configfilename);
-	return(FALSE);
+	return FALSE;
     }		/* invalid address */
     
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
@@ -368,7 +368,7 @@ parse_phyint(s)
 	}		/* if not empty */
 	break;
     }
-    return(TRUE);
+    return TRUE;
 }
 
 
@@ -409,7 +409,7 @@ parse_default_route_metric(s)
     for (vifi = 0, v = uvifs; vifi < MAXVIFS; ++vifi, ++v)
 	v->uv_local_metric = default_route_metric;
 	
-    return(TRUE);
+    return TRUE;
 }
 
 
@@ -451,7 +451,7 @@ parse_default_route_distance(s)
 	v->uv_local_pref = default_route_distance;
     }
 
-    return(TRUE);
+    return TRUE;
 }
 
 

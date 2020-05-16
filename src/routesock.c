@@ -176,7 +176,7 @@ k_req_incoming(source, rpfp)
 	IF_DEBUG(DEBUG_RPF)
 	    logit(LOG_DEBUG, 0, "k_req_incoming: Invalid source %s",
 		inet_fmt(source,s1));
-	return(FALSE); 
+	return FALSE; 
     }
     so_ifp.sa.sa_family = AF_LINK;
 #ifdef HAVE_SA_LEN
@@ -209,7 +209,7 @@ k_req_incoming(source, rpfp)
 	    else
 		logit(LOG_DEBUG, 0, "Error writing to routing socket");
 	}
-	return(FALSE); 
+	return FALSE; 
     }
     
     do {
@@ -219,7 +219,7 @@ k_req_incoming(source, rpfp)
     if (l < 0) {
 	IF_DEBUG(DEBUG_RPF | DEBUG_KERN)
 	    logit(LOG_DEBUG, 0, "Read from routing socket failed");
-	return(FALSE);
+	return FALSE;
     }
     
     if (getmsg(&rtm, l, &rpfinfo)){
@@ -227,7 +227,7 @@ k_req_incoming(source, rpfp)
 	rpfp->iif = rpfinfo.iif;
     }
 #undef rtm
-    return (TRUE);
+    return TRUE;
 }
 
 
@@ -250,7 +250,7 @@ getmsg(rtm, msglen, rpfinfop)
     struct uvif *v;
     
     if (rpfinfop == (struct rpfctl *)NULL)
-	return(FALSE);
+	return FALSE;
     
     in = ((struct sockaddr_in *)&so_dst)->sin_addr;
     IF_DEBUG(DEBUG_RPF)
@@ -284,7 +284,7 @@ getmsg(rtm, msglen, rpfinfop)
 	    logit(LOG_DEBUG, 0,
 		"No incoming interface for destination %s",
 		inet_fmt(in.s_addr, s1));
-	return(FALSE);
+	return FALSE;
     }
     if (dst && mask)
 	mask->sa_family = dst->sa_family;
@@ -315,7 +315,7 @@ getmsg(rtm, msglen, rpfinfop)
     if (vifi >= numvifs){
 	IF_DEBUG(DEBUG_RPF)
 	    logit(LOG_DEBUG, 0, "Invalid incoming interface for destination %s, because of invalid virtual interface", inet_fmt(in.s_addr, s1));
-	return(FALSE);/* invalid iif */
+	return FALSE;/* invalid iif */
     }
     
     return(TRUE);
@@ -342,9 +342,9 @@ k_req_incoming(source, rpfcinfo)
     
     if (ioctl(udp_socket, SIOCGETRPF, (char *) rpfcinfo) < 0){
 	logit(LOG_ERR, errno, "ioctl SIOCGETRPF k_req_incoming");
-	return(FALSE);
+	return FALSE;
     }
-    return (TRUE);
+    return TRUE;
 }
 #endif	/* HAVE_ROUTING_SOCKETS */
 

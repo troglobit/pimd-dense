@@ -129,7 +129,7 @@ set_incoming(srcentry_ptr, srctype)
 	/* The source is a local address */
 	/* TODO: set the upstream to myself? */
 	srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL;
-	return (TRUE);
+	return TRUE;
     }
 
     if ((srcentry_ptr->incoming = find_vif_direct(source)) == NO_VIF) {
@@ -142,7 +142,7 @@ set_incoming(srcentry_ptr, srctype)
 	    IF_DEBUG(DEBUG_PIM_MRT | DEBUG_RPF)
 		logit(LOG_DEBUG, 0, "NO ROUTE found for %s",
 		    inet_fmt(source, s1));
-	    return(FALSE);
+	    return FALSE;
 	}
 	srcentry_ptr->incoming = rpfc.iif;
 	neighbor_addr = rpfc.rpfneighbor.s_addr;
@@ -151,7 +151,7 @@ set_incoming(srcentry_ptr, srctype)
 	/* The source is directly connected. 
 	 */
 	srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL;
-	return (TRUE);
+	return TRUE;
     }
 
     /* set the preference for sources that aren't directly connected. */
@@ -189,7 +189,7 @@ set_incoming(srcentry_ptr, srctype)
 	inet_fmt(neighbor_addr, s2));
     srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL; 
 
-    return(FALSE);
+    return FALSE;
 }
 
 

@@ -339,7 +339,7 @@ search_srclist(source, sourceEntry)
 	break;  
     }
     *sourceEntry = s_prev;   /* The insertion point is between s_prev and s */
-    return(FALSE);
+    return FALSE;
 }
 
 
@@ -365,7 +365,7 @@ search_grplist(group, groupEntry)
 	break;
     }
     *groupEntry = g_prev;    /* The insertion point is between g_prev and g */
-    return(FALSE);
+    return FALSE;
 }
 
 
@@ -473,7 +473,7 @@ search_srcmrtlink(srcentry_ptr, group, mrtPtr)
 	break;
     }
     *mrtPtr = m_prev;
-    return(FALSE);
+    return FALSE;
 }
 
 
@@ -507,7 +507,7 @@ search_grpmrtlink(grpentry_ptr, source, mrtPtr)
 	break;
     }
     *mrtPtr = m_prev;
-    return(FALSE);
+    return FALSE;
 }
 
 

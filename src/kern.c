@@ -353,7 +353,7 @@ k_chg_mfc(socket, source, group, iif, oifs)
         logit(LOG_WARNING, errno,
 	    "setsockopt MRT_ADD_MFC for source %s and group %s",
 	    inet_fmt(source, s1), inet_fmt(group, s2));
-        return(FALSE);
+        return FALSE;
     }
     return(TRUE);
 }

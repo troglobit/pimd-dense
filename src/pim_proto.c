@@ -73,7 +73,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
 
     /* Checksum */
     if (inet_cksum((u_int16 *)pim_message, datalen))
-	return(FALSE);
+	return FALSE;
 
     if ((vifi = find_vif_direct(src)) == NO_VIF) {
 	/* Either a local vif or somehow received PIM_HELLO from
@@ -82,17 +82,17 @@ receive_pim_hello(src, dst, pim_message, datalen)
 	if (local_address(src) == NO_VIF)
 	    logit(LOG_INFO, 0, "Ignoring PIM_HELLO from non-neighbor router %s",
 		inet_fmt(src, s1));
-	return(FALSE);
+	return FALSE;
     }
 
     v = &uvifs[vifi];
     if (v->uv_flags & (VIFF_DOWN | VIFF_DISABLED))
-	return(FALSE);    /* Shoudn't come on this interface */
+	return FALSE;    /* Shoudn't come on this interface */
     data_ptr = (u_int8 *)(pim_message + sizeof(pim_header_t));
 
     /* Get the Holdtime (in seconds) from the message. Return if error. */
     if (parse_pim_hello(pim_message, datalen, src, &holdtime) == FALSE)
-	return(FALSE);
+	return FALSE;
     IF_DEBUG(DEBUG_PIM_HELLO | DEBUG_PIM_TIMER)
 	logit(LOG_DEBUG, 0, "PIM HELLO holdtime from %s is %u",
 	    inet_fmt(src, s1), holdtime);
@@ -315,7 +315,7 @@ parse_pim_hello(pim_message, datalen, src, holdtime)
 		    logit(LOG_DEBUG, 0,
 		       "PIM HELLO Holdtime from %s: invalid OptionLength = %u",
 			inet_fmt(src, s1), option_length);
-		return (FALSE);
+		return FALSE;
 	    }
 	    GET_HOSTSHORT(*holdtime, data_ptr);
 	    holdtime_received_ok = TRUE;
@@ -544,16 +544,16 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
             logit(LOG_INFO, 0,
                 "Ignoring PIM_JOIN_PRUNE from non-neighbor router %s",
                 inet_fmt(src, s1));
-        return(FALSE);
+        return FALSE;
     }
 
     /* Checksum */
     if (inet_cksum((u_int16 *)pim_message, datalen))
-        return(FALSE);
+        return FALSE;
  
     v = &uvifs[vifi];
     if (uvifs[vifi].uv_flags & (VIFF_DOWN | VIFF_DISABLED | VIFF_NONBRS))
-        return(FALSE);    /* Shoudn't come on this interface */
+        return FALSE;    /* Shoudn't come on this interface */
     data_ptr = (u_int8 *)(pim_message + sizeof(pim_header_t));
 
     /* Get the target address */
@@ -561,7 +561,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
     GET_BYTE(reserved, data_ptr);
     GET_BYTE(num_groups, data_ptr);
     if (num_groups == 0)
-        return (FALSE);    /* No indication for groups in the message */
+        return FALSE;    /* No indication for groups in the message */
     GET_HOSTSHORT(holdtime, data_ptr);
 
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
@@ -582,7 +582,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 
         upstream_router = find_pim_nbr(uni_target_addr.unicast_addr);
         if (upstream_router == (pim_nbr_entry_t *)NULL)
-            return (FALSE);   /* I have no such neighbor */
+            return FALSE;   /* I have no such neighbor */
         while (num_groups--) {
             GET_EGADDR(&encod_group, data_ptr);
             GET_HOSTSHORT(num_j_srcs, data_ptr);
@@ -780,7 +780,7 @@ send_pim_jp(mrtentry_ptr, action, vifi, target_addr, holdtime)
 
     if(mrtentry_ptr->upstream == (pim_nbr_entry_t *)NULL) {
     	/* No upstream neighbor - don't send */
-    	return(FALSE);
+    	return FALSE;
     }
     
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
@@ -864,16 +864,16 @@ receive_pim_assert(src, dst, pim_message, datalen)
             logit(LOG_INFO, 0,
                 "Ignoring PIM_ASSERT from non-neighbor router %s",
                 inet_fmt(src, s1));
-        return(FALSE);
+        return FALSE;
     }
     
     /* Checksum */
     if (inet_cksum((u_int16 *)pim_message, datalen))
-        return(FALSE);
+        return FALSE;
     
     v = &uvifs[vifi];
     if (uvifs[vifi].uv_flags & (VIFF_DOWN | VIFF_DISABLED | VIFF_NONBRS))
-        return(FALSE);    /* Shoudn't come on this interface */
+        return FALSE;    /* Shoudn't come on this interface */
     data_ptr = (u_int8 *)(pim_message + sizeof(pim_header_t));
 
     /* Get the group and source addresses */
@@ -984,7 +984,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
     /* If the assert arrived on an oif: */
     else {
 	if(!(VIFM_ISSET(vifi, mrtentry_ptr->oifs))) 
-	    return(FALSE);
+	    return FALSE;
 	/* assert arrived on oif ==> I'm a upstream router */
 
 	/* Determine local pref/metric */
@@ -1157,7 +1157,7 @@ int retransmit_pim_graft(mrtentry_ptr)
 
     if(mrtentry_ptr->upstream == (pim_nbr_entry_t *)NULL) {
     	/* No upstream neighbor - don't send */
-    	return(FALSE);
+    	return FALSE;
     }
     
     IF_DEBUG(DEBUG_PIM_GRAFT)
@@ -1254,16 +1254,16 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
             logit(LOG_INFO, 0,
                 "Ignoring PIM_GRAFT from non-neighbor router %s",
                 inet_fmt(src, s1));
-        return(FALSE);
+        return FALSE;
     }
 
     /* Checksum */
     if (inet_cksum((u_int16 *)pim_message, datalen))
-        return(FALSE);
+        return FALSE;
  
     v = &uvifs[vifi];
     if (uvifs[vifi].uv_flags & (VIFF_DOWN | VIFF_DISABLED | VIFF_NONBRS))
-        return(FALSE);    /* Shoudn't come on this interface */
+        return FALSE;    /* Shoudn't come on this interface */
     data_ptr = (u_int8 *)(pim_message + sizeof(pim_header_t));
 
     /* Get the target address */
@@ -1271,7 +1271,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
     GET_BYTE(reserved, data_ptr);
     GET_BYTE(num_groups, data_ptr);
     if (num_groups == 0)
-        return (FALSE);    /* No indication for groups in the message */
+        return FALSE;    /* No indication for groups in the message */
     GET_HOSTSHORT(holdtime, data_ptr);
 
     IF_DEBUG(DEBUG_PIM_GRAFT)
@@ -1362,12 +1362,12 @@ send_pim_graft(mrtentry_ptr)
 
     if(mrtentry_ptr->graft != (pim_graft_entry_t *)NULL)
 	/* Already sending grafts */
-	return(FALSE);
+	return FALSE;
 
     /* Send the first graft */
     was_sent = retransmit_pim_graft(mrtentry_ptr);
     if(!was_sent)
-	return(FALSE);
+	return FALSE;
 
     /* Set up retransmission */
     new_graft = (pim_graft_entry_t *)malloc(sizeof(pim_graft_entry_t));
@@ -1376,7 +1376,7 @@ send_pim_graft(mrtentry_ptr)
 	    "Memory allocation error for graft entry src %s, grp %s",
 	    inet_fmt(mrtentry_ptr->source->address, s1),
 	    inet_fmt(mrtentry_ptr->group->group, s2));
-	return(FALSE);
+	return FALSE;
     }
     new_graft->next = graft_list;
     new_graft->prev = (pim_graft_entry_t *)NULL;
