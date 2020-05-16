@@ -178,7 +178,7 @@ int usage(int code)
     char c;
 
     tmpd = 0xffffffff;
-    fprintf(stderr, "usage: pimdd [-f configfile] [-d [debug_level][,debug_level]]\n");
+    fprintf(stderr, "usage: %s [-f configfile] [-d [debug_level][,debug_level]]\n", progname);
     fprintf(stderr, "debug levels: ");
     c = '(';
     for (d = debugnames; d < debugnames +
@@ -297,14 +297,14 @@ main(argc, argv)
     }
 
     if (geteuid() != 0) {
-	fprintf(stderr, "pimdd: must be root\n");
+	fprintf(stderr, "%s: must be root\n", PACKAGE_NAME);
 	exit(1);
     }
 
-    openlog("pimdd", LOG_PID, LOG_DAEMON);
+    openlog(progname, LOG_PID, LOG_DAEMON);
     setlogmask(LOG_UPTO(LOG_NOTICE));
 
-    snprintf(versionstring, sizeof(versionstring), "pimdd version %s", PACKAGE_VERSION);
+    snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
     logit(LOG_DEBUG, 0, "%s starting", versionstring);
     
     /* TODO: XXX: use a combination of time and hostid to initialize the
