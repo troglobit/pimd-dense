@@ -358,9 +358,7 @@ sendit:
     if ((rcount + 1 == no) || (mrt == NULL) || (mrt->metric == 1)) {
 	resptype = IGMP_MTRACE_RESP;
 	dst = qry->tr_raddr;
-    } else
-/* TODO */
-    {
+    } else {
 #if 0
 	if (!can_mtrace(rt->rt_parent, rt->rt_gateway)) {
 	    dst = qry->tr_raddr;
@@ -368,13 +366,16 @@ sendit:
 	    resptype = IGMP_MTRACE_RESP;
 	} else {
 #endif /* 0 */
-	if (mrt->upstream != (pim_nbr_entry_t *)NULL)
-	    parent_address = mrt->upstream->address;
-	else
-	    parent_address = INADDR_ANY;
+	    if (mrt->upstream)
+		parent_address = mrt->upstream->address;
+	    else
+		parent_address = INADDR_ANY;
 	    dst = parent_address;
 	    resptype = IGMP_MTRACE;
+#if 0
 	}
+#endif
+    }
 
     if (IN_MULTICAST(ntohl(dst))) {
 	/*
