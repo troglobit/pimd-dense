@@ -8,7 +8,7 @@ AM_CPPFLAGS     += -Dlog=logit
 
 sbin_PROGRAMS    = pimdd
 pimdd_SOURCES    = igmp.c igmp_proto.c trace.c				\
-		   inet.c kern.c main.c config.c debug.c routesock.c	\
+		   inet.c kern.c main.c config.c debug.c  		\
 		   vers.c callout.c					\
 		   route.c vif.c timer.c mrt.c pim.c pim_proto.c	\
 		   dvmrp_proto.c					\
@@ -19,6 +19,11 @@ pimdd_LDADD      = $(LIBS) $(LIBOBJS)
 
 if LINUX
 AM_CPPFLAGS     += -DRAW_OUTPUT_IS_RAW -DIOCTL_OK_ON_RAW_SOCKET
+pimdd_SOURCES   += netlink.c
+endif
+
+if BSD
+pimdd_SOURCES   += routesock.c
 endif
 
 if RSRR

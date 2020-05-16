@@ -127,6 +127,9 @@ init_vifs()
 	v->uv_pim_neighbors	= (struct pim_nbr_entry *)NULL;
 	v->uv_local_pref        = default_source_preference;
 	v->uv_local_metric      = default_source_metric;
+#ifdef __linux__
+	v->uv_ifindex           = -1;
+#endif
     }
 
     log(LOG_INFO, 0, "Getting vifs from kernel");

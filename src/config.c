@@ -231,6 +231,13 @@ config_vifs_from_kernel()
 	v->uv_local_pref        = default_source_preference;
 	v->uv_local_metric      = default_source_metric;
 	
+#ifdef __linux__
+	/* On Linux we can enumerate using ifindex, no need for an IP address */
+	v->uv_ifindex = if_nametoindex(v->uv_name);
+	if (!v->uv_ifindex)
+	    log(LOG_ERR, errno, "Failed reading interface index for %s", v->uv_name);
+#endif
+
 	if (flags & IFF_POINTOPOINT)
 	    v->uv_flags |= (VIFF_REXMIT_PRUNES | VIFF_POINT_TO_POINT);
 	log(LOG_INFO, 0,

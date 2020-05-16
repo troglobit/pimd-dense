@@ -497,11 +497,9 @@ extern void   trigger_prune_alert    __P((mrtentry_t *mrtentry_ptr));
 
 
 /* routesock.c */
+extern int    init_routesock         __P(());
 extern int    k_req_incoming         __P((u_int32 source,
 					  struct rpfctl *rpfp));
-#ifdef HAVE_ROUTING_SOCKETS
-extern int    init_routesock         __P(());
-#endif /* HAVE_ROUTING_SOCKETS */
 
 #ifdef RSRR
 #define gtable mrtentry
