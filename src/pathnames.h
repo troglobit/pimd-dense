@@ -31,12 +31,6 @@
  *  noted when applicable.
  */
 /*
- *  Questions concerning this software should be directed to 
- *  Pavlin Ivanov Radoslavov (pavlin@catarina.usc.edu)
- *
- *  $Id: pathnames.h,v 1.2 1998/06/01 15:25:47 kurtw Exp $
- */
-/*
  * Part of this program has been derived from mrouted.
  * The mrouted program is covered by the license in the accompanying file
  * named "LICENSE.mrouted".
@@ -46,19 +40,11 @@
  *
  */
 
-
 #ifndef _PATH_PIMD_CONF
-#define _PATH_PIMD_CONF		"/etc/pimd.conf"
+#define _PATH_PIMD_CONF		SYSCONFDIR "/pimdd.conf"
 #endif
 
-#if (defined(BSD) && (BSD >= 199103))
-#define _PATH_PIMD_PID		"/var/run/pimdd.pid"
-#define _PATH_PIMD_GENID	"/var/run/pimdd.genid"
-#define _PATH_PIMD_DUMP		"/var/tmp/pimdd.dump"
-#define _PATH_PIMD_CACHE	"/var/tmp/pimdd.cache"
-#else
-#define _PATH_PIMD_PID		"/etc/pimdd.pid"
-#define _PATH_PIMD_GENID	"/etc/pimdd.genid"
-#define _PATH_PIMD_DUMP		"/usr/tmp/pimdd.dump"
-#define _PATH_PIMD_CACHE	"/usr/tmp/pimdd.cache"
-#endif
+#define _PATH_PIMD_PID		LOCALSTATEDIR "/run/pimdd.pid"
+#define _PATH_PIMD_GENID	LOCALSTATEDIR "/run/pimdd.genid"
+#define _PATH_PIMD_DUMP		LOCALSTATEDIR "/tmp/pimdd.dump"
+#define _PATH_PIMD_CACHE	LOCALSTATEDIR "/tmp/pimdd.cache"
