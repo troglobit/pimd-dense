@@ -195,14 +195,8 @@ main(argc, argv)
     char c;
     int tmpd;
 
-    
     setlinebuf(stderr);
-	
-    if (geteuid() != 0) {
-	fprintf(stderr, "pimdd: must be root\n");
-	exit(1);
-    }
-    
+
     progname = strrchr(argv[0], '/');
     if (progname)
 	progname++;
@@ -312,7 +306,12 @@ main(argc, argv)
 	}
 	fprintf(stderr, ")\n");
     }
-    
+
+    if (geteuid() != 0) {
+	fprintf(stderr, "pimdd: must be root\n");
+	exit(1);
+    }
+
     openlog("pimdd", LOG_PID, LOG_DAEMON);
     setlogmask(LOG_UPTO(LOG_NOTICE));
 
