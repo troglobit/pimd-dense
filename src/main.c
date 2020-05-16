@@ -604,6 +604,8 @@ handler(sig)
     switch (sig) {
     case SIGALRM:
 	sighandled |= GOT_SIGALRM;
+	break;
+
     case SIGINT:
     case SIGTERM:
 	sighandled |= GOT_SIGINT;
