@@ -418,10 +418,8 @@ log(severity, syserr, format, va_alist)
 		thyme->tm_min, thyme->tm_sec, now.tv_usec / 1000, msg);
 	if (syserr == 0)
 	    fprintf(stderr, "\n");
-	else if (syserr < sys_nerr)
-	    fprintf(stderr, ": %s\n", sys_errlist[syserr]);
 	else
-	    fprintf(stderr, ": errno %d\n", syserr);
+	    fprintf(stderr, ": %s\n", strerror(syserr));
     }
     
     /*
