@@ -7,7 +7,7 @@ Introduction
 
 pimdd is the dense-mode cousin to [pimd][], the reference implementation
 for [PIM-DM draft 5][draft].  [RFC3973][] later revised the protocol,
-and pimdd does not (yet) support that revision.
+pimdd does not (yet) support that revision.
 
 This code is old and was sort of dead and forgotten.  The only project
 that kept it running was FreeBSD in their ports collection.  As such it
@@ -81,10 +81,13 @@ pimdd was written by Kurt Windisch when he was at University of Oregon.
 It is based on the PIM sparse-mode daemon, pimd, which in turn is based
 on the DVMRP daemon mrouted.
 
+pimdd is covered by [LICENSE](LICENSE), Copyright 1998 the University of
+Oregon.
+
 pimd is covered by [LICENSE.pimd](doc/LICENSE.pimd), Copyright 1998-2001
 University of Southern California.
 
-mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted).  Copyright
+mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 2002 The Board of Trustees of Leland Stanford Junior University
 
 [pimd]:    https://github.com/troglobit/pimd
