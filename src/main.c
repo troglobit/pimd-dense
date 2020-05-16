@@ -200,7 +200,6 @@ main(argc, argv)
     struct timeval tv, difftime, curtime, lasttime, *timeout;
     fd_set rfds, readers;
     int nfds, n, i, secs;
-    extern char todaysversion[];
     struct sigaction sa;
     struct debugname *d;
     char c;
@@ -330,7 +329,7 @@ main(argc, argv)
 #else
     (void)openlog("pimdd", LOG_PID);
 #endif /* LOG_DAEMON */
-    sprintf(versionstring, "pimdd version %s", todaysversion);
+    snprintf(versionstring, sizeof(versionstring), "pimdd version %s", PACKAGE_VERSION);
     
     log(LOG_DEBUG, 0, "%s starting", versionstring);
     
