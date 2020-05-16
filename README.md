@@ -25,7 +25,7 @@ Run pimdd as a root.  It is highly recommended to run it in debug mode.
 Because there are many debug messages, you can specify only a subset of
 the messages to be printed out:
 
-    usage: pimdd [-c configfile] [-d [debug_level][,debug_level]]
+    usage: pimdd [-f configfile] [-d [debug_level][,debug_level]]
 
 Valid debug levels:
 

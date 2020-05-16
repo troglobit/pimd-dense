@@ -187,7 +187,7 @@ int usage(int code)
     char c;
 
     tmpd = 0xffffffff;
-    fprintf(stderr, "usage: pimdd [-c configfile] [-d [debug_level][,debug_level]]\n");
+    fprintf(stderr, "usage: pimdd [-f configfile] [-d [debug_level][,debug_level]]\n");
     fprintf(stderr, "debug levels: ");
     c = '(';
     for (d = debugnames; d < debugnames +
@@ -272,7 +272,7 @@ main(argc, argv)
 	    else
 		debug = DEBUG_DEFAULT;
 	}
-	else if (strcmp(*argv, "-c") == 0) {
+	else if (strcmp(*argv, "-f") == 0) {
 	    if (argc > 1) {
 		argv++; argc--;
 		strcpy(configfilename, *argv);
