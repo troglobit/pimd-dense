@@ -49,35 +49,21 @@ grpentry_t		*grplist;
 /*
  * Local functions definition
  */
-static srcentry_t *create_srcentry     __P((u_int32 source));
-static int        search_srclist       __P((u_int32 source,
-					    srcentry_t **sourceEntry));
-static int        search_srcmrtlink    __P((srcentry_t *srcentry_ptr,
-					    u_int32 group,
-					    mrtentry_t **mrtPtr));
-static void       insert_srcmrtlink    __P((mrtentry_t *elementPtr,
-					    mrtentry_t *insertPtr,
-					    srcentry_t *srcListPtr));
-static grpentry_t *create_grpentry     __P((u_int32 group));
-static int        search_grplist       __P((u_int32 group,
-					    grpentry_t **groupEntry));
-static int        search_grpmrtlink    __P((grpentry_t *grpentry_ptr,
-					    u_int32 source,
-					    mrtentry_t **mrtPtr));
-static void       insert_grpmrtlink    __P((mrtentry_t *elementPtr,
-					    mrtentry_t *insertPtr,
-					    grpentry_t *grpListPtr));
-static mrtentry_t *alloc_mrtentry      __P((srcentry_t *srcentry_ptr,
-					    grpentry_t *grpentry_ptr));
-static mrtentry_t *create_mrtentry     __P((srcentry_t *srcentry_ptr,
-					    grpentry_t *grpentry_ptr,
-					    u_int16 flags));
+static srcentry_t *create_srcentry  (u_int32 source);
+static int        search_srclist    (u_int32 source, srcentry_t **sourceEntry);
+static int        search_srcmrtlink (srcentry_t *srcentry_ptr, u_int32 group, mrtentry_t **mrtPtr);
+static void       insert_srcmrtlink (mrtentry_t *elementPtr, mrtentry_t *insertPtr, srcentry_t *srcListPtr);
+static grpentry_t *create_grpentry  (u_int32 group);
+static int        search_grplist    (u_int32 group, grpentry_t **groupEntry);
+static int        search_grpmrtlink (grpentry_t *grpentry_ptr, u_int32 source, mrtentry_t **mrtPtr);
+static void       insert_grpmrtlink (mrtentry_t *elementPtr, mrtentry_t *insertPtr, grpentry_t *grpListPtr);
+static mrtentry_t *alloc_mrtentry   (srcentry_t *srcentry_ptr, grpentry_t *grpentry_ptr);
+static mrtentry_t *create_mrtentry  (srcentry_t *srcentry_ptr, grpentry_t *grpentry_ptr, u_int16 flags);
 
 
 void 
 init_pim_mrt()
 {
-
     /* TODO: delete any existing routing table */
 
     /* Initialize the source list */

@@ -25,9 +25,9 @@ struct pimstat {
 extern struct pimstat pimstat;
 
 #ifdef NetBSD
-void pim_input __P((struct mbuf *, ...));
+void pim_input (struct mbuf *, ...);
 #else
-void pim_input __P((struct mbuf *, int));
+void pim_input (struct mbuf *, int);
 #endif
 #endif /* KERNEL */
 

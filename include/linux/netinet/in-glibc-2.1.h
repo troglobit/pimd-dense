@@ -226,10 +226,10 @@ struct ipv6_mreq
    this was a short-sighted decision since on different systems the types
    may have different representations but the values are always the same.  */
 
-extern uint32_t ntohl __P ((uint32_t __netlong));
-extern uint16_t ntohs __P ((uint16_t __netshort));
-extern uint32_t htonl __P ((uint32_t __hostlong));
-extern uint16_t htons __P ((uint16_t __hostshort));
+extern uint32_t ntohl (uint32_t __netlong);
+extern uint16_t ntohs (uint16_t __netshort);
+extern uint32_t htonl (uint32_t __hostlong);
+extern uint16_t htons (uint16_t __hostshort);
 
 #include <endian.h>
 
@@ -283,7 +283,7 @@ extern uint16_t htons __P ((uint16_t __hostshort));
 	 (((uint32_t *) (a))[3] == ((uint32_t *) (b))[3]))
 
 /* Bind socket to a privileged IP port.  */
-extern int bindresvport __P ((int __sockfd, struct sockaddr_in *__sock_in));
+extern int bindresvport (int __sockfd, struct sockaddr_in *__sock_in);
 
 
 

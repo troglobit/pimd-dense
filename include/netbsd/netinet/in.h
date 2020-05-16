@@ -353,11 +353,11 @@ struct ip_mreq {
 #ifdef _KERNEL
 extern	struct in_addr zeroin_addr;
 
-int	in_broadcast __P((struct in_addr, struct ifnet *));
-int	in_canforward __P((struct in_addr));
-int	in_cksum __P((struct mbuf *, int));
-int	in_localaddr __P((struct in_addr));
-void	in_socktrim __P((struct sockaddr_in *));
+int	in_broadcast (struct in_addr, struct ifnet *);
+int	in_canforward (struct in_addr);
+int	in_cksum (struct mbuf *, int);
+int	in_localaddr (struct in_addr);
+void	in_socktrim (struct sockaddr_in *);
 
 #define	in_hosteq(s,t)	((s).s_addr == (t).s_addr)
 #define	in_nullhost(x)	((x).s_addr == INADDR_ANY)

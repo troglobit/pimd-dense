@@ -68,9 +68,9 @@ int             total_interfaces; /* Number of all interfaces: including the
 /*
  * Forward declarations.
  */
-static void start_vif      __P((vifi_t vifi));
-static void stop_vif       __P((vifi_t vifi));
-static void start_all_vifs __P(());
+static void start_vif      (vifi_t vifi);
+static void stop_vif       (vifi_t vifi);
+static void start_all_vifs ();
 
 
 void

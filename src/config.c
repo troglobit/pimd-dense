@@ -52,8 +52,8 @@
 /*
  * Forward declarations.
  */
-static char *next_word  __P((char **));
-static int parse_phyint __P((char *s));
+static char *next_word  (char **);
+static int parse_phyint (char *s);
 
 
 /*

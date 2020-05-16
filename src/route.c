@@ -44,8 +44,8 @@
 #include "defs.h"
 
 
-static void   process_cache_miss  __P((struct igmpmsg *igmpctl));
-static void   process_wrong_iif   __P((struct igmpmsg *igmpctl));
+static void   process_cache_miss  (struct igmpmsg *igmpctl);
+static void   process_wrong_iif   (struct igmpmsg *igmpctl);
 
 u_int32         default_source_preference = DEFAULT_LOCAL_PREF;
 u_int32         default_source_metric     = DEFAULT_LOCAL_METRIC;

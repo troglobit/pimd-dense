@@ -222,10 +222,10 @@ struct ip_mreq
    this was a short-sighted decision since on different systems the types
    may have different representations but the values are always the same.  */
 
-extern u_int32_t ntohl __P ((u_int32_t __netlong));
-extern u_int16_t ntohs __P ((u_int16_t __netshort));
-extern u_int32_t htonl __P ((u_int32_t __hostlong));
-extern u_int16_t htons __P ((u_int16_t __hostshort));
+extern u_int32_t ntohl (u_int32_t __netlong);
+extern u_int16_t ntohs (u_int16_t __netshort);
+extern u_int32_t htonl (u_int32_t __hostlong);
+extern u_int16_t htons (u_int16_t __hostshort);
 
 #include <endian.h>
 
@@ -240,7 +240,7 @@ extern u_int16_t htons __P ((u_int16_t __hostshort));
 
 
 /* Bind socket to a priviledged IP port.  */
-extern int bindresvport __P ((int __sockfd, struct sockaddr_in *__sock_in));
+extern int bindresvport (int __sockfd, struct sockaddr_in *__sock_in);
 
 __END_DECLS
 

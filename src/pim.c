@@ -51,8 +51,8 @@ int	pim_socket;		/* socket for PIM control msgs */
 /*
  * Local function definitions.
  */
-static void pim_read   __P((int f, fd_set *rfd));
-static void accept_pim __P((ssize_t recvlen));
+static void pim_read   (int f, fd_set *rfd);
+static void accept_pim (ssize_t recvlen);
 
 
 void

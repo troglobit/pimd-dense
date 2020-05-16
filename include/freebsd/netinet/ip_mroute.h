@@ -250,13 +250,13 @@ struct tbf
 
 #ifdef KERNEL
 
-extern int	(*ip_mrouter_set) __P((int, struct socket *, struct mbuf *));
-extern int	(*ip_mrouter_get) __P((int, struct socket *, struct mbuf **));
-extern int	(*ip_mrouter_done) __P((void));
+extern int	(*ip_mrouter_set) (int, struct socket *, struct mbuf *);
+extern int	(*ip_mrouter_get) (int, struct socket *, struct mbuf **);
+extern int	(*ip_mrouter_done) (void);
 #ifdef MROUTING
-extern int	(*mrt_ioctl) __P((int, caddr_t));
+extern int	(*mrt_ioctl) (int, caddr_t);
 #else
-extern int	(*mrt_ioctl) __P((int, caddr_t, struct proc *));
+extern int	(*mrt_ioctl) (int, caddr_t, struct proc *);
 #endif
 
 #endif /* KERNEL */

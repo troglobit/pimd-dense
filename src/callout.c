@@ -25,7 +25,7 @@ struct timeout_q {
 };
 
 #ifdef CALLOUT_DEBUG
-static void print_Q __P((void));
+static void print_Q (void);
 #else
 #define	print_Q()	
 #endif

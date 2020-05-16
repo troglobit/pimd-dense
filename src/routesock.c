@@ -73,8 +73,7 @@ u_long rtm_inits;
 /*
  * Local functions definitions.
  */
-static int getmsg __P((struct rt_msghdr *, int,
-		       struct rpfctl *rpfinfo));
+static int getmsg(struct rt_msghdr *, int, struct rpfctl *);
 
 /*
  * TODO: check again!

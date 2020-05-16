@@ -23,18 +23,11 @@ struct pimstat {
 
 #if (defined(KERNEL)) || (defined(_KERNEL))
 extern struct pimstat pimstat;
-#ifndef __P
-#ifdef __STDC__
-#define __P(x)  x
-#else
-#define __P(x)  ()
-#endif
-#endif
 
 #ifdef NetBSD
-void pim_input __P((struct mbuf *, ...));
+void pim_input (struct mbuf *, ...);
 #else
-void pim_input __P((struct mbuf *, int));
+void pim_input (struct mbuf *, int);
 #endif
 #endif /* KERNEL */
 

@@ -46,16 +46,9 @@
 /*
  * Local functions definitions.
  */
-static int parse_pim_hello         __P((char *pktPtr,
-					ssize_t datalen,
-					u_int32 src,
-					u_int16 *holdtime));
-static int compare_metrics         __P((u_int32 local_preference,
-					u_int32 local_metric,
-					u_int32 local_address,
-					u_int32 remote_preference,
-					u_int32 remote_metric,
-					u_int32 remote_address));
+static int parse_pim_hello (char *pktPtr, ssize_t datalen, u_int32 src, u_int16 *holdtime);
+static int compare_metrics (u_int32 local_preference, u_int32 local_metric, u_int32 local_address,
+			    u_int32 remote_preference, u_int32 remote_metric, u_int32 remote_address);
 
 vifbitmap_t nbr_vifs;    /* Vifs that have one or more neighbors attached */
 

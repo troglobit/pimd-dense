@@ -146,16 +146,16 @@ static struct debugname {
 /*
  * Forward declarations.
  */
-static void handler __P((int));
-static void timer __P((void *));
-static void cleanup __P((void));
-static void restart __P((int));
-static void cleanup __P((void));
-static void resetlogging __P((void *));
+static void handler (int);
+static void timer (void *);
+static void cleanup (void);
+static void restart (int);
+static void cleanup (void);
+static void resetlogging (void *);
 
 
 /* To shut up gcc -Wstrict-prototypes */
-int main __P((int argc, char **argv));
+int main (int argc, char **argv);
 
 int
 register_input_handler(fd, func)
