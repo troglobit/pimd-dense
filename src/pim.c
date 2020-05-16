@@ -99,11 +99,7 @@ pim_read(f, rfd)
 {
     ssize_t pim_recvlen;
     socklen_t dummy = 0;
-#ifdef SYSV
     sigset_t block, oblock;
-#else
-    int omask;
-#endif
     
     pim_recvlen = recvfrom(pim_socket, pim_recv_buf, RECV_BUF_SIZE,
 			   0, NULL, &dummy);
@@ -114,23 +110,14 @@ pim_read(f, rfd)
 	return;
     }
 
-#ifdef SYSV
-    (void)sigemptyset(&block);
-    (void)sigaddset(&block, SIGALRM);
+    sigemptyset(&block);
+    sigaddset(&block, SIGALRM);
     if (sigprocmask(SIG_BLOCK, &block, &oblock) < 0)
 	log(LOG_ERR, errno, "sigprocmask");
-#else
-    /* Use of omask taken from main() */
-    omask = sigblock(sigmask(SIGALRM));
-#endif /* SYSV */
     
     accept_pim(pim_recvlen);
     
-#ifdef SYSV
-    (void)sigprocmask(SIG_SETMASK, &oblock, (sigset_t *)NULL);
-#else
-    (void)sigsetmask(omask);
-#endif /* SYSV */
+    sigprocmask(SIG_SETMASK, &oblock, (sigset_t *)NULL);
 }
 
 
