@@ -93,11 +93,7 @@ init_igmp()
     ip->ip_off = 0;
     ip->ip_ttl = MAXTTL;		/* applies to unicasts only */
     ip->ip_p   = IPPROTO_IGMP;
-#ifdef Linux
-    ip->ip_csum = 0;                    /* let kernel fill in               */
-#else
     ip->ip_sum = 0;                     /* let kernel fill in               */
-#endif /* Linux */
 
     /* Everywhere in the daemon we use network-byte-order */    
     allhosts_group = htonl(INADDR_ALLHOSTS_GROUP);
