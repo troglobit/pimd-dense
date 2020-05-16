@@ -262,7 +262,7 @@ extern char		s2[];
 extern char		s3[];
 extern char		s4[];
 
-#if !((defined(BSD) && (BSD >= 199103)) || defined(linux))
+#if !((defined(BSD) && (BSD >= 199103)) || defined(__linux__))
 extern int		errno;
 extern int		sys_nerr;
 extern char *		sys_errlist[];

@@ -435,11 +435,7 @@ schedule_delayed_join(mrtentry_ptr, target)
     if(mrtentry_ptr->join_delay_timerid) 
 	timer_clearTimer(mrtentry_ptr->join_delay_timerid);
 
-#ifdef SYSV
     random_delay = lrand48() % (long)PIM_RANDOM_DELAY_JOIN_TIMEOUT;
-#else
-    random_delay = random() % (long)PIM_RANDOM_DELAY_JOIN_TIMEOUT;
-#endif
     
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
 	log(LOG_DEBUG, 0, "Scheduling join for src %s, grp %s, delay %d",

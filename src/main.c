@@ -335,14 +335,10 @@ main(argc, argv)
     
     log(LOG_DEBUG, 0, "%s starting", versionstring);
     
-/* TODO: XXX: use a combination of time and hostid to initialize the random
- * generator.
- */
-#ifdef SYSV
+    /* TODO: XXX: use a combination of time and hostid to initialize the
+     * random generator.
+     */
     srand48(time(NULL));
-#else
-    srandom(gethostid());
-#endif
     
     /* Start up the log rate-limiter */
     resetlogging(NULL);
@@ -410,7 +406,7 @@ main(argc, argv)
 	(void)open("/", 0);
 	(void)dup2(0, 1);
 	(void)dup2(0, 2);
-#if defined(SYSV) || defined(linux)
+#if defined(SYSV) || defined(__linux__)
 	(void)setpgrp();
 #else 
 #ifdef TIOCNOTTY
