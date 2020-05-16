@@ -52,7 +52,7 @@ int	pim_socket;		/* socket for PIM control msgs */
  * Local function definitions.
  */
 static void pim_read   __P((int f, fd_set *rfd));
-static void accept_pim __P((int recvlen));
+static void accept_pim __P((ssize_t recvlen));
 
 
 void
@@ -97,7 +97,7 @@ pim_read(f, rfd)
     int f;
     fd_set *rfd;
 {
-    register int pim_recvlen;
+    register ssize_t pim_recvlen;
     int dummy = 0;
 #ifdef SYSV
     sigset_t block, oblock;
@@ -136,14 +136,14 @@ pim_read(f, rfd)
 
 static void
 accept_pim(recvlen)
-    int recvlen;
+    ssize_t recvlen;
 {
     u_int32 src, dst;
     register struct ip *ip;
     register pim_header_t *pim;
-    int iphdrlen, pimlen;
+    ssize_t iphdrlen, pimlen;
     
-    if (recvlen < sizeof(struct ip)) {
+    if (recvlen < (ssize_t)sizeof(struct ip)) {
 	log(LOG_WARNING, 0, "packet too short (%u bytes) for IP header",
 	    recvlen);
 	return;
@@ -156,7 +156,7 @@ accept_pim(recvlen)
     
     pim         = (pim_header_t *)(pim_recv_buf + iphdrlen);
     pimlen	= recvlen - iphdrlen;
-    if (pimlen < sizeof(pim)) {
+    if (pimlen < (ssize_t)sizeof(*pim)) {
 	log(LOG_WARNING, 0, 
 	    "IP data field too short (%u bytes) for PIM header, from %s to %s", 
 	    pimlen, inet_fmt(src, s1), inet_fmt(dst, s2));

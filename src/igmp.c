@@ -61,7 +61,7 @@ u_int32 allrouters_group;	/* All-Routers addr in net order     */
  * Local functions definitions.
  */
 static void igmp_read        __P((int i, fd_set *rfd));
-static void accept_igmp      __P((int recvlen));
+static void accept_igmp      __P((ssize_t recvlen));
 
 
 /*
@@ -110,7 +110,7 @@ igmp_read(i, rfd)
     int i;
     fd_set *rfd;
 {
-    register int igmp_recvlen;
+    register ssize_t igmp_recvlen;
     socklen_t dummy = 0;
     
     igmp_recvlen = recvfrom(igmp_socket, igmp_recv_buf, RECV_BUF_SIZE,
@@ -133,14 +133,14 @@ igmp_read(i, rfd)
  */
 static void 
 accept_igmp(recvlen)
-    int recvlen;
+    ssize_t recvlen;
 {
     register u_int32 src, dst, group;
     struct ip *ip;
     struct igmp *igmp;
     int ipdatalen, iphdrlen, igmpdatalen;
     
-    if (recvlen < sizeof(struct ip)) {
+    if (recvlen < (ssize_t)sizeof(struct ip)) {
 	log(LOG_WARNING, 0,
 	    "received packet too short (%u bytes) for IP header", recvlen);
 	return;

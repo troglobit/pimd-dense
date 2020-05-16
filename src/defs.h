@@ -449,7 +449,7 @@ extern void         send_pim_unicast __P((char *buf, u_int32 src, u_int32 dst,
 
 /* pim_proto.c */
 extern int receive_pim_hello         __P((u_int32 src, u_int32 dst,
-					  char *pim_message, int datalen));
+					  char *pim_message, ssize_t datalen));
 extern int send_pim_hello            __P((struct uvif *v, u_int16 holdtime));
 extern void delete_pim_nbr           __P((pim_nbr_entry_t *nbr_delete));
 extern int receive_pim_join_prune    __P((u_int32 src, u_int32 dst,

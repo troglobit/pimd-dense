@@ -57,7 +57,7 @@
  * Local functions definitions.
  */
 static int parse_pim_hello         __P((char *pktPtr,
-					int datalen,
+					ssize_t datalen,
 					u_int32 src,
 					u_int16 *holdtime));
 static int compare_metrics         __P((u_int32 local_preference,
@@ -76,7 +76,7 @@ int
 receive_pim_hello(src, dst, pim_message, datalen)
     u_int32 src, dst;
     register char *pim_message;
-    int datalen;
+    ssize_t datalen;
 {
     vifi_t vifi;
     struct uvif *v;
@@ -307,7 +307,7 @@ delete_pim_nbr(nbr_delete)
 static int
 parse_pim_hello(pim_message, datalen, src, holdtime)
     char *pim_message;
-    int datalen;
+    ssize_t datalen;
     u_int32 src;
     u_int16 *holdtime;
 {
@@ -320,7 +320,7 @@ parse_pim_hello(pim_message, datalen, src, holdtime)
 
     pim_hello_message = (u_int8 *)(pim_message + sizeof(pim_header_t));
     datalen -= sizeof(pim_header_t);
-    for ( ; datalen >= sizeof(pim_hello_t); ) {
+    for ( ; datalen >= (ssize_t)sizeof(pim_hello_t); ) {
 	/* Ignore any data if shorter than (pim_hello header) */
 	data_ptr = pim_hello_message;
 	GET_HOSTSHORT(option_type, data_ptr);
@@ -367,8 +367,7 @@ send_pim_hello(v, holdtime)
 {
     char   *buf;
     u_int8 *data_ptr;
-
-    int datalen;
+    ssize_t datalen;
 
     buf = pim_send_buf + sizeof(struct ip) + sizeof(pim_header_t);
     data_ptr = (u_int8 *)buf;
