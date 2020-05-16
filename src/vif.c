@@ -344,7 +344,7 @@ check_vif_state()
 	if (v->uv_flags & VIFF_DISABLED)
 	    continue;
 	
-	strncpy(ifr.ifr_name, v->uv_name, IFNAMSIZ);
+	memcpy(ifr.ifr_name, v->uv_name, sizeof(ifr.ifr_name));
 	/* get the interface flags */
 	if (ioctl(udp_socket, SIOCGIFFLAGS, (char *)&ifr) < 0)
 	    log(LOG_ERR, errno,
