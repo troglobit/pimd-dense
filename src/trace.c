@@ -71,7 +71,7 @@ accept_mtrace(src, dst, group, data, no, datalen)
     struct tr_resp  *resp;
     int vifi;
     char *p;
-    int rcount;
+    u_int rcount;
     int errcode = TR_NO_ERR;
     int resptype;
     struct timeval tp;
