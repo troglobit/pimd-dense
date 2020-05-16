@@ -95,7 +95,7 @@ dvmrp_accept_info_reply(src, dst, p, datalen)
     int datalen;
 {
     IF_DEBUG(DEBUG_PKT)
-	log(LOG_DEBUG, 0, "ignoring spurious DVMRP info reply from %s to %s",
+	logit(LOG_DEBUG, 0, "ignoring spurious DVMRP info reply from %s to %s",
 	    inet_fmt(src, s1), inet_fmt(dst, s2));
 }
 
@@ -111,7 +111,7 @@ dvmrp_accept_neighbors(src, dst, p, datalen, level)
     int datalen;
     u_int32 level;
 {
-    log(LOG_INFO, 0, "ignoring spurious DVMRP neighbor list from %s to %s",
+    logit(LOG_INFO, 0, "ignoring spurious DVMRP neighbor list from %s to %s",
         inet_fmt(src, s1), inet_fmt(dst, s2));
 }
 
@@ -128,7 +128,7 @@ dvmrp_accept_neighbors2(src, dst, p, datalen, level)
     u_int32 level;
 {
     IF_DEBUG(DEBUG_PKT)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "ignoring spurious DVMRP neighbor list2 from %s to %s",
 	    inet_fmt(src, s1), inet_fmt(dst, s2));
 }

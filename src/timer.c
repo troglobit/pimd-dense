@@ -230,7 +230,7 @@ age_routes()
 		 * received and non-null oiflist.
 		 */
 		IF_DEBUG(DEBUG_MFC)
-		    log(LOG_DEBUG, 0, 
+		    logit(LOG_DEBUG, 0,
 			"Refreshing src %s, dst %s after %d bytes forwarded",
 			inet_fmt(mrtentry_ptr->source->address, s1), 
 			inet_fmt(mrtentry_ptr->group->group, s2), 

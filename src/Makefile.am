@@ -4,7 +4,6 @@
 #               but to build on older GLIBC systems we now need both ...
 AM_CPPFLAGS      = -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE -I$(top_srcdir)/include
 AM_CPPFLAGS     += -DSYSCONFDIR=\"@sysconfdir@\" -DLOCALSTATEDIR=\"@localstatedir@\"
-AM_CPPFLAGS     += -Dlog=logit
 
 sbin_PROGRAMS    = pimdd
 pimdd_SOURCES    = igmp.c igmp_proto.c trace.c				\

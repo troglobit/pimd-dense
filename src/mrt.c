@@ -405,7 +405,7 @@ create_srcentry(source)
     
     srcentry_ptr = (srcentry_t *)malloc(sizeof(srcentry_t));
     if (srcentry_ptr == (srcentry_t *)NULL) {
-	log(LOG_WARNING, 0, "Memory allocation error for srcentry %s",
+	logit(LOG_WARNING, 0, "Memory allocation error for srcentry %s",
 	    inet_fmt(source, s1));
 	return (srcentry_t *)NULL;
     }
@@ -428,7 +428,7 @@ create_srcentry(source)
 	srcentry_ptr->next->prev = srcentry_ptr;
     
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "create source entry, source %s",
+	logit(LOG_DEBUG, 0, "create source entry, source %s",
 	    inet_fmt(source, s1));
     return (srcentry_ptr);
 }
@@ -446,7 +446,7 @@ create_grpentry(group)
     
     grpentry_ptr = (grpentry_t *)malloc(sizeof(grpentry_t));
     if (grpentry_ptr == (grpentry_t *)NULL) {
-	log(LOG_WARNING, 0, "Memory allocation error for grpentry %s",
+	logit(LOG_WARNING, 0, "Memory allocation error for grpentry %s",
 	    inet_fmt(group, s1));
 	return (grpentry_t *)NULL;
     }
@@ -462,7 +462,7 @@ create_grpentry(group)
 	grpentry_ptr->next->prev = grpentry_ptr;
     
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "create group entry, group %s", inet_fmt(group, s1));
+	logit(LOG_DEBUG, 0, "create group entry, group %s", inet_fmt(group, s1));
     return(grpentry_ptr);
 }
 
@@ -593,7 +593,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     
     mrtentry_ptr = (mrtentry_t *)malloc(sizeof(mrtentry_t));
     if (mrtentry_ptr == (mrtentry_t *)NULL) {
-	log(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
+	logit(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	return (mrtentry_t *)NULL;
     }
     
@@ -644,7 +644,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
 	(mrtentry_ptr->prune_delay_timerids == (u_long *)NULL) ||
 	(mrtentry_ptr->last_assert == (u_long *)NULL) ||
 	(mrtentry_ptr->last_prune == (u_long *)NULL)) {
-	log(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
+	logit(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	FREE_MRTENTRY(mrtentry_ptr);
 	return (mrtentry_t *)NULL;
     }
@@ -695,7 +695,7 @@ create_mrtentry(srcentry_ptr, grpentry_ptr, flags)
 	 * Hmmm, search_grpmrtlink() didn't find the entry, but
 	 * search_srcmrtlink() did find it! Shoudn't happen. Panic!
 	 */
-	log(LOG_ERR, 0, "MRT inconsistency for src %s and grp %s\n",
+	logit(LOG_ERR, 0, "MRT inconsistency for src %s and grp %s\n",
 	    inet_fmt(source, s1), inet_fmt(group, s2));
 	/* not reached but to make lint happy */
 	return (mrtentry_t *)NULL;

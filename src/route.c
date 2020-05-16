@@ -150,7 +150,7 @@ set_incoming(srcentry_ptr, srctype)
 	    rpfc.rpfneighbor.s_addr == INADDR_ANY_N) {
 	    /* couldn't find a route */
 	    IF_DEBUG(DEBUG_PIM_MRT | DEBUG_RPF)
-		log(LOG_DEBUG, 0, "NO ROUTE found for %s",
+		logit(LOG_DEBUG, 0, "NO ROUTE found for %s",
 		    inet_fmt(source, s1));
 	    return(FALSE);
 	}
@@ -183,7 +183,7 @@ set_incoming(srcentry_ptr, srctype)
 	     */
 	    srcentry_ptr->upstream = n;
 	    IF_DEBUG(DEBUG_RPF)
-		log(LOG_DEBUG, 0,
+		logit(LOG_DEBUG, 0,
 		    "For src %s, iif is %d, next hop router is %s",
 		    inet_fmt(source, s1), srcentry_ptr->incoming,
 		    inet_fmt(neighbor_addr, s2));
@@ -193,7 +193,7 @@ set_incoming(srcentry_ptr, srctype)
     }
     
     /* TODO: control the number of messages! */
-    log(LOG_INFO, 0,
+    logit(LOG_INFO, 0,
 	"For src %s, iif is %d, next hop router is %s: NOT A PIM ROUTER",
 	inet_fmt(source, s1), srcentry_ptr->incoming,
 	inet_fmt(neighbor_addr, s2));
@@ -246,10 +246,9 @@ add_leaf(vifi, source, group)
 	if (mrtentry_srcs->incoming == vifi) 
 	    continue;
 
-	if(!(VIFM_ISSET(vifi, mrtentry_srcs->leaves))) {
-
+	if (!(VIFM_ISSET(vifi, mrtentry_srcs->leaves))) {
 	    IF_DEBUG(DEBUG_MRT)
-		log(LOG_DEBUG, 0, "Adding leaf vif %d for src %s group %s", 
+		logit(LOG_DEBUG, 0, "Adding leaf vif %d for src %s group %s",
 		    vifi,
 		    inet_fmt(mrtentry_srcs->source->address, s1),
 		    inet_fmt(group, s2));
@@ -264,7 +263,7 @@ add_leaf(vifi, source, group)
 				  new_leaves);
 
 	    /* Handle transition from negative cache */
-	    if(state_change == 1) 
+	    if (state_change == 1) 
 		trigger_join_alert(mrtentry_srcs);
 	}
     }
@@ -309,7 +308,7 @@ delete_leaf(vifi, source, group)
 	if(VIFM_ISSET(vifi, mrtentry_srcs->leaves)) {
 
 	    IF_DEBUG(DEBUG_MRT)
-		log(LOG_DEBUG, 0, "Deleting leaf vif %d for src %s, group %s",
+		logit(LOG_DEBUG, 0, "Deleting leaf vif %d for src %s, group %s",
 		    vifi,
 		    inet_fmt(mrtentry_srcs->source->address, s1), 
 		    inet_fmt(group, s2));
@@ -477,7 +476,7 @@ void process_kernel_call()
 	break;
     default:
 	IF_DEBUG(DEBUG_KERN)
-	    log(LOG_DEBUG, 0, "Unknown kernel_call code");
+	    logit(LOG_DEBUG, 0, "Unknown kernel_call code");
 	break;
     }
 }
@@ -505,7 +504,7 @@ process_cache_miss(igmpctl)
     source = igmpctl->im_src.s_addr;
     
     IF_DEBUG(DEBUG_MFC)
-	log(LOG_DEBUG, 0, "Cache miss, src %s, dst %s",
+	logit(LOG_DEBUG, 0, "Cache miss, src %s, dst %s",
 	    inet_fmt(source, s1), inet_fmt(group, s2)); 
 
     /* Don't create routing entries for the LAN scoped addresses */
@@ -581,7 +580,7 @@ process_wrong_iif(igmpctl)
 			uvifs[vifi].uv_rmt_addr, 
 			max_prune_timeout(mrtentry_ptr));
 	else 
-	    log(LOG_WARNING, 0, 
+	    logit(LOG_WARNING, 0, 
 		"Can't send wrongvif prune on p2p %s: no remote address",
 		uvifs[vifi].uv_lcl_addr);
     } else {
@@ -614,7 +613,7 @@ void trigger_prune_alert(mrtentry_ptr)
      mrtentry_t *mrtentry_ptr;
 {
     IF_DEBUG(DEBUG_MRT)
-	log(LOG_DEBUG, 0, "Now negative cache for src %s, grp %s - pruning",
+	logit(LOG_DEBUG, 0, "Now negative cache for src %s, grp %s - pruning",
 	    inet_fmt(mrtentry_ptr->source->address, s1), 
 	    inet_fmt(mrtentry_ptr->group->group, s2));
 
@@ -632,7 +631,7 @@ void trigger_join_alert(mrtentry_ptr)
      mrtentry_t *mrtentry_ptr;
 {
     IF_DEBUG(DEBUG_MRT)
-	log(LOG_DEBUG, 0, "Now forwarding state for src %s, grp %s - grafting",
+	logit(LOG_DEBUG, 0, "Now forwarding state for src %s, grp %s - grafting",
 	    inet_fmt(mrtentry_ptr->source->address, s1), 
 	    inet_fmt(mrtentry_ptr->group->group, s2));
 

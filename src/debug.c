@@ -379,7 +379,7 @@ dump_vifs(fp)
  */
 #ifdef __STDC__
 void
-log(int severity, int syserr, char *format, ...)
+logit(int severity, int syserr, char *format, ...)
 {
     va_list ap;
     static char fmt[211] = "warning - ";
@@ -392,7 +392,7 @@ log(int severity, int syserr, char *format, ...)
 #else
 /*VARARGS3*/
 void
-log(severity, syserr, format, va_alist)
+logit(severity, syserr, format, va_alist)
     int severity, syserr;
     char *format;
     va_dcl
@@ -440,10 +440,9 @@ log(severity, syserr, format, va_alist)
     if ((severity < LOG_WARNING) || (log_nmsgs < LOG_MAX_MSGS)) {
 	if (severity < LOG_DEBUG)
 	    log_nmsgs++;
-	if (syserr != 0) {
-	    errno = syserr;
-	    syslog(severity, "%s: %m", msg);
-	} else
+	if (syserr)
+	    syslog(severity, "%s: %s", msg, strerror(syserr));
+	else
 	    syslog(severity, "%s", msg);
     }
     

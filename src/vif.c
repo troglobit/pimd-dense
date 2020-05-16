@@ -93,7 +93,7 @@ init_vifs()
     udp_socket = igmp_socket;
 #else
     if ((udp_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-	log(LOG_ERR, errno, "UDP socket");
+	logit(LOG_ERR, errno, "UDP socket");
 #endif
 
     /*
@@ -132,9 +132,9 @@ init_vifs()
 #endif
     }
 
-    log(LOG_INFO, 0, "Getting vifs from kernel");
+    logit(LOG_INFO, 0, "Getting vifs from kernel");
     config_vifs_from_kernel();
-    log(LOG_INFO, 0, "Getting vifs from %s", configfilename);
+    logit(LOG_INFO, 0, "Getting vifs from %s", configfilename);
     config_vifs_from_file();
 
     /*
@@ -152,7 +152,7 @@ init_vifs()
     }
 
     if (enabled_vifs < 2)
-	log(LOG_ERR, 0, "can't forward: %s",
+	logit(LOG_ERR, 0, "can't forward: %s",
 	    enabled_vifs == 0 ? "no enabled vifs" : "only one enabled vif");
     
     k_init_pim(igmp_socket);	/* Call to kernel to initiliaze structures */
@@ -171,11 +171,11 @@ start_all_vifs()
 	/* Start vif if not DISABLED or DOWN */
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN)) {
 	    if (v->uv_flags & VIFF_DISABLED)
-		log(LOG_INFO, 0,
+		logit(LOG_INFO, 0,
 		    "%s is DISABLED; vif #%u out of service", 
 		    v->uv_name, vifi);
 	    else
-		log(LOG_INFO, 0,
+		logit(LOG_INFO, 0,
 		    "%s is DOWN; vif #%u out of service", 
 		    v->uv_name, vifi);
 	    }
@@ -222,7 +222,7 @@ start_vif(vifi)
     
     /* Tell kernel to add, i.e. start this vif */
     k_add_vif(igmp_socket, vifi, &uvifs[vifi]);   
-    log(LOG_INFO, 0, "%s comes up; vif #%u now in service", v->uv_name, vifi);
+    logit(LOG_INFO, 0, "%s comes up; vif #%u now in service", v->uv_name, vifi);
     
     /*
      * Join the PIM multicast group on the interface.
@@ -311,7 +311,7 @@ stop_vif(vifi)
     }
 
     vifs_down = TRUE;
-    log(LOG_INFO, 0,
+    logit(LOG_INFO, 0,
 	"%s goes down; vif #%u out of service", v->uv_name, vifi);
 }		
 
@@ -350,7 +350,7 @@ check_vif_state()
 	memcpy(ifr.ifr_name, v->uv_name, sizeof(ifr.ifr_name));
 	/* get the interface flags */
 	if (ioctl(udp_socket, SIOCGIFFLAGS, (char *)&ifr) < 0)
-	    log(LOG_ERR, errno,
+	    logit(LOG_ERR, errno,
 		"check_vif_state: ioctl SIOCGIFFLAGS for %s", ifr.ifr_name);
 
 	if (v->uv_flags & VIFF_DOWN) {
@@ -361,7 +361,7 @@ check_vif_state()
 	}
 	else {
 	    if (!(ifr.ifr_flags & IFF_UP)) {
-		log(LOG_NOTICE, 0,
+		logit(LOG_NOTICE, 0,
 		    "%s has gone down; vif #%u taken out of service",
 		    v->uv_name, vifi);
 		stop_vif(vifi);

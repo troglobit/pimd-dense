@@ -323,15 +323,11 @@ main(argc, argv)
 	fprintf(stderr, ")\n");
     }
     
-#ifdef LOG_DAEMON
-    (void)openlog("pimdd", LOG_PID, LOG_DAEMON);
-    (void)setlogmask(LOG_UPTO(LOG_NOTICE));
-#else
-    (void)openlog("pimdd", LOG_PID);
-#endif /* LOG_DAEMON */
+    openlog("pimdd", LOG_PID, LOG_DAEMON);
+    setlogmask(LOG_UPTO(LOG_NOTICE));
+
     snprintf(versionstring, sizeof(versionstring), "pimdd version %s", PACKAGE_VERSION);
-    
-    log(LOG_DEBUG, 0, "%s starting", versionstring);
+    logit(LOG_DEBUG, 0, "%s starting", versionstring);
     
     /* TODO: XXX: use a combination of time and hostid to initialize the
      * random generator.
@@ -467,7 +463,7 @@ main(argc, argv)
 	}
 	if ((n = select(nfds, &rfds, NULL, NULL, timeout)) < 0) {
 	    if (errno != EINTR) /* SIGALRM is expected */
-		log(LOG_WARNING, errno, "select failed");
+		logit(LOG_WARNING, errno, "select failed");
 	    continue;
 	}
 
@@ -500,7 +496,7 @@ main(argc, argv)
 	    difftime.tv_usec += curtime.tv_usec - lasttime.tv_usec;
 #ifdef TIMERDEBUG
 	    IF_DEBUG(DEBUG_TIMEOUT)
-		log(LOG_DEBUG, 0, "TIMEOUT: secs %d, diff secs %d, diff usecs %d", secs, difftime.tv_sec, difftime.tv_usec );
+		logit(LOG_DEBUG, 0, "TIMEOUT: secs %d, diff secs %d, diff usecs %d", secs, difftime.tv_sec, difftime.tv_usec );
 #endif
 	    while (difftime.tv_usec > 1000000) {
 		difftime.tv_sec++;
@@ -514,7 +510,7 @@ main(argc, argv)
 	    if (secs == 0 || difftime.tv_sec > 0) {
 #ifdef TIMERDEBUG
 		IF_DEBUG(DEBUG_TIMEOUT)
-		    log(LOG_DEBUG, 0, "\taging callouts: secs %d, diff secs %d, diff usecs %d", secs, difftime.tv_sec, difftime.tv_usec );
+		    logit(LOG_DEBUG, 0, "\taging callouts: secs %d, diff secs %d, diff usecs %d", secs, difftime.tv_sec, difftime.tv_usec );
 #endif
 		age_callout_queue(difftime.tv_sec);
 	    }
@@ -533,7 +529,7 @@ main(argc, argv)
     
     } /* Main loop */
 
-    log(LOG_NOTICE, 0, "%s exiting", versionstring);
+    logit(LOG_NOTICE, 0, "%s exiting", versionstring);
     cleanup();
     exit(0);
 }
@@ -636,7 +632,7 @@ restart(i)
     int s;
 #endif /* SNMP */
     
-    log(LOG_NOTICE, 0, "% restart", versionstring);
+    logit(LOG_NOTICE, 0, "% restart", versionstring);
     
     /*
      * reset all the entries

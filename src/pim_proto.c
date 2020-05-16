@@ -97,7 +97,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
 	 * non-directly connected router. Ignore it.
 	 */
 	if (local_address(src) == NO_VIF)
-	    log(LOG_INFO, 0, "Ignoring PIM_HELLO from non-neighbor router %s",
+	    logit(LOG_INFO, 0, "Ignoring PIM_HELLO from non-neighbor router %s",
 		inet_fmt(src, s1));
 	return(FALSE);
     }
@@ -111,7 +111,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
     if (parse_pim_hello(pim_message, datalen, src, &holdtime) == FALSE)
 	return(FALSE);
     IF_DEBUG(DEBUG_PIM_HELLO | DEBUG_PIM_TIMER)
-	log(LOG_DEBUG, 0, "PIM HELLO holdtime from %s is %u",
+	logit(LOG_DEBUG, 0, "PIM HELLO holdtime from %s is %u",
 	    inet_fmt(src, s1), holdtime);
     
     for (prev_nbr = (pim_nbr_entry_t *)NULL, nbr = v->uv_pim_neighbors;
@@ -130,7 +130,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
 		 * and wants to inform us by sending "holdtime=0". Thanks
 		 * buddy and see you again!
 		 */
-		log(LOG_INFO, 0, "PIM HELLO received: neighbor %s going down",
+		logit(LOG_INFO, 0, "PIM HELLO received: neighbor %s going down",
 		    inet_fmt(src, s1));
 		delete_pim_nbr(nbr);
 		return(TRUE);
@@ -329,7 +329,7 @@ parse_pim_hello(pim_message, datalen, src, holdtime)
 	case PIM_MESSAGE_HELLO_HOLDTIME:
 	    if (PIM_MESSAGE_HELLO_HOLDTIME_LENGTH != option_length) {
 		IF_DEBUG(DEBUG_PIM_HELLO)
-		    log(LOG_DEBUG, 0,
+		    logit(LOG_DEBUG, 0,
 		       "PIM HELLO Holdtime from %s: invalid OptionLength = %u",
 			inet_fmt(src, s1), option_length);
 		return (FALSE);
@@ -438,7 +438,7 @@ schedule_delayed_join(mrtentry_ptr, target)
     random_delay = lrand48() % (long)PIM_RANDOM_DELAY_JOIN_TIMEOUT;
     
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-	log(LOG_DEBUG, 0, "Scheduling join for src %s, grp %s, delay %d",
+	logit(LOG_DEBUG, 0, "Scheduling join for src %s, grp %s, delay %d",
 	    inet_fmt(mrtentry_ptr->source->address, s1), 
 	    inet_fmt(mrtentry_ptr->group->group, s2),
 	    random_delay);
@@ -478,7 +478,7 @@ delayed_prune_job(arg)
 
     if(VIFM_ISSET(cbk->vifi, mrtentry_ptr->oifs)) {
 	IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-	    log(LOG_DEBUG, 0, "Deleting pruned vif %d for src %s, grp %s",
+	    logit(LOG_DEBUG, 0, "Deleting pruned vif %d for src %s, grp %s",
 		cbk->vifi, 
 		inet_fmt(cbk->source, s1), 
 		inet_fmt(cbk->group, s2));
@@ -558,7 +558,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
          * non-directly connected router. Ignore it.
          */
         if (local_address(src) == NO_VIF)
-            log(LOG_INFO, 0,
+            logit(LOG_INFO, 0,
                 "Ignoring PIM_JOIN_PRUNE from non-neighbor router %s",
                 inet_fmt(src, s1));
         return(FALSE);
@@ -582,7 +582,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
     GET_HOSTSHORT(holdtime, data_ptr);
 
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "PIM Join/Prune received from %s : target %s, holdtime %d",
 	    inet_fmt(src, s1), inet_fmt(uni_target_addr.unicast_addr, s2), 
 	    holdtime);
@@ -627,7 +627,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 		    continue;
 
 		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-		    log(LOG_DEBUG, 0,
+		    logit(LOG_DEBUG, 0,
 			"\tJOIN src %s, group %s - canceling delayed join",
 			inet_fmt(source, s1), inet_fmt(group, s2));
 		
@@ -660,7 +660,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 
 		if(!(VIFM_ISEMPTY(mrtentry_ptr->oifs))) {
 		    IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-			log(LOG_DEBUG, 0,
+			logit(LOG_DEBUG, 0,
 			    "\tPRUNE src %s, group %s - scheduling delayed join",
 			    inet_fmt(source, s1), inet_fmt(group, s2));
 		    
@@ -705,7 +705,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 		    continue;
 
 		IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-		    log(LOG_DEBUG, 0,
+		    logit(LOG_DEBUG, 0,
 			"\tJOIN src %s, group %s - canceling delayed prune",
 			inet_fmt(source, s1), inet_fmt(group, s2));
 		
@@ -735,12 +735,12 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 		    if(VIFM_ISSET(vifi, mrtentry_ptr->pruned_oifs)) {
 
 			IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-			    log(LOG_DEBUG, 0,
+			    logit(LOG_DEBUG, 0,
 				"\tPRUNE(P2P) src %s, group %s - pruning vif",
 				inet_fmt(source, s1), inet_fmt(group, s2));
 		
 			IF_DEBUG(DEBUG_MRT)
-			    log(LOG_DEBUG, 0, "Deleting pruned vif %d for src %s, grp %s",
+			    logit(LOG_DEBUG, 0, "Deleting pruned vif %d for src %s, grp %s",
 				vifi, 
 				inet_fmt(source, s1), inet_fmt(group, s2));
 
@@ -765,7 +765,7 @@ receive_pim_join_prune(src, dst, pim_message, datalen)
 		 */
 		else {
 		    IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-			log(LOG_DEBUG, 0,
+			logit(LOG_DEBUG, 0,
 			    "\tPRUNE(LAN) src %s, group %s - scheduling delayed prune",
 			    inet_fmt(source, s1), inet_fmt(group, s2));
 		    
@@ -801,7 +801,7 @@ send_pim_jp(mrtentry_ptr, action, vifi, target_addr, holdtime)
     }
     
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "Sending %s:  vif %s, src %s, group %s, target %s, holdtime %d",
 	    action==PIM_ACTION_JOIN ? "JOIN" : "PRUNE",
 	    inet_fmt(uvifs[vifi].uv_lcl_addr, s1),
@@ -878,7 +878,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
          * non-directly connected router. Ignore it.
          */
         if (local_address(src) == NO_VIF)
-            log(LOG_INFO, 0,
+            logit(LOG_INFO, 0,
                 "Ignoring PIM_ASSERT from non-neighbor router %s",
                 inet_fmt(src, s1));
         return(FALSE);
@@ -905,7 +905,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
     group = egaddr.mcast_addr;
  
     IF_DEBUG(DEBUG_PIM_ASSERT)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "PIM Assert received from : src %s, grp %s, pref %d, metric %d",
 	    inet_fmt(src, s1), inet_fmt(source, s2), inet_fmt(group, s3),
 	    assert_preference, assert_metric);
@@ -918,7 +918,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	 * we know by the assert that there are upstream forwarders. 
 	 */
 	IF_DEBUG(DEBUG_PIM_ASSERT)
-	    log(LOG_DEBUG, 0, "\tNo MRT entry - creating...");
+	    logit(LOG_DEBUG, 0, "\tNo MRT entry - creating...");
 
 	mrtentry_ptr->flags &= ~MRTF_NEW;
 	
@@ -971,18 +971,18 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	if(local_wins == TRUE) {
 	    /* the assert-sender loses, so discard the assert */
 	    IF_DEBUG(DEBUG_PIM_ASSERT)
-		log(LOG_DEBUG, 0,
+		logit(LOG_DEBUG, 0,
 		    "\tAssert sender %s loses", inet_fmt(src, s1));
 	    return(TRUE);
 	}
 	
 	/* The assert sender wins: upstream must be changed to the winner */
 	IF_DEBUG(DEBUG_PIM_ASSERT)
-	    log(LOG_DEBUG, 0,
+	    logit(LOG_DEBUG, 0,
 		"\tAssert sender %s wins", inet_fmt(src, s1));
 	if(mrtentry_ptr->upstream->address != src) {
 	    IF_DEBUG(DEBUG_PIM_ASSERT)
-		log(LOG_DEBUG, 0,
+		logit(LOG_DEBUG, 0,
 		    "\tChanging upstream nbr to %s", inet_fmt(src, s1));
 	    mrtentry_ptr->preference = assert_preference;
 	    mrtentry_ptr->metric = assert_metric;
@@ -1017,7 +1017,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	    /* Assert sender wins - prune the interface */
 
 	    IF_DEBUG(DEBUG_PIM_ASSERT)
-		log(LOG_DEBUG, 0,
+		logit(LOG_DEBUG, 0,
 		    "\tAssert sender %s wins - pruning...", inet_fmt(src, s1));
 	    
 	    VIFM_COPY(mrtentry_ptr->pruned_oifs, new_pruned_oifs);
@@ -1044,7 +1044,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	     */
 
 	    IF_DEBUG(DEBUG_PIM_ASSERT)
-		log(LOG_DEBUG, 0,
+		logit(LOG_DEBUG, 0,
 		    "\tAssert sender %s loses - sending assert and scheuling prune", 
 		    inet_fmt(src, s1));
 
@@ -1178,7 +1178,7 @@ int retransmit_pim_graft(mrtentry_ptr)
     }
     
     IF_DEBUG(DEBUG_PIM_GRAFT)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "Sending GRAFT:  vif %s, src %s, grp %s, dst %s",
 	    inet_fmt(uvifs[mrtentry_ptr->incoming].uv_lcl_addr, s1),
 	    inet_fmt(mrtentry_ptr->source->address, s2), 
@@ -1216,7 +1216,7 @@ retransmit_all_pim_grafts(arg)
     pim_graft_entry_t *graft_ptr;
 
     IF_DEBUG(DEBUG_PIM_GRAFT)
-	log(LOG_DEBUG, 0, "Retransmitting all pending PIM-Grafts");
+	logit(LOG_DEBUG, 0, "Retransmitting all pending PIM-Grafts");
   
 
     for(graft_ptr = graft_list; 
@@ -1224,7 +1224,7 @@ retransmit_all_pim_grafts(arg)
 	graft_ptr = graft_ptr->next) {
 
 	IF_DEBUG(DEBUG_PIM_GRAFT)
-	    log(LOG_DEBUG, 0, "\tGRAFT src %s, grp %s",
+	    logit(LOG_DEBUG, 0, "\tGRAFT src %s, grp %s",
 		inet_fmt(graft_ptr->mrtlink->source->address, s1),
 		inet_fmt(graft_ptr->mrtlink->group->group, s2));
 
@@ -1268,7 +1268,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
          * non-directly connected router. Ignore it.
          */
         if (local_address(src) == NO_VIF)
-            log(LOG_INFO, 0,
+            logit(LOG_INFO, 0,
                 "Ignoring PIM_GRAFT from non-neighbor router %s",
                 inet_fmt(src, s1));
         return(FALSE);
@@ -1292,7 +1292,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
     GET_HOSTSHORT(holdtime, data_ptr);
 
     IF_DEBUG(DEBUG_PIM_GRAFT)
-	log(LOG_DEBUG, 0,
+	logit(LOG_DEBUG, 0,
 	    "PIM %s received from %s on vif %s",
 	    pimtype == PIM_GRAFT ? "GRAFT" : "GRAFT-ACK",
 	    inet_fmt(src, s1), inet_fmt(uvifs[vifi].uv_lcl_addr, s2));
@@ -1325,7 +1325,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
 	    if(pimtype == PIM_GRAFT) {
 		/* Graft */
 		IF_DEBUG(DEBUG_PIM_GRAFT)
-		    log(LOG_DEBUG, 0,
+		    logit(LOG_DEBUG, 0,
 			"\tGRAFT src %s, group %s - forward data on vif %d",
 			inet_fmt(source, s1), inet_fmt(group, s2), vifi);
 		
@@ -1360,7 +1360,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
     /* Respond to graft with a graft-ack */
     if(pimtype == PIM_GRAFT) {
 	IF_DEBUG(DEBUG_PIM_GRAFT)
-	    log(LOG_DEBUG, 0, "Sending GRAFT-ACK: vif %s, dst %s",
+	    logit(LOG_DEBUG, 0, "Sending GRAFT-ACK: vif %s, dst %s",
 		inet_fmt(uvifs[vifi].uv_lcl_addr, s1), inet_fmt(src, s2));
 	bcopy(pim_message, pim_send_buf + sizeof(struct ip), datalen);
 	send_pim(pim_send_buf, uvifs[vifi].uv_lcl_addr, 
@@ -1389,7 +1389,7 @@ send_pim_graft(mrtentry_ptr)
     /* Set up retransmission */
     new_graft = (pim_graft_entry_t *)malloc(sizeof(pim_graft_entry_t));
     if (new_graft == (pim_graft_entry_t *)NULL) {
-	log(LOG_WARNING, 0, 
+	logit(LOG_WARNING, 0, 
 	    "Memory allocation error for graft entry src %s, grp %s",
 	    inet_fmt(mrtentry_ptr->source->address, s1),
 	    inet_fmt(mrtentry_ptr->group->group, s2));
