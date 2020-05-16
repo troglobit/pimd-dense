@@ -609,10 +609,23 @@ restart(i)
     free_all_callouts();
     stop_all_vifs();
     k_stop_pim(igmp_socket);
+
+    nhandlers = 0;
     close(igmp_socket);
     close(pim_socket);
+
+    /*
+     * When IOCTL_OK_ON_RAW_SOCKET is defined, 'udp_socket' is equal
+     * 'to igmp_socket'. Therefore, 'udp_socket' should be closed only
+     * if they are different.
+     */
+#ifndef IOCTL_OK_ON_RAW_SOCKET
     close(udp_socket);
+#endif
     
+    /* Both for Linux netlink and BSD routing socket */
+    close(routing_socket);
+
     /*
      * start processing again
      */
