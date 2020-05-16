@@ -226,8 +226,7 @@ main(argc, argv)
 	if (strcmp(*argv, "-d") == 0) {
 	    if (argc > 1 && *(argv + 1)[0] != '-') { 
 		char *p,*q;
-		int i, len;
-		struct debugname *d;
+		int len;
 		
 		argv++;
 		argc--;
@@ -239,16 +238,16 @@ main(argc, argv)
 			*q++ = '\0';
 		    len = strlen(p);
 		    for (i = 0, d = debugnames;
-			 i < sizeof(debugnames) / sizeof(debugnames[0]);
+			 (size_t)i < sizeof(debugnames) / sizeof(debugnames[0]);
 			 i++, d++)
 			if (len >= d->nchars && strncmp(d->name, p, len) == 0)
 			    break;
-		    if (i == sizeof(debugnames) / sizeof(debugnames[0])) {
+		    if ((size_t)i == sizeof(debugnames) / sizeof(debugnames[0])) {
 			int j = 0xffffffff;
 			int k = 0;
 			fprintf(stderr, "Valid debug levels: ");
 			for (i = 0, d = debugnames;
-			     i < sizeof(debugnames) / sizeof(debugnames[0]);
+			     (size_t)i < sizeof(debugnames) / sizeof(debugnames[0]);
 			     i++, d++) {
 			    if ((j & d->level) == d->level) {
 				if (k++)
