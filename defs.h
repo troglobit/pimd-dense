@@ -86,6 +86,7 @@
 #ifdef RSRR
 #include <sys/un.h>
 #endif /* RSRR */
+#include <time.h>
 
 typedef u_int   u_int32;
 typedef u_short u_int16;
