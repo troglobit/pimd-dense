@@ -236,15 +236,19 @@ log_level(proto, type, code)
 	    case DVMRP_NEIGHBORS2:
 		return LOG_INFO;
 	    }
+	    break;
+
 	case IGMP_PIM:
 	    /* PIM v1 */
 	    switch (code) {
 	    default:
 		return LOG_INFO;
 	    }
+
 	default:
 	    return LOG_WARNING;
 	}
+	break;
 	
     case IPPROTO_PIM:
 	/* PIM v2 */
@@ -252,9 +256,12 @@ log_level(proto, type, code)
 	default:
 	    return LOG_INFO;
 	}
+	break;
+
     default:
 	return LOG_WARNING;
     }
+
     return LOG_WARNING;
 }
 
