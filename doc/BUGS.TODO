@@ -57,6 +57,3 @@ KURT:
   * Test the RSRR (RSVP support) code
 
   * Send Initial_Reply RSRR message if the interfaces detected by pimd change
-
-  * SNMP support 
-

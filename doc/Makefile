@@ -33,21 +33,6 @@ PROG_VERSION =  ${PROG_NAME}-${VERSION}
 PROG_CVS_VERSION = ${PROG_NAME}_${CVS_VERSION}
 PROG_CVS_LAST_VERSION = ${PROG_NAME}_${CVS_LAST_VERSION}
 
-# TODO: XXX: CURRENTLY SNMP NOT SUPPORTED!!!!
-#
-# Uncomment the following eight lines if you want to use David Thaler's
-# CMU SNMP daemon support.
-#
-#SNMPDEF=	-DSNMP
-#SNMPLIBDIR=	-Lsnmpd -Lsnmplib
-#SNMPLIBS=	-lsnmpd -lsnmp
-#CMULIBS=	snmpd/libsnmpd.a snmplib/libsnmp.a
-#MSTAT=		mstat
-#SNMP_SRCS=	snmp.c
-#SNMP_OBJS=	snmp.o
-#SNMPCLEAN=	snmpclean
-# End SNMP support
-
 #CONFIGCONFIGCONFIG
 # Uncomment the following line if you want to use RSRR (Routing
 # Support for Resource Reservations), currently used by RSVP.
@@ -63,36 +48,36 @@ PURIFY=		purify -cache-dir=/tmp -collector=/import/pkgs/gcc/lib/gcc-lib/sparc-su
 #CONFIGCONFIGCONFIG
 ### Compilation flags for different platforms. Uncomment only one of them
 ## FreeBSD
-#CFLAGS+=	${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlog=logit ${CPPFLAGS}
+#CFLAGS+=	${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlog=logit ${CPPFLAGS}
 
 ## NetBSD   -DNetBSD is done by OS
-#CFLAGS= -Wall -g	-Iinclude/netbsd ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DPIM
+#CFLAGS= -Wall -g	-Iinclude/netbsd ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DPIM
 
 ## BSDI
-#CFLAGS=  -g	 ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DBSDI -DPIM
+#CFLAGS=  -g	 ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DBSDI -DPIM
 
 ## SunOS, OSF1, gcc
-#CFLAGS= -Wall -g	-Iinclude/sunos-gcc ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DSunOS=43 -DPIM
+#CFLAGS= -Wall -g	-Iinclude/sunos-gcc ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DSunOS=43 -DPIM
 ## SunOS, OSF1, cc
-#CFLAGS= -g		-Iinclude/sunos-cc ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DSunOS=43 -DPIM
+#CFLAGS= -g		-Iinclude/sunos-cc ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DSunOS=43 -DPIM
 
 ## IRIX
-#CFLAGS= -Wall -g	 ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -D_BSD_SIGNALS -DIRIX -DPIM
+#CFLAGS= -Wall -g	 ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -D_BSD_SIGNALS -DIRIX -DPIM
 
 ## Solaris 2.5, gcc
-#CFLAGS= -Wall	-g ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=55 -DPIM
+#CFLAGS= -Wall	-g ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=55 -DPIM
 ## Solaris 2.5, cc
-#CFLAGS= 	-g ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=55 -DPIM
+#CFLAGS= 	-g ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=55 -DPIM
 ## Solaris 2.6
-#CFLAGS=	-g ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=56 -DPIM
+#CFLAGS=	-g ${MCAST_INCLUDE} ${RSRRDEF} ${MISCDEFS} -DSYSV -DSunOS=56 -DPIM
 ## Solaris 2.x
 #LIB2=		-L/usr/ucblib -lucb -L/usr/lib -lsocket -lnsl
 
 ## Linux
-CFLAGS=  -Iinclude -Iinclude/linux ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -D__BSD_SOURCE -DRAW_INPUT_IS_RAW -DRAW_OUTPUT_IS_RAW -DIOCTL_OK_ON_RAW_SOCKET -DPIM -Dlog=logit
+CFLAGS=  -Iinclude -Iinclude/linux ${RSRRDEF} ${MISCDEFS} -D__BSD_SOURCE -DRAW_INPUT_IS_RAW -DRAW_OUTPUT_IS_RAW -DIOCTL_OK_ON_RAW_SOCKET -DPIM -Dlog=logit
 
 
-LIBS=		${SNMPLIBDIR} ${SNMPLIBS} ${LIB2}
+LIBS=		${LIB2}
 LINTFLAGS=	${MCAST_INCLUDE} ${CFLAGS}
 
 IGMP_SRCS=	igmp.c igmp_proto.c trace.c
@@ -111,9 +96,9 @@ RSRR_HDRS=      rsrr.h rsrr_var.h
 HDRS=		debug.h defs.h dvmrp.h igmpv2.h mrt.h pathnames.h pimdd.h \
 		trace.h vif.h  ${RSRR_HDRS}
 SRCS=		${IGMP_SRCS} ${ROUTER_SRCS} ${PIM_SRCS} ${DVMRP_SRCS} \
-		${SNMP_SRCS} ${RSRR_SRCS}
+		${RSRR_SRCS}
 OBJS=		${IGMP_OBJS} ${ROUTER_OBJS} ${PIM_OBJS} ${DVMRP_OBJS} \
-		${SNMP_OBJS} ${RSRR_OBJS}
+		${RSRR_OBJS}
 DISTFILES=	README CHANGES ${SRCS} ${HDRS} VERSION LICENSE \
 		LICENSE.mrouted Makefile pimdd.conf BUGS.TODO include
 
@@ -134,12 +119,6 @@ purify: ${OBJS}
 vers.c:	VERSION
 	rm -f $@
 	sed -e 's/.*/char todaysversion[]="&";/' < VERSION > vers.c
-
-snmpd/libsnmpd.a:
-	cd snmpd; make)
-
-snmplib/libsnmp.a:
-	(cd snmplib; make)
 
 release: cvs-commit cvs-tag last-dist
 
@@ -193,12 +172,8 @@ install:	${PROG_NAME}
 	cp pimdd.conf /etc
 	echo "Don't forget to check/edit /etc/pimdd.conf!!!"
 
-clean:	FRC ${SNMPCLEAN}
+clean:	FRC
 	rm -f ${OBJS} core ${PROG_NAME} tags TAGS
-
-snmpclean:	FRC
-	-(cd snmpd; make clean)
-	-(cd snmplib; make clean)
 
 depend:	FRC
 	mkdep ${CFLAGS} ${SRCS}

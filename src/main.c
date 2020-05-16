@@ -43,10 +43,6 @@
 
 #include "defs.h"
 
-#ifdef SNMP
-#include "snmp.h"
-#endif
-
 char configfilename[256] = _PATH_PIMD_CONF;
 char versionstring[100];
 
@@ -65,12 +61,7 @@ static int sighandled = 0;
 #define GOT_SIGUSR2     0x08
 #define GOT_SIGALRM     0x10
 
-
-#ifdef SNMP
-#define NHANDLERS       34
-#else
 #define NHANDLERS       3
-#endif
 
 static struct ihandler {
     int fd;			/* File descriptor               */
@@ -279,17 +270,6 @@ main(argc, argv)
 	    }
 	    else
 		return usage(1);
-/* TODO: not implemented */
-#ifdef SNMP
-	}
-	else if (strcmp(*argv, "-P") == 0) {
-	    if (argc > 1 && isdigit(*(argv + 1)[0])) {
-		argv++, argc--;
-		dest_port = atoi(*argv);
-	    }
-	    else
-		dest_port = DEFAULT_PORT;
-#endif
 	}
 	else if (strcmp(*argv, "-h") == 0)
 	    return usage(0);
@@ -344,10 +324,6 @@ main(argc, argv)
     
     /* TODO: check the kernel DVMRP/MROUTED/PIM support version */
     
-#ifdef SNMP
-    if (i = snmp_init())
-	return i;
-#endif /* SNMP */
     init_vifs();
     
 #ifdef RSRR
@@ -626,10 +602,6 @@ static void
 restart(i)
     int i;
 {
-#ifdef SNMP
-    int s;
-#endif /* SNMP */
-    
     logit(LOG_NOTICE, 0, "% restart", versionstring);
     
     /*
@@ -653,10 +625,6 @@ restart(i)
     init_pim();
     init_routesock();
     init_pim_mrt();
-#ifdef SNMP
-    if ( s = snmp_init())
-	exit(s);
-#endif /* SNMP */
     init_vifs();
 
 #ifdef RSRR
