@@ -651,9 +651,7 @@ restart(i)
     
     init_igmp();
     init_pim();
-#ifdef HAVE_ROUTING_SOCKETS
     init_routesock();
-#endif /* HAVE_ROUTING_SOCKETS */
     init_pim_mrt();
 #ifdef SNMP
     if ( s = snmp_init())
