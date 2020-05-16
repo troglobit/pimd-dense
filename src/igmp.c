@@ -161,15 +161,8 @@ accept_igmp(recvlen)
     }
     
     iphdrlen  = ip->ip_hl << 2;
-#ifdef RAW_INPUT_IS_RAW
-    ipdatalen = ntohs(ip->ip_len) - iphdrlen;
-#else
- #if __FreeBSD_version >= 1000000
-	ipdatalen = ip->ip_len - iphdrlen;
- #else
-    ipdatalen = ip->ip_len;
- #endif
-#endif
+    ipdatalen = recvlen - iphdrlen;
+
     if (iphdrlen + ipdatalen != recvlen) {
 	log(LOG_WARNING, 0,
 	    "received packet from %s shorter (%u bytes) than hdr+data length (%u+%u)",
