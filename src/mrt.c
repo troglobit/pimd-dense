@@ -25,15 +25,6 @@
  *  SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT,
  *  TORT, OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH,
  *  THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- *  Other copyrights might apply to parts of this software and are so
- *  noted when applicable.
- */
-/*
- *  Questions concerning this software should be directed to 
- *  Kurt Windisch (kurtw@antc.uoregon.edu)
- *
- *  $Id: mrt.c,v 1.16 1998/12/22 21:50:17 kurtw Exp $
  */
 /*
  * Part of this program has been derived from PIM sparse-mode pimd.
@@ -48,7 +39,6 @@
  * 
  * The mrouted program is COPYRIGHT 1989 by The Board of Trustees of
  * Leland Stanford Junior University.
- *
  */
 
 #include "defs.h"
