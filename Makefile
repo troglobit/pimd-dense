@@ -63,7 +63,7 @@ PURIFY=		purify -cache-dir=/tmp -collector=/import/pkgs/gcc/lib/gcc-lib/sparc-su
 #CONFIGCONFIGCONFIG
 ### Compilation flags for different platforms. Uncomment only one of them
 ## FreeBSD
-CFLAGS+=	${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlog=logit ${CPPFLAGS}
+#CFLAGS+=	${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlog=logit ${CPPFLAGS}
 
 ## NetBSD   -DNetBSD is done by OS
 #CFLAGS= -Wall -g	-Iinclude/netbsd ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DPIM
@@ -89,7 +89,7 @@ CFLAGS+=	${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -DFreeBSD -DPIM -Dlo
 #LIB2=		-L/usr/ucblib -lucb -L/usr/lib -lsocket -lnsl
 
 ## Linux
-#CFLAGS= -Wall -g ${MCAST_INCLUDE} ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -D__BSD_SOURCE -DRAW_INPUT_IS_RAW -DRAW_OUTPUT_IS_RAW -DIOCTL_OK_ON_RAW_SOCKET -DLinux -DPIM
+CFLAGS=  -Iinclude -Iinclude/linux ${SNMPDEF} ${RSRRDEF} ${MISCDEFS} -D__BSD_SOURCE -DRAW_INPUT_IS_RAW -DRAW_OUTPUT_IS_RAW -DIOCTL_OK_ON_RAW_SOCKET -DPIM -Dlog=logit
 
 
 LIBS=		${SNMPLIBDIR} ${SNMPLIBS} ${LIB2}
