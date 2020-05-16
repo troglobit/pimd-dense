@@ -76,17 +76,15 @@ systems, unless you know what you are doing!
 Origin & References
 -------------------
 
-Parts of this program has been derived from both the PIM sparse-mode
-daemon, pimd, which in turn is based on the DVMRP daemon mrouted.
+pimdd was written by Kurt Windisch when he was at University of Oregon.
+It is based on the PIM sparse-mode daemon, pimd, which in turn is based
+on the DVMRP daemon mrouted.
 
-The pimd program is covered by the license in the accompanying file
-named [LICENSE.pimd](doc/LICENSE.pimd), Copyright 1998-2001 University
-of Southern California.
+pimd is covered by [LICENSE.pimd](doc/LICENSE.pimd), Copyright 1998-2001
+University of Southern California.
 
-The mrouted program is covered by the 3-clause BSD license, available in
-the accompanying file named [LICENSE.mrouted](doc/LICENSE.mrouted).
-Copyright 2002 The Board of Trustees of Leland Stanford Junior University
-
+mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted).  Copyright
+2002 The Board of Trustees of Leland Stanford Junior University
 
 [pimd]:    https://github.com/troglobit/pimd
 [draft]:   https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-05
