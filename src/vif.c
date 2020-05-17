@@ -291,7 +291,7 @@ stop_vif(vifi)
     /*
      * Delete the interface from the kernel's vif structure.
      */
-    k_del_vif(igmp_socket, vifi);
+    k_del_vif(igmp_socket, vifi, v);
     v->uv_flags     = (v->uv_flags & ~VIFF_DR & ~VIFF_QUERIER & ~VIFF_NONBRS )
 	              | VIFF_DOWN;
     RESET_TIMER(v->uv_pim_hello_timer);

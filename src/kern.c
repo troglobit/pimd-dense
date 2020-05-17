@@ -251,6 +251,17 @@ void k_leave(socket, grp, ifa)
 	    inet_fmt(grp, s1), inet_fmt(ifa, s2));
 }
 
+/*
+ * Fill struct vifctl using corresponding fields from struct uvif.
+ */
+static void uvif_to_vifctl(struct vifctl *vc, struct uvif *v)
+{
+    vc->vifc_flags           = v->uv_flags;
+    vc->vifc_threshold       = v->uv_threshold;
+    vc->vifc_rate_limit      = v->uv_rate_limit;
+    vc->vifc_lcl_addr.s_addr = v->uv_lcl_addr;
+    vc->vifc_rmt_addr.s_addr = v->uv_rmt_addr;
+}
 
 /*
  * Add a virtual interface in the kernel.
@@ -263,15 +274,7 @@ void k_add_vif(socket, vifi, v)
     struct vifctl vc = { 0 };
 
     vc.vifc_vifi            = vifi;
-    /* TODO: only for DVMRP tunnels?
-    vc.vifc_flags           = v->uv_flags & VIFF_KERNEL_FLAGS;
-    */
-    vc.vifc_flags           = v->uv_flags;
-    vc.vifc_threshold       = v->uv_threshold;
-    vc.vifc_rate_limit	    = v->uv_rate_limit;
-    vc.vifc_lcl_addr.s_addr = v->uv_lcl_addr;
-    vc.vifc_rmt_addr.s_addr = v->uv_rmt_addr;
-
+    uvif_to_vifctl(&vc, v);
     if (setsockopt(socket, IPPROTO_IP, MRT_ADD_VIF,
 		   (char *)&vc, sizeof(vc)) < 0)
 	logit(LOG_ERR, errno, "setsockopt MRT_ADD_VIF on vif %d", vifi);
@@ -281,12 +284,28 @@ void k_add_vif(socket, vifi, v)
 /*
  * Delete a virtual interface in the kernel.
  */
-void k_del_vif(socket, vifi)
+void k_del_vif(socket, vifi, v)
     int socket;
     vifi_t vifi;
+    struct uvif *v;
 {
-    if (setsockopt(socket, IPPROTO_IP, MRT_DEL_VIF,
-		   (char *)&vifi, sizeof(vifi)) < 0)
+    int rc;
+#ifdef __linux__
+    struct vifctl vc;
+
+    /*
+     * Unfortunately Linux MRT_DEL_VIF API differs a bit from the *BSD one.  It
+     * expects to receive a pointer to struct vifctl that corresponds to the VIF
+     * we're going to delete.  *BSD systems on the other hand exepect only the
+     * index of that VIF.
+     */
+    vc.vifc_vifi = vifi;
+    uvif_to_vifctl(&vc, v);	       /* 'v' is used only on Linux systems. */
+    rc = setsockopt(socket, IPPROTO_IP, MRT_DEL_VIF, &vc, sizeof(vc));
+#else /* *BSD et al. */
+    rc = setsockopt(socket, IPPROTO_IP, MRT_DEL_VIF, &vifi, sizeof(vifi));
+#endif
+    if (rc < 0)
 	logit(LOG_ERR, errno, "setsockopt MRT_DEL_VIF on vif %d", vifi);
 }
 

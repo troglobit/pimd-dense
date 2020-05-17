@@ -386,7 +386,7 @@ extern void     k_stop_pim      ();
 extern int      k_del_mfc       (int socket, u_int32 source, u_int32 group);
 extern int      k_chg_mfc       (int socket, u_int32 source, u_int32 group, vifi_t iif, vifbitmap_t oifs);
 extern void     k_add_vif       (int socket, vifi_t vifi, struct uvif *v);
-extern void     k_del_vif       (int socket, vifi_t vifi);
+extern void     k_del_vif       (int socket, vifi_t vifi, struct uvif *v);
 extern int      k_get_vif_count (vifi_t vifi, struct vif_count *retval);
 extern int      k_get_sg_cnt    (int socket, u_int32 source, u_int32 group, struct sg_count *retval);
 
