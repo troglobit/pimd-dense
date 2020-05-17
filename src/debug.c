@@ -62,8 +62,8 @@ unsigned long debug = 0x00000000;        /* If (long) is smaller than
 					  * 4 bytes, then we are in
 					  * trouble.
 					  */
-static char dumpfilename[] = _PATH_PIMD_DUMP;
-static char cachefilename[] = _PATH_PIMD_CACHE; /* TODO: notused */
+char dumpfilename[] = _PATH_PIMD_DUMP;
+char cachefilename[] = _PATH_PIMD_CACHE; /* TODO: notused */
 
 
 char *
@@ -322,7 +322,7 @@ dump_vifs(fp)
     int width;
     int i;
     
-    fprintf(fp, "\nVirtual Interface Table\n %-4s %-17s %-16s %-8s %-14s %s",
+    fprintf(fp, "Virtual Interface Table\n %-4s %-17s %-16s %-8s %-14s %s",
 	    "Vif", "Local-Address", "Subnet", "Thresh", "Flags",
 	    "Neighbors\n");
     
@@ -513,6 +513,6 @@ dump_pim_mrt(fp)
 	}
     }/* for all groups */
 
-    fprintf(fp, "Number of Groups: %u\n", number_of_groups);
+    fprintf(fp, "Number of Groups: %u\n\n", number_of_groups);
 }
 

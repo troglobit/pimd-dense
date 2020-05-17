@@ -325,6 +325,7 @@ extern void config_vifs_from_kernel ();
 extern void config_vifs_from_file   ();
 
 /* debug.c */
+extern char     dumpfilename[];
 extern int      log_syslog;
 extern int      log_level;
 

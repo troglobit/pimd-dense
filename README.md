@@ -27,12 +27,16 @@ Because there are many debug messages, you can specify only a subset of
 the messages to be printed out:
 
 ```
-Usage: pimdd [-hv] [-f FILE] [-d SYS[,SYS]]
+Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
 
  -d SYS    Enable debug of subsystem(s)
  -f FILE   Configuration file, default: /etc/pimdd.conf
  -h        This help text
+ -l LVL    Set log level: none, err, notice (default), info, debug
  -n        Run in foreground, do not detach from calling terminal
+ -p        Send SIGHUP to poke a running pimdd to reload /etc/pimdd.conf
+ -q        Send SIGTERM to a running pimdd
+ -r        Show state of VIFs and multicast routing tables
  -s        Use syslog, default unless running in foreground, -n
  -v        Show program version
 
