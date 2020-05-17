@@ -75,17 +75,6 @@ static struct debugname {
     int	    level;
     size_t  nchars;
 } debugnames[] = {
-    {   "dvmrp_detail",	    DEBUG_DVMRP_DETAIL,   5	    },
-    {   "dvmrp_prunes",	    DEBUG_DVMRP_PRUNE,    8	    },
-    {   "dvmrp_pruning",    DEBUG_DVMRP_PRUNE,    8	    },
-    {   "dvmrp_mrt",        DEBUG_DVMRP_ROUTE,    7	    },
-    {   "dvmrp_routes",	    DEBUG_DVMRP_ROUTE,    7	    },
-    {   "dvmrp_routing",    DEBUG_DVMRP_ROUTE,    7	    },
-    {   "dvmrp_neighbors",  DEBUG_DVMRP_PEER,     7	    },
-    {   "dvmrp_peers",	    DEBUG_DVMRP_PEER,     8	    },
-    {   "dvmrp_hello",      DEBUG_DVMRP_PEER,     7	    },
-    {   "dvmrp_timers",	    DEBUG_DVMRP_TIMER,    7	    },
-    {   "dvmrp",	    DEBUG_DVMRP,          1	    },
     {   "igmp_proto",	    DEBUG_IGMP_PROTO,     6	    },
     {   "igmp_timers",	    DEBUG_IGMP_TIMER,     6	    },
     {   "igmp_members",	    DEBUG_IGMP_MEMBER,    6	    },
