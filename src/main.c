@@ -52,7 +52,7 @@ static char pidfilename[]  = _PATH_PIMD_PID;
 static char genidfilename[] = _PATH_PIMD_GENID;
 */
 
-int haveterminal = 1;
+int   foreground = 0;
 char *progname;
 
 static int sighandled = 0;
@@ -225,9 +225,11 @@ int usage(int code)
     char buf[768];
 
     printf("Usage: %s [-hv] [-f FILE] [-d SYS[,SYS]]\n\n", progname);
-    printf(" -f FILE   Configuration file, default: %s\n", _PATH_PIMD_CONF);
     printf(" -d SYS    Enable debug of subsystem(s)\n");
+    printf(" -f FILE   Configuration file, default: %s\n", _PATH_PIMD_CONF);
     printf(" -h        This help text\n");
+    printf(" -n        Run in foreground, do not detach from calling terminal\n");
+    printf(" -s        Use syslog, default unless running in foreground, -n\n");
     printf(" -v        Show program version\n");
     
     fprintf(stderr, "\nAvailable subystems for debug:\n");
@@ -291,7 +293,7 @@ main(argc, argv)
     else
 	progname = argv[0];
 
-    while ((ch = getopt(argc, argv, "d:f:h?v")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?nsv")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -307,6 +309,17 @@ main(argc, argv)
 	case '?':
 	case 'h':
 	    return usage(0);
+
+	case 'n':
+	    foreground = 1;
+	    if (log_syslog > 0)
+		log_syslog--;
+	    break;
+
+	case 's':
+	    if (log_syslog == 0)
+		log_syslog++;
+	    break;
 
 	case 'v':
 	    printf("%s\n", versionstring);
@@ -333,10 +346,42 @@ main(argc, argv)
 	exit(1);
     }
 
-    openlog(progname, LOG_PID, LOG_DAEMON);
-    setlogmask(LOG_UPTO(LOG_NOTICE));
+    if (!foreground) {
+	/* Detach from the terminal */
+#ifdef TIOCNOTTY
+      int t;
+#endif /* TIOCNOTTY */
 
-    logit(LOG_DEBUG, 0, "%s starting", versionstring);
+	if (fork())
+	    exit(0);
+	close(0);
+	close(1);
+	close(2);
+	(void)open("/", 0);
+	dup2(0, 1);
+	dup2(0, 2);
+#if defined(SYSV) || defined(__linux__)
+	setpgrp();
+#else
+#ifdef TIOCNOTTY
+	t = open("/dev/tty", 2);
+	if (t >= 0) {
+	    (void)ioctl(t, TIOCNOTTY, NULL);
+	    close(t);
+	}
+#else
+	if (setsid() < 0)
+	    perror("setsid");
+#endif /* TIOCNOTTY */
+#endif /* SYSV */
+    } /* End of child process code */
+
+    if (log_syslog) {
+	openlog(progname, LOG_PID, LOG_DAEMON);
+	setlogmask(LOG_UPTO(log_level));
+    }
+
+    logit(LOG_NOTICE, 0, "%s starting", versionstring);
     
     /* TODO: XXX: use a combination of time and hostid to initialize the
      * random generator.
@@ -387,37 +432,6 @@ main(argc, argv)
     
     /* schedule first timer interrupt */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
-    
-    if (debug == 0) {
-	/* Detach from the terminal */
-#ifdef TIOCNOTTY
-      int t;
-#endif /* TIOCNOTTY */
-      
-	haveterminal = 0;
-	if (fork())
-	    exit(0);
-	(void)close(0);
-	(void)close(1);
-	(void)close(2);
-	(void)open("/", 0);
-	(void)dup2(0, 1);
-	(void)dup2(0, 2);
-#if defined(SYSV) || defined(__linux__)
-	(void)setpgrp();
-#else 
-#ifdef TIOCNOTTY
-	t = open("/dev/tty", 2);
-	if (t >= 0) {
-	    (void)ioctl(t, TIOCNOTTY, (char *)0);
-	    (void)close(t);
-	}
-#else
-	if (setsid() < 0)
-	    perror("setsid");
-#endif /* TIOCNOTTY */
-#endif /* SYSV */
-    } /* End of child process code */
     
     fp = fopen(pidfilename, "w");
     if (fp) {

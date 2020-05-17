@@ -29,26 +29,27 @@ the messages to be printed out:
 ```
 Usage: pimdd [-hv] [-f FILE] [-d SYS[,SYS]]
 
- -f FILE   Configuration file, default: /etc/pimdd.conf
  -d SYS    Enable debug of subsystem(s)
+ -f FILE   Configuration file, default: /etc/pimdd.conf
  -h        This help text
+ -n        Run in foreground, do not detach from calling terminal
+ -s        Use syslog, default unless running in foreground, -n
  -v        Show program version
 
 Available subystems for debug:
-  dvmrp_detail, dvmrp_prunes, dvmrp_pruning, dvmrp_mrt, dvmrp_routes,
-  dvmrp_routing, dvmrp_neighbors, dvmrp_peers, dvmrp_hello, dvmrp_timers,
-  dvmrp, igmp_proto, igmp_timers, igmp_members, groups, membership, igmp,
-  trace, mtrace, traceroute, timeout, callout, pkt, packets, interfaces, vif,
-  kernel, cache, mfc, k_cache, k_mfc, rsrr, pim_detail, pim_hello,
-  pim_neighbors, pim_register, registers, pim_join_prune, pim_j_p, pim_jp,
-  pim_graft, pim_bootstrap, pim_bsr, bsr, bootstrap, pim_asserts, pim_routes,
-  pim_routing, pim_mrt, pim_timers, pim_rpf, rpf, pim, routes, routing, mrt,
+  igmp_proto, igmp_timers, igmp_members, groups, membership, igmp, trace, 
+  mtrace, traceroute, timeout, callout, pkt, packets, interfaces, vif, kernel, 
+  cache, mfc, k_cache, k_mfc, rsrr, pim_detail, pim_hello, pim_neighbors, 
+  pim_register, registers, pim_join_prune, pim_j_p, pim_jp, pim_graft, 
+  pim_bootstrap, pim_bsr, bsr, bootstrap, pim_asserts, pim_routes, 
+  pim_routing, pim_mrt, pim_timers, pim_rpf, rpf, pim, routes, routing, mrt, 
   routers, mrouters, neighbors, timers, asserts, all, 3
 
 Bug report address: https://github.com/troglobit/pimdd/issues
 ```
 
-If you want to see all messages, use `pimdd -d all`
+If you want to see all messages, use `pimdd -d all`.  When debugging
+`pimdd`, it is recommended to run in foreground as well.
 
 
 Build & Install

@@ -325,7 +325,10 @@ extern void config_vifs_from_kernel ();
 extern void config_vifs_from_file   ();
 
 /* debug.c */
-extern char     *packet_kind (u_int proto, u_int type, u_int code);
+extern int      log_syslog;
+extern int      log_level;
+
+extern char    *packet_kind  (u_int proto, u_int type, u_int code);
 extern int      debug_kind   (u_int proto, u_int type, u_int code);
 extern void     logit        (int, int, char *, ...);
 extern int      log_severity (u_int proto, u_int type, u_int code);
@@ -387,6 +390,9 @@ extern int      k_get_vif_count (vifi_t vifi, struct vif_count *retval);
 extern int      k_get_sg_cnt    (int socket, u_int32 source, u_int32 group, struct sg_count *retval);
 
 /* main.c */
+extern int      foreground;
+extern char    *progname;
+
 extern int      register_input_handler (int fd, ihfunc_t func);
 
 /* mrt.c */

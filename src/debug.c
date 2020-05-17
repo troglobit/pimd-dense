@@ -55,10 +55,9 @@
 #include <varargs.h>
 #endif
 
-extern int haveterminal;
-extern char *progname;
-
-int log_nmsgs = 0;
+int log_level  = LOG_NOTICE;
+int log_syslog = 1;
+int log_nmsgs  = 0;
 unsigned long debug = 0x00000000;        /* If (long) is smaller than
 					  * 4 bytes, then we are in
 					  * trouble.
@@ -396,38 +395,48 @@ logit(int severity, int syserr, char *format, ...)
      * Log to stderr if we haven't forked yet and it's a warning or worse,
      * or if we're debugging.
      */
-    if (haveterminal && (debug || severity <= LOG_WARNING)) {
+    if (!log_syslog) {
+	if (severity > log_level)
+	    goto done;
+
 	gettimeofday(&now,NULL);
 	now_sec = now.tv_sec;
 	thyme = localtime(&now_sec);
+
 	if (!debug)
 	    fprintf(stderr, "%s: ", progname);
+
 	fprintf(stderr, "%02d:%02d:%02d.%03ld %s", thyme->tm_hour,
 		thyme->tm_min, thyme->tm_sec, now.tv_usec / 1000, msg);
-	if (syserr == 0)
-	    fprintf(stderr, "\n");
-	else
-	    fprintf(stderr, ": %s\n", strerror(syserr));
+	if (syserr )
+	    fprintf(stderr, ": %s", strerror(syserr));
+
+	fprintf(stderr, "\n");
+	goto done;
     }
     
     /*
      * Always log things that are worse than warnings, no matter what
      * the log_nmsgs rate limiter says.
+     *
      * Only count things worse than debugging in the rate limiter
      * (since if you put daemon.debug in syslog.conf you probably
      * actually want to log the debugging messages so they shouldn't
      * be rate-limited)
      */
     if ((severity < LOG_WARNING) || (log_nmsgs < LOG_MAX_MSGS)) {
-	if (severity < LOG_DEBUG)
+	if (severity <= log_level && (severity != LOG_DEBUG))
 	    log_nmsgs++;
+
 	if (syserr)
 	    syslog(severity, "%s: %s", msg, strerror(syserr));
 	else
 	    syslog(severity, "%s", msg);
     }
-    
-    if (severity <= LOG_ERR) exit(-1);
+
+done:
+    if (severity <= LOG_ERR)
+	    exit(-1);
 }
 
 /* TODO: format the output for better readability */
