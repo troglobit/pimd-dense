@@ -250,7 +250,7 @@ config_vifs_from_kernel()
 	    v->uv_name, inet_fmt(addr, s1), netname(subnet, mask),
 	    numvifs, v->uv_rate_limit);
 	++numvifs;
-	
+
 	/*
 	 * If the interface is not yet up, set the vifs_down flag to
 	 * remind us to check again later.
@@ -260,6 +260,9 @@ config_vifs_from_kernel()
 	    vifs_down = TRUE;
 	}
     }
+
+    if (ifc.ifc_buf)
+	free(ifc.ifc_buf);
 }
 
 /*

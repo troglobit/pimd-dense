@@ -672,13 +672,42 @@ timer(i)
 static void
 cleanup()
 {
-
 #ifdef RSRR
     rsrr_clean();
-#endif /* RSRR */
+#endif
     
-    /* TODO: XXX (not in the spec)
+    free_all_callouts();
+    stop_all_vifs();
+    k_stop_pim(igmp_socket);
+
+    /* TODO: move to igmp_clean() */
+    close(igmp_socket);
+    free(igmp_recv_buf);
+    free(igmp_send_buf);
+
+    /* TODO: move to pim_clean() */
+    close(pim_socket);
+    free(pim_recv_buf);
+    free(pim_send_buf);
+
+    /* TODO: move to mrt_clean() */
+    free(srclist);
+    free(grplist);
+
+    /*
+     * When IOCTL_OK_ON_RAW_SOCKET is defined, 'udp_socket' is equal
+     * 'to igmp_socket'. Therefore, 'udp_socket' should be closed only
+     * if they are different.
      */
+#ifndef IOCTL_OK_ON_RAW_SOCKET
+    close(udp_socket);
+#endif
+
+    /* Both for Linux netlink and BSD routing socket */
+    close(routing_socket);
+
+    /* No more socket callbacks */
+    nhandlers = 0;
 }
 
 
@@ -724,38 +753,20 @@ static void
 restart(i)
     int i;
 {
-    logit(LOG_NOTICE, 0, "% restart", versionstring);
+    logit(LOG_NOTICE, 0, "%s restart", versionstring);
     
     /*
      * reset all the entries
      */
+    cleanup();
+
     /* TODO: delete?
        free_all_routes();
        */
-    free_all_callouts();
-    stop_all_vifs();
-    k_stop_pim(igmp_socket);
-
-    nhandlers = 0;
-    close(igmp_socket);
-    close(pim_socket);
-
-    /*
-     * When IOCTL_OK_ON_RAW_SOCKET is defined, 'udp_socket' is equal
-     * 'to igmp_socket'. Therefore, 'udp_socket' should be closed only
-     * if they are different.
-     */
-#ifndef IOCTL_OK_ON_RAW_SOCKET
-    close(udp_socket);
-#endif
-    
-    /* Both for Linux netlink and BSD routing socket */
-    close(routing_socket);
 
     /*
      * start processing again
      */
-    
     init_igmp();
     init_pim();
     init_routesock();

@@ -70,7 +70,7 @@ init_pim()
     k_set_loop(pim_socket, FALSE);	  /* disable multicast loopback     */
 
     allpimrouters_group = htonl(INADDR_ALL_PIM_ROUTERS);
-    
+
     pim_recv_buf = malloc(RECV_BUF_SIZE);
     pim_send_buf = malloc(RECV_BUF_SIZE);
 
