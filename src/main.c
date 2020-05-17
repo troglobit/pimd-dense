@@ -140,10 +140,6 @@ static void restart (int);
 static void cleanup (void);
 static void resetlogging (void *);
 
-
-/* To shut up gcc -Wstrict-prototypes */
-int main (int argc, char **argv);
-
 int
 register_input_handler(fd, func)
     int fd;
@@ -156,6 +152,11 @@ ihfunc_t func;
     ihandlers[nhandlers++].func = func;
     
     return 0;
+}
+
+static void pidfile_cleanup(void)
+{
+    remove(pidfilename);
 }
 
 int debug_list(int mask, char *buf, size_t len)
@@ -455,7 +456,8 @@ main(argc, argv)
     
     /* schedule first timer interrupt */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
-    
+
+    atexit(pidfile_cleanup);
     fp = fopen(pidfilename, "w");
     if (fp) {
 	fprintf(fp, "%d\n", getpid());
