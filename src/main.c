@@ -41,6 +41,7 @@
  * Leland Stanford Junior University.
  */
 
+#define SYSLOG_NAMES
 #include <getopt.h>
 #include "defs.h"
 
@@ -220,14 +221,29 @@ int debug_parse(char *arg)
     return sys;
 }
 
+int log_str2lvl(char *level)
+{
+    int i;
+
+    for (i = 0; prioritynames[i].c_name; i++) {
+	size_t len = MIN(strlen(prioritynames[i].c_name), strlen(level));
+
+	if (!strncasecmp(prioritynames[i].c_name, level, len))
+	    return prioritynames[i].c_val;
+    }
+
+    return atoi(level);
+}
+
 int usage(int code)
 {
     char buf[768];
 
-    printf("Usage: %s [-hv] [-f FILE] [-d SYS[,SYS]]\n\n", progname);
+    printf("Usage: %s [-hnsv] [-f FILE] [-d SYS[,SYS]] [-l LVL]\n\n", progname);
     printf(" -d SYS    Enable debug of subsystem(s)\n");
     printf(" -f FILE   Configuration file, default: %s\n", _PATH_PIMD_CONF);
     printf(" -h        This help text\n");
+    printf(" -l LVL    Set log level: none, err, notice (default), info, debug\n");
     printf(" -n        Run in foreground, do not detach from calling terminal\n");
     printf(" -s        Use syslog, default unless running in foreground, -n\n");
     printf(" -v        Show program version\n");
@@ -293,11 +309,11 @@ main(argc, argv)
     else
 	progname = argv[0];
 
-    while ((ch = getopt(argc, argv, "d:f:h?nsv")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?l:nsv")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
-	    if ((int)DEBUG_PARSE_FAIL == rc)
+	    if (rc == (int)DEBUG_PARSE_FAIL)
 		return usage(1);
 	    debug = rc;
 	    break;
@@ -309,6 +325,13 @@ main(argc, argv)
 	case '?':
 	case 'h':
 	    return usage(0);
+
+	case 'l':
+	    rc = log_str2lvl(optarg);
+	    if (rc == -1)
+		return usage(1);
+	    log_level = rc;
+	    break;
 
 	case 'n':
 	    foreground = 1;
