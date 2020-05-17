@@ -260,7 +260,7 @@ void k_add_vif(socket, vifi, v)
     vifi_t vifi;
     struct uvif *v;
 {
-    struct vifctl vc;
+    struct vifctl vc = { 0 };
 
     vc.vifc_vifi            = vifi;
     /* TODO: only for DVMRP tunnels?
@@ -300,7 +300,7 @@ k_del_mfc(socket, source, group)
     u_int32 source;
     u_int32 group;
 {
-    struct mfcctl mc;
+    struct mfcctl mc = { 0 };
 
     mc.mfcc_origin.s_addr   = source;
     mc.mfcc_mcastgrp.s_addr = group;
@@ -331,9 +331,9 @@ k_chg_mfc(socket, source, group, iif, oifs)
     vifi_t iif;
     vifbitmap_t oifs;
 {
-    struct mfcctl mc;
-    vifi_t vifi;
+    struct mfcctl mc = { 0 };
     struct uvif *v;
+    vifi_t vifi;
 
     mc.mfcc_origin.s_addr = source;
 #ifdef OLD_KERNEL
@@ -369,8 +369,8 @@ int k_get_vif_count(vifi, retval)
     vifi_t vifi;
     struct vif_count *retval;
 {
-    struct sioc_vif_req vreq;
-    
+    struct sioc_vif_req vreq = { 0 };
+
     vreq.vifi = vifi;
     if (ioctl(udp_socket, SIOCGETVIFCNT, (char *)&vreq) < 0) {
 	logit(LOG_WARNING, errno, "SIOCGETVIFCNT on vif %d", vifi);
@@ -397,7 +397,7 @@ k_get_sg_cnt(socket, source, group, retval)
     u_int32 group;
     struct sg_count *retval;
 {
-    struct sioc_sg_req sgreq;
+    struct sioc_sg_req sgreq = { 0 };
     
     sgreq.src.s_addr = source;
     sgreq.grp.s_addr = group;
