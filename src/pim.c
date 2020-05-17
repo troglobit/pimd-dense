@@ -228,22 +228,25 @@ send_pim(buf, src, dst, type, datalen)
     extern int curttl;
 #endif /* RAW_OUTPUT_IS_RAW */
     int setloop = 0;
-    
+
     /* Prepare the IP header */
     ip                 = (struct ip *)buf;
     ip->ip_len	       = sizeof(struct ip) + sizeof(pim_header_t) + datalen;
+    ip->ip_id          = 0;                 /* let kernel fill in */
+    ip->ip_off         = 0;
     ip->ip_src.s_addr  = src;
     ip->ip_dst.s_addr  = dst;
     ip->ip_ttl         = MAXTTL;            /* applies to unicast only */
     sendlen            = ip->ip_len;
 #ifdef RAW_OUTPUT_IS_RAW
     ip->ip_len         = htons(ip->ip_len);
-#endif /* RAW_OUTPUT_IS_RAW */
+#endif
     
     /* Prepare the PIM packet */
     pim		       = (pim_header_t *)(buf + sizeof(struct ip));
     pim->pim_type      = type;
-    pim->pim_vers       = PIM_PROTOCOL_VERSION;
+    pim->pim_vers      = PIM_PROTOCOL_VERSION;
+    pim->pim_reserved  = 0;
     pim->pim_cksum     = 0;
    /* TODO: XXX: if start using this code for PIM_REGISTERS, exclude the
     * encapsulated packet from the checsum.
