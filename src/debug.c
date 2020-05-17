@@ -221,7 +221,7 @@ debug_kind(proto, type, code)
  * reachability and someone is trying to, i.e., mrinfo me periodically.
  */
 int
-log_level(proto, type, code)
+log_severity(proto, type, code)
     u_int proto, type, code;
 {
     switch (proto) {

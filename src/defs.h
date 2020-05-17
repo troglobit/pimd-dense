@@ -335,7 +335,7 @@ extern void config_vifs_from_file   ();
 extern char     *packet_kind (u_int proto, u_int type, u_int code);
 extern int      debug_kind   (u_int proto, u_int type, u_int code);
 extern void     logit        (int, int, char *, ...);
-extern int      log_level    (u_int proto, u_int type, u_int code);
+extern int      log_severity (u_int proto, u_int type, u_int code);
 extern void     dump         (int i);
 extern void     fdump        (int i);
 extern void     cdump        (int i);

@@ -342,7 +342,7 @@ send_igmp(buf, src, dst, type, code, group, datalen)
 	if (errno == ENETDOWN)
 	    check_vif_state();
 	else
-	    logit(log_level(IPPROTO_IGMP, type, code), errno,
+	    logit(log_severity(IPPROTO_IGMP, type, code), errno,
 		"sendto to %s on %s", inet_fmt(dst, s1), inet_fmt(src, s2));
 	if (setloop)
 	    k_set_loop(igmp_socket, FALSE);
