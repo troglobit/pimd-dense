@@ -26,13 +26,29 @@ Run pimdd as a root.  It is highly recommended to run it in debug mode.
 Because there are many debug messages, you can specify only a subset of
 the messages to be printed out:
 
-    usage: pimdd [-f configfile] [-d [debug_level][,debug_level]]
+```
+Usage: pimdd [-hv] [-f FILE] [-d SYS[,SYS]]
 
-Valid debug levels:
+ -f FILE   Configuration file, default: /etc/pimdd.conf
+ -d SYS    Enable debug of subsystem(s)
+ -h        This help text
+ -v        Show program version
 
-    dvmrp_prunes,dvmrp_mrt,dvmrp_neighbors,dvmrp_timers,igmp_proto,igmp_timers,igmp_members,trace,timeout,pkt,interfaces,kernel,cache,rsrr,pim_hello,pim_register,pim_join_prune,pim_graft,pim_bootstrap,pim_asserts,pim_cand_rp,pim_routes,pim_timers,pim_rpf
+Available subystems for debug:
+  dvmrp_detail, dvmrp_prunes, dvmrp_pruning, dvmrp_mrt, dvmrp_routes,
+  dvmrp_routing, dvmrp_neighbors, dvmrp_peers, dvmrp_hello, dvmrp_timers,
+  dvmrp, igmp_proto, igmp_timers, igmp_members, groups, membership, igmp,
+  trace, mtrace, traceroute, timeout, callout, pkt, packets, interfaces, vif,
+  kernel, cache, mfc, k_cache, k_mfc, rsrr, pim_detail, pim_hello,
+  pim_neighbors, pim_register, registers, pim_join_prune, pim_j_p, pim_jp,
+  pim_graft, pim_bootstrap, pim_bsr, bsr, bootstrap, pim_asserts, pim_routes,
+  pim_routing, pim_mrt, pim_timers, pim_rpf, rpf, pim, routes, routing, mrt,
+  routers, mrouters, neighbors, timers, asserts, all, 3
 
-If you want to see all messages, use `pimdd -d` only.
+Bug report address: https://github.com/troglobit/pimdd/issues
+```
+
+If you want to see all messages, use `pimdd -d all`
 
 
 Build & Install

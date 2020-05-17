@@ -108,13 +108,6 @@ extern int log_nmsgs;
 #define DEBUG_TIMER           ( DEBUG_IGMP_TIMER | DEBUG_DVMRP_TIMER | \
 				DEBUG_PIM_TIMER )
 #define DEBUG_ASSERT          ( DEBUG_PIM_ASSERT )
+#define DEBUG_PARSE_FAIL      0x80000000
 #define DEBUG_ALL             0xffffffff
-
-
-#define DEBUG_DEFAULT   0xffffffff/*  default if "-d" given without value */
-
-
-
-
-
 

@@ -41,6 +41,7 @@
  * Leland Stanford Junior University.
  */
 
+#include <getopt.h>
 #include "defs.h"
 
 char configfilename[256] = _PATH_PIMD_CONF;
@@ -70,9 +71,9 @@ static struct ihandler {
 static int nhandlers = 0;
 
 static struct debugname {
-    char *name;
-    int	 level;
-    int	 nchars;
+    char   *name;
+    int	    level;
+    size_t  nchars;
 } debugnames[] = {
     {   "dvmrp_detail",	    DEBUG_DVMRP_DETAIL,   5	    },
     {   "dvmrp_prunes",	    DEBUG_DVMRP_PRUNE,    8	    },
@@ -167,25 +168,112 @@ ihfunc_t func;
     return 0;
 }
 
-int usage(int code)
+int debug_list(int mask, char *buf, size_t len)
 {
     struct debugname *d;
-    int tmpd;
-    char c;
+    size_t i;
 
-    tmpd = 0xffffffff;
-    fprintf(stderr, "usage: %s [-f configfile] [-d [debug_level][,debug_level]]\n", progname);
-    fprintf(stderr, "debug levels: ");
-    c = '(';
-    for (d = debugnames; d < debugnames +
-	     sizeof(debugnames) / sizeof(debugnames[0]); d++) {
-	if ((tmpd & d->level) == d->level) {
-	    tmpd &= ~d->level;
-	    fprintf(stderr, "%c%s", c, d->name);
-	    c = ',';
-	}
+    memset(buf, 0, len);
+    for (i = 0, d = debugnames; i < NELEMS(debugnames); i++, d++) {
+	if (!(mask & d->level))
+	    continue;
+
+	if (mask != (int)DEBUG_ALL)
+	    mask &= ~d->level;
+
+	strlcat(buf, d->name, len);
+
+	if (mask && i + 1 < NELEMS(debugnames))
+	    strlcat(buf, ", ", len);
     }
-    fprintf(stderr, ")\n");
+
+    return 0;
+}
+
+int debug_parse(char *arg)
+{
+    struct debugname *d;
+    size_t i, len;
+    char *next = NULL;
+    int sys = 0;
+
+    if (!arg || !strlen(arg) || strstr(arg, "none"))
+	return sys;
+
+    while (arg) {
+	int no = 0;
+
+	next = strchr(arg, ',');
+	if (next)
+	    *next++ = '\0';
+	/* disable log level if flag preceded by '-' */
+	if (arg[0] == '-') {
+	    arg++;
+	    no = 1;
+	}
+
+	len = strlen(arg);
+	for (i = 0, d = debugnames; i < NELEMS(debugnames); i++, d++) {
+	    if (len >= d->nchars && strncmp(d->name, arg, len) == 0)
+		break;
+	}
+
+	if (i == NELEMS(debugnames))
+	    return DEBUG_PARSE_FAIL;
+
+	if (no)
+	    sys &= ~d->level;
+	else
+	    sys |= d->level;
+	arg = next;
+    }
+
+    return sys;
+}
+
+int usage(int code)
+{
+    char buf[768];
+
+    printf("Usage: %s [-hv] [-f FILE] [-d SYS[,SYS]]\n\n", progname);
+    printf(" -f FILE   Configuration file, default: %s\n", _PATH_PIMD_CONF);
+    printf(" -d SYS    Enable debug of subsystem(s)\n");
+    printf(" -h        This help text\n");
+    printf(" -v        Show program version\n");
+    
+    fprintf(stderr, "\nAvailable subystems for debug:\n");
+    if (!debug_list(DEBUG_ALL, buf, sizeof(buf))) {
+	char line[82] = "  ";
+	char *ptr;
+
+	ptr = strtok(buf, " ");
+	while (ptr) {
+	    char *sys = ptr;
+	    char buf[20];
+
+	    ptr = strtok(NULL, " ");
+
+	    /* Flush line */
+	    if (strlen(line) + strlen(sys) + 3 >= sizeof(line)) {
+		puts(line);
+		strlcpy(line, "  ", sizeof(line));
+	    }
+
+	    if (ptr)
+		snprintf(buf, sizeof(buf), "%s ", sys);
+	    else
+		snprintf(buf, sizeof(buf), "%s", sys);
+
+	    strlcat(line, buf, sizeof(line));
+	}
+
+	puts(line);
+    }
+
+    printf("\nBug report address: %-40s\n", PACKAGE_BUGREPORT);
+#ifdef PACKAGE_URL
+    printf("Project homepage: %s\n", PACKAGE_URL);
+#endif
 
     return code;
 }
@@ -202,94 +290,53 @@ main(argc, argv)
     int nfds, n, i, secs;
     struct sigaction sa;
     struct debugname *d;
-    char c;
-    int tmpd;
+    char ch;
+    int rc;
 
     setlinebuf(stderr);
+    snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
 
     progname = strrchr(argv[0], '/');
     if (progname)
 	progname++;
     else
 	progname = argv[0];
-    
-    argv++;
-    argc--;
-    while (argc > 0 && *argv[0] == '-') {
-	if (strcmp(*argv, "-d") == 0) {
-	    if (argc > 1 && *(argv + 1)[0] != '-') { 
-		char *p,*q;
-		int len;
-		
-		argv++;
-		argc--;
-		debug = 0;
-		p = *argv; q = NULL;
-		while (p) {
-		    q = strchr(p, ',');
-		    if (q)
-			*q++ = '\0';
-		    len = strlen(p);
-		    for (i = 0, d = debugnames;
-			 (size_t)i < sizeof(debugnames) / sizeof(debugnames[0]);
-			 i++, d++)
-			if (len >= d->nchars && strncmp(d->name, p, len) == 0)
-			    break;
-		    if ((size_t)i == sizeof(debugnames) / sizeof(debugnames[0])) {
-			int j = 0xffffffff;
-			int k = 0;
-			fprintf(stderr, "Valid debug levels: ");
-			for (i = 0, d = debugnames;
-			     (size_t)i < sizeof(debugnames) / sizeof(debugnames[0]);
-			     i++, d++) {
-			    if ((j & d->level) == d->level) {
-				if (k++)
-				    putc(',', stderr);
-				fputs(d->name, stderr);
-				j &= ~d->level;
-			    }
-			}
-			putc('\n', stderr);
-			return usage(1);
-		    }
-		    debug |= d->level;
-		    p = q;
-		}
-	    }
-	    else
-		debug = DEBUG_DEFAULT;
-	}
-	else if (strcmp(*argv, "-f") == 0) {
-	    if (argc > 1) {
-		argv++; argc--;
-		strcpy(configfilename, *argv);
-	    }
-	    else
+
+    while ((ch = getopt(argc, argv, "d:f:h?v")) != EOF) {
+	switch (ch) {
+	case 'd':
+	    rc = debug_parse(optarg);
+	    if ((int)DEBUG_PARSE_FAIL == rc)
 		return usage(1);
-	}
-	else if (strcmp(*argv, "-h") == 0)
+	    debug = rc;
+	    break;
+
+	case 'f':
+	    strcpy(configfilename, optarg);
+	    break;
+
+	case '?':
+	case 'h':
 	    return usage(0);
-	else
+
+	case 'v':
+	    printf("%s\n", versionstring);
+	    return 0;
+
+	default:
 	    return usage(1);
-	argv++; argc--;
+	}
     }
 
+    argc -= optind;
     if (argc > 0)
 	return usage(1);
 
-    if (debug != 0) {
-	tmpd = debug;
-	fprintf(stderr, "debug level 0x%lx ", debug);
-	c = '(';
-	for (d = debugnames; d < debugnames +
-		 sizeof(debugnames) / sizeof(debugnames[0]); d++) {
-	    if ((tmpd & d->level) == d->level) {
-		tmpd &= ~d->level;
-		fprintf(stderr, "%c%s", c, d->name);
-		c = ',';
-	    }
-	}
-	fprintf(stderr, ")\n");
+    if (debug) {
+	char buf[350];
+
+	debug_list(debug, buf, sizeof(buf));
+	printf("debug level 0x%lx (%s)\n", debug, buf);
     }
 
     if (geteuid() != 0) {
@@ -300,7 +347,6 @@ main(argc, argv)
     openlog(progname, LOG_PID, LOG_DAEMON);
     setlogmask(LOG_UPTO(LOG_NOTICE));
 
-    snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
     logit(LOG_DEBUG, 0, "%s starting", versionstring);
     
     /* TODO: XXX: use a combination of time and hostid to initialize the
@@ -385,9 +431,9 @@ main(argc, argv)
     } /* End of child process code */
     
     fp = fopen(pidfilename, "w");
-    if (fp != NULL) {
-	fprintf(fp, "%d\n", (int)getpid());
-	(void) fclose(fp);
+    if (fp) {
+	fprintf(fp, "%d\n", getpid());
+	fclose(fp);
     }
     
     /*

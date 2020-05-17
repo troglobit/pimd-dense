@@ -136,7 +136,12 @@ typedef void (*ihfunc_t) (int, fd_set *);
 #ifndef MAX
 #define MAX(a,b) (((a) >= (b))? (a) : (b))
 #define MIN(a,b) (((a) <= (b))? (a) : (b))
-#endif /* MAX & MIN */
+#endif
+
+/* From The Practice of Programming, by Kernighan and Pike */
+#ifndef NELEMS
+#define NELEMS(array) (sizeof(array) / sizeof(array[0]))
+#endif
 
 #define CREATE                  TRUE
 #define DONT_CREATE             FALSE
