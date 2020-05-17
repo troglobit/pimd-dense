@@ -377,7 +377,6 @@ dump_vifs(fp)
  * according to the severity of the message and the current debug level.
  * For errors of severity LOG_ERR or worse, terminate the program.
  */
-#ifdef __STDC__
 void
 logit(int severity, int syserr, char *format, ...)
 {
@@ -389,24 +388,6 @@ logit(int severity, int syserr, char *format, ...)
     struct tm *thyme;
     
     va_start(ap, format);
-#else
-/*VARARGS3*/
-void
-logit(severity, syserr, format, va_alist)
-    int severity, syserr;
-    char *format;
-    va_dcl
-{
-    va_list ap;
-    static char fmt[311] = "warning - ";
-    char *msg;
-    char tbuf[20];
-    struct timeval now;
-    time_t now_sec;
-    struct tm *thyme;
-    
-    va_start(ap);
-#endif
     vsprintf(&fmt[10], format, ap);
     va_end(ap);
     msg = (severity == LOG_WARNING) ? fmt : &fmt[10];
