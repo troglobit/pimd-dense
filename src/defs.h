@@ -472,3 +472,12 @@ extern vifi_t  find_vif_direct         (u_int32 src);
 extern vifi_t  find_vif_direct_local   (u_int32 src);
 extern u_int32 max_local_address       (void);
 
+/* compat declarations */
+#ifndef strlcpy
+size_t  strlcpy    (char *dst, const char *src, size_t siz);
+#endif
+
+#ifndef strlcat
+size_t  strlcat    (char *dst, const char *src, size_t siz);
+#endif
+

@@ -28,6 +28,10 @@ AC_CHECK_HEADERS([net/if.h], [], [], [
 # include <sys/socket.h>
 #endif])
 
+# Check for usually missing API's, which we can replace
+AC_REPLACE_FUNCS([strlcpy strlcat])
+AC_CONFIG_LIBOBJ_DIR([lib])
+
 AC_ARG_ENABLE(rsrr,
 	AS_HELP_STRING([--enable-rsrr], [Routing Support for Resource Reservation
 			currently used by RSVP (EXPERIMENTAL).  For details, see

@@ -1,3 +1,6 @@
+# For replacement functions in lib/
+AUTOMAKE_OPTIONS = subdir-objects
+
 # -D_GNU_SOURCE Use GNU extensions, where possible
 # -D_BSD_SOURCE Use functions derived from 4.3 BSD Unix rather than POSIX.1
 #               In GLIBC >= v2.20 this is replaced with -D_DEFAULT_SOURCE,
