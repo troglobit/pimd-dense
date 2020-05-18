@@ -14,6 +14,7 @@ addons:
   apt:
     packages:
       - tree
+      - libsystemd-dev
 
 # We don't store generated files (configure and Makefile) in GIT,
 # so we must customize the default build script to run ./autogen.sh
@@ -23,6 +24,6 @@ script:
   - make clean
   - make V=1 -j5
   - DESTDIR=~/tmp make install-strip
-  - tree ~/tok
+  - tree ~/tmp
   - ldd ~/tmp/sbin/pimdd
   - ~/tmp/sbin/pimdd -h
