@@ -36,7 +36,7 @@ Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
  -n        Run in foreground, do not detach from calling terminal
  -p        Send SIGHUP to poke a running pimdd to reload /etc/pimdd.conf
  -q        Send SIGTERM to a running pimdd
- -r        Show state of VIFs and multicast routing tables
+ -r        Show state of VIFs and the multicast routing table
  -s        Use syslog, default unless running in foreground, -n
  -v        Show program version
 

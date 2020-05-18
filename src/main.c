@@ -288,7 +288,7 @@ int usage(int code)
     printf(" -n        Run in foreground, do not detach from calling terminal\n");
     printf(" -p        Send SIGHUP to poke a running %s to reload %s\n", progname, _PATH_PIMD_CONF);
     printf(" -q        Send SIGTERM to a running %s\n", progname);
-    printf(" -r        Show state of VIFs and multicast routing tables\n");
+    printf(" -r        Show state of VIFs and the multicast routing table\n");
     printf(" -s        Use syslog, default unless running in foreground, -n\n");
     printf(" -v        Show program version\n");
     
