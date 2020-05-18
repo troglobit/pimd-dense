@@ -1,0 +1,368 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.Dd May 18, 2020
+.\" Please adjust this date whenever revising the manpage.
+.Dt PIMDD 8 SMM
+.Os
+.Sh NAME
+.Nm pimdd
+.Nd PIM-DM multicast routing daemon
+.Sh SYNOPSIS
+.Nm pimdd
+.Op Fl hnpqrsv
+.Op Fl f Ar FILE
+.Op Fl d Ar SYS[,SYS,...]
+.Op Fl l Ar LEVEL
+.Sh DESCRIPTION
+.Nm
+is a stand-alone PIM-DM multicast routing daemon available under the
+4-clause BSD license.  This is the restored original from University of
+Oregon, by Kurt Windisch.
+.Nm pimdd
+is a PIM Dense Mode (PIM-DM) implementation based on
+.Nm pimd ,
+which is the PIM Sparse Mode (PIM-SM) reference implementation, by Ahmed
+Helmy, Rusty Eddy and Pavlin Ivanov Radoslavov.
+.Pp
+PIM-DM is a significantly less complex protocol than PIM-SM.  PIM-DM
+works on the principle that it is probable that any given multicast
+streamwill have at least one downstream listener. PIM-DM is ideal where
+many hosts subscribe toreceive multicast packets, so most of the PIM
+Routers receive and forward all multicastpackets.
+.Pp
+Where PIM-SM only forwards a multicast stream when requested, PIM-DM
+always floods anynew multicast stream that arrives at the PIM Router and
+only stops flooding the multicaststream on a given link if it is
+explicitly told to, by receiving a Prune message from the downstream PIM
+Router.
+.Pp
+PIM-DM does not include the concepts of Rendez-vous Points, which are
+used in PIM-SM.  PIM-SM explicitly builds unidirectional shared trees
+rooted at a Rendez-vous Point (RP) pergroup.  PIM-DM implicitly builds
+shortest-path trees by flooding multicast traffic domain wide, then
+prunes back branches of the tree where no receivers are available.  As
+with PIM-SM, so does PIM-DM also use Reverse Path Forwarding (RPF) to
+stop loops for packet forwarding for PIM Routers receiving multicast
+packets.
+.Ss Terminology
+.Bl -tag
+.It Em PIM Router
+Any Layer-3 routing device that is running PIM, i.e., the physical
+device doing the actual forwarding, communicting using PIM frames with
+neighboring routers.
+.It Em Reverse Path Forwarding
+The mechanism that PIM uses to make sure it does not forward multicast
+streams around in loops.  If a set of PIM Routers are connected in a
+loop, and each PIM Router is forwarding a given multicast stream, then
+eventually the multicast stream would be forwarded right around the
+loop.
+.Pp
+To prevent this from happening, PIM makes use of the fact that the
+unicast routing tables in a set of PIM Routers should converge into a
+loop-free tree of paths to any given destination.  When a
+.Em PIM Router
+receives a multicast stream from source address
+.Sy A
+through an interface
+.Sy IF1 ,
+it checks whether
+.Sy IF1
+is the interface the
+.Em PIM Router
+would use to reach
+.Sy A .
+The
+.Em PIM Router
+only forwards the multicast stream if
+.Sy IF1
+is the interface the
+.Em PIM Router
+would use to reach
+.Sy A .
+RPF determines whether the interface is correct by consulting unicast
+routing tables.  This ensure that the multicast stream is forwarded in a
+loop-free manner back up the tree of unicast paths that lead to the
+source.
+.It Em Forwarding multicast packets
+.Em PIM Routers
+forward a given multicast stream onto all PIM enabled IP interfaces that
+have not received a Prune for the given multicast stream.  As with
+unicast routing, the
+.Em PIM Router
+decrements the TTL (Time To Live) field in the IP header of each
+packet that the
+.Em PIM Router
+forwards.  The packet is discarded if the TTL is decremented to 0.  However,
+unlike unicast routing, the destination MAC addresses of the packets are
+not altered as they are forwarded by the
+.Em PIM Router .
+The destination MAC addresses remain set to the multicast MAC addresses
+corresponding to the destination group address of the multicast stream.
+.It Em Upstream
+Direction towards the Source.
+.It Em Downstream
+Any other than the upstream interface for that group.
+.El
+.Sh OPTIONS
+This program follows the usual UNIX command line syntax, with long
+options starting with two dashes (`-').  The options are as follows:
+.Bl -tag -width Ds
+.It Fl h
+Print a help message and exit.
+.It Fl f Ar FILE
+Specify an alternative configuration file, default:
+.Pa /etc/pimdd.conf .
+.It Fl d Ar SYS[,SYS...]
+This option controls extended subsystem debugging, use
+.Cm all
+to enable all subsystems.
+.Pp
+Available subsystems are:
+.Pp
+.Bl -tag -width pim_routes -compact -offset indent
+.It Cm packet
+Debug inbound/outbout packets
+.It Cm prunes
+Pruning operations, or pruned routes
+.It Cm routes
+Routing messages
+.It Cm rtdetail
+Detailed routing information
+.It Cm peers
+Neighbor gossip
+.It Cm cache
+Debug routing cache
+.It Cm timeout
+Debug timeouts
+.It Cm interface
+Show interface (VIF) debug messages
+.It Cm groups
+Debug group memberships
+.It Cm mtrace
+Multicast traceroute information
+.It Cm igmp
+Debug IGMP messages
+.It Cm icmp
+Debug ICMP messages
+.It Cm rsrr
+Debug RSRR messages
+.It Cm pim
+All PIM messages
+.It Cm pim_routes
+PIM routing messages
+.It Cm pim_bsr
+PIM bootstrap router messages
+.It Cm pim_detail
+Detailed PIM debug
+.It Cm pim_hello
+Debug hello messages to/from neighbors
+.El
+.It Fl n
+Run in the foreground, do not detach from calling terminal and do not
+fork to background.  Useful not only when debugging (above) but also
+when running under a process monitor like daemontools, runit, finit, or
+systemd.  Remember to also use
+.Fl s ,
+to send all logs to the syslog daemon, unless you want to debug
+.Nm
+and run in the foreground.
+.It Fl l Ar LEVEL
+Set log level to one of the following, default
+.Nm notice :
+.Pp
+.Bl -tag -width WARNING -compact -offset indent
+.It Cm none
+Disable all logging
+.It Cm error
+Error conditions
+.It Cm warning
+Warning conditions
+.It Cm notice
+Normal but significant condition (Default)
+.It Cm info
+Informational
+.It Cm debug
+Debug-level messages
+.El
+.It Fl p
+Send SIGHUP to poke a running
+.Nm
+to reload its
+.Pa /etc/pimdd.conf .
+.It Fl q
+Send SIGTERM to a running
+.Nm .
+.It Fl r
+Show state of VIFs and the multicast routing table.  Same as sending
+SIGUSR1 and waiting for
+.Pa /var/tmp/pimdd.dump .
+.It Fl s
+Use syslog, default unless running in foreground,
+.Fl n .
+.It Fl v
+Show
+.Nm
+version
+.El
+.Sh CONFIGURATION
+The configuration is kept in the file
+.Pa /etc/pimdd.conf .
+The file format is relatively free-form: whitespace (including newlines)
+is not significant.  However, the order of some statements are
+important, more on this below.
+.Pp
+By default,
+.Nm
+runs on all multicast capable interfaces.  The
+.Cm phyint
+setting can be used to control this behavior.
+.Pp
+.Bl -item -offset indent
+.It
+.Cm default-route-distance
+.Ar <1-255>
+.It
+.Cm default-route-metric
+.Ar <1-1024>
+.It
+.Cm phyint
+.Cm <address>
+.Bl -item -offset indent
+.Op Cm disable
+.Op Cm distance Ar <1-255>
+.Op Cm metric Ar <1-1024>
+.El
+.El
+.Pp
+The
+.Cm default-route-distance
+option has nothing to do with the system default route, it is rather the
+default value for the unicast routing protocol's administrative
+distance.  It is used in PIM Assert elections to determine upstream
+routers.  Currently
+.Nm
+cannot obtain the admin distance and metric from the unicast routing
+protocols, so a default routing protocol distance (the RFC confusingly
+refers to this as
+.Em metric prefererence )
+may be configured.  In a PIM Assert election, the router advertising the
+lowest assert preference will be selected as the forwarder and upstream
+router for the LAN.  Setting 101 should be sufficiently high so that
+asserts from Cisco or other routers preferred over
+.Nm .
+.Pp
+It is recommended that distances be set such that metrics are never
+consulted.  However, default routing metrics may also be set using the
+.Cm default-route-metric
+option.  (Again, this has nothing to do with the system default route.)
+This item sets the cost for sending data through this router.  You want
+only PIM-SM data to go to this daemon; so once again, a high value is
+recommended to prevent accidental usage.  The preferred default value is
+1024.  Both defaults can be overridden per phyint, so learned routes, or
+PIM Asserts use the phyint's values.
+.Pp
+Please also note that PIM Assert elections are not the same as the DR
+election.  The PIM Assert election determines the active multicast
+forwarder, whereas the DR election determines the active PIM router.
+.Pp
+The
+.Nm phyint
+setting refers to a physical interface and must come after the
+.Cm default-route-metric
+and
+.Cm default-route-distance
+settings in the configuration file.  Select the interface by its IP
+.Ar address
+If you just want to activate this interface with default values, you
+don't need to put anything else on the line.  However, there are some
+additional settings:
+.Bl -bullet -offset indent -width 1n -compact
+.It
+.Nm disable :
+Do not use this interface in
+.Nm .
+.It
+.Cm distance Ar <1-255> :
+Use this to override the
+.Nm default-route-distance
+(101) on this
+.Nm phyint
+in PIM Assert elections.
+.It
+.Cm metric Ar <1-1024> :
+The cost of sending data through this interface.  Defaults to
+.Nm default-route-metric
+(1024) if not assigned.
+.El
+.Pp
+Add one
+.Nm phyint
+line per interface on this router.  Otherwise
+.Nm
+will run on all interfaces using default settings.
+.Sh SIGNALS
+.Nm
+responds to the following signals.
+.Pp
+.Bl -tag -width TERM -compact
+.It HUP
+Restart
+.Nm
+and reload configuration file
+.It TERM
+Terminate execution gracefully, i.e. by sending good-bye messages to neighboring
+routers
+.It INT
+The same as TERM
+.It USR1
+Dump internal state of VIFs and multicast routing table in
+.Pa /var/tmp/pimdd.dump
+.El
+.Pp
+For convenience in sending signals,
+.Nm
+writes its process ID to
+.Pa /var/run/pimdd.pid
+upon startup.
+.Sh FILES
+.Bl -tag -width /var/run/pimd.sock -compact
+.It Pa /etc/pimdd.conf
+Main configuration file
+.It Pa /var/run/pimdd.pid
+Pidfile (re)created by
+.Nm
+daemon when it has started up and is ready to receive commands.
+.It Pa /var/tmp/pimdd.dump
+Internal state, used to show configured VIFs and multicast routing table.
+.El
+.Sh SEE ALSO
+.Xr pimcd 8 ,
+.Xr mrouted 8 ,
+.Xr smcroute 8 ,
+.Xr /usr/share/doc/pimdd/
+.Pp
+.Nm
+implements PIM-DM according to
+.Lk https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-05 draft-ietf-idmr-pim-dm-spec-05 .
+The newer ratified
+.Lk https://tools.ietf.org/html/rfc3973 RFC3973 ,
+is not yet supported.
+.Pp
+The web page at University of Oregon,
+.Lk http://antc.uoregon.edu/PIMDM/pimd-dense.html ,
+are a bit out of date and the recommended guide is available in the
+project's README file.
+.Sh AUTHORS
+.Nm
+Was made by Kurt Windisch while at University of Oregon.  It is entirely
+based on
+.Nm pimd ,
+which was originally written by Ahmed Helmy, George Edmond "Rusty" Eddy,
+and Pavlin Ivanov Radoslavov.
+.Pp
+This manual page is written by by Joachim Nilsson for the
+.Lk https://github.com/troglobit/pimd-dense GitHub
+.Nm
+project.

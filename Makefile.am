@@ -1,7 +1,7 @@
 doc_DATA         = README.md LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
 EXTRA_DIST       = README.md LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
 DISTCLEANFILES   = *~ GPATH GRTAGS GTAGS ID *.gdb *.elf core core.*
-SUBDIRS          = src include
+SUBDIRS          = src include man
 
 if SYSTEMD
 systemd_DATA     = pimdd.service
