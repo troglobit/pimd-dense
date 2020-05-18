@@ -3,6 +3,10 @@ EXTRA_DIST       = LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
 DISTCLEANFILES   = *~ GPATH GRTAGS GTAGS ID *.gdb *.elf core core.*
 SUBDIRS          = src include
 
+if SYSTEMD
+systemd_DATA     = pimdd.service
+endif
+
 ## Generate MD5 checksum file
 MD5 = md5sum
 md5-dist:
@@ -38,3 +42,5 @@ release: distcheck release-hook md5-dist
 		printf "%-32s Distribution tarball\n" $$file;			\
 		printf "%-32s " $$file.md5; cat ../$$file.md5 | cut -f1 -d' ';	\
 	done
+
+DISTCHECK_CONFIGURE_FLAGS = --with-systemd=$$dc_install_base/$(systemd)

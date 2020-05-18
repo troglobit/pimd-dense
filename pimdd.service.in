@@ -1,0 +1,15 @@
+[Unit]
+Description=PIM-DM multicast routing daemon
+Documentation=man:pimdd
+Documentation=file:@DOCDIR@/README.md
+Documentation=https://github.com/troglobit/pimdd
+# ConditionPathExists=@SYSCONFDIR@/pimdd.conf
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+Type=simple
+ExecStart=@SBINDIR@/pimdd -n -s
+
+[Install]
+WantedBy=multi-user.target
