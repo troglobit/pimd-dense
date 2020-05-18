@@ -1,5 +1,5 @@
-doc_DATA         = LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
-EXTRA_DIST       = LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
+doc_DATA         = README.md LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
+EXTRA_DIST       = README.md LICENSE doc/LICENSE.pimd doc/LICENSE.mrouted pimdd.conf
 DISTCLEANFILES   = *~ GPATH GRTAGS GTAGS ID *.gdb *.elf core core.*
 SUBDIRS          = src include
 
