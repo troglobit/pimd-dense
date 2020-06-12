@@ -354,10 +354,10 @@ check_vif_state()
 		"check_vif_state: ioctl SIOCGIFFLAGS for %s", ifr.ifr_name);
 
 	if (v->uv_flags & VIFF_DOWN) {
-	    if (ifr.ifr_flags & IFF_UP) {
+	    if (ifr.ifr_flags & IFF_UP)
 		start_vif(vifi);
-	    }
-	    else vifs_down = TRUE;
+	    else
+		vifs_down = TRUE;
 	}
 	else {
 	    if (!(ifr.ifr_flags & IFF_UP)) {
