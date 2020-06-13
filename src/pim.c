@@ -91,6 +91,21 @@ init_pim()
 }
 
 
+void
+pim_clean(void)
+{
+    if (pim_socket > 0)
+	close(pim_socket);
+    if (pim_recv_buf)
+	free(pim_recv_buf);
+    if (pim_send_buf)
+	free(pim_send_buf);
+    pim_recv_buf = NULL;
+    pim_send_buf = NULL;
+    pim_socket = 0;
+}
+
+
 /* Read a PIM message */
 static void
 pim_read(f, rfd)

@@ -104,6 +104,21 @@ init_igmp()
 }
 
 
+void
+igmp_clean(void)
+{
+    if (igmp_socket > 0)
+	close(igmp_socket);
+    if (igmp_recv_buf)
+	free(igmp_recv_buf);
+    if (igmp_send_buf)
+	free(igmp_send_buf);
+    igmp_recv_buf = NULL;
+    igmp_send_buf = NULL;
+    igmp_socket = 0;
+}
+
+
 /* Read an IGMP message */
 static void
 igmp_read(i, rfd)

@@ -484,8 +484,13 @@ void
 rsrr_clean()
 {
     unlink(RSRR_SERV_PATH);
-    free(rsrr_recv_buf);
-    free(rsrr_send_buf);
+    if (rsrr_recv_buf)
+	    free(rsrr_recv_buf);
+    if (rsrr_send_buf)
+	    free(rsrr_send_buf);
+
+    rsrr_recv_buf = NULL;
+    rsrr_send_buf = NULL;
 }
 
 #endif /* RSRR */

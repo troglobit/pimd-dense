@@ -675,24 +675,14 @@ cleanup()
 #ifdef RSRR
     rsrr_clean();
 #endif
-    
+
     free_all_callouts();
     stop_all_vifs();
     k_stop_pim(igmp_socket);
 
-    /* TODO: move to igmp_clean() */
-    close(igmp_socket);
-    free(igmp_recv_buf);
-    free(igmp_send_buf);
-
-    /* TODO: move to pim_clean() */
-    close(pim_socket);
-    free(pim_recv_buf);
-    free(pim_send_buf);
-
-    /* TODO: move to mrt_clean() */
-    free(srclist);
-    free(grplist);
+    igmp_clean();
+    pim_clean();
+    mrt_clean();
 
     /*
      * When IOCTL_OK_ON_RAW_SOCKET is defined, 'udp_socket' is equal
@@ -700,11 +690,13 @@ cleanup()
      * if they are different.
      */
 #ifndef IOCTL_OK_ON_RAW_SOCKET
-    close(udp_socket);
+    if (udp_socket > 0)
+	close(udp_socket);
+    udp_socket = 0;
 #endif
 
     /* Both for Linux netlink and BSD routing socket */
-    close(routing_socket);
+    routesock_clean();
 
     /* No more socket callbacks */
     nhandlers = 0;

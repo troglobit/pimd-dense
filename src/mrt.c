@@ -91,6 +91,18 @@ init_pim_mrt()
 }
 
 
+void
+mrt_clean(void)
+{
+    if (srclist)
+	free(srclist);
+    if (grplist)
+	free(grplist);
+    srclist = NULL;
+    grplist = NULL;
+}
+
+
 grpentry_t*
 find_group(group)
     u_int32 group;

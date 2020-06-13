@@ -359,6 +359,7 @@ extern void	dvmrp_accept_g_ack        (u_int32 src, u_int32 dst, char *p, int da
 
 /* igmp.c */
 extern void     init_igmp     ();
+extern void     igmp_clean    ();
 extern void     send_igmp     (char *buf, u_int32 src, u_int32 dst, int type, int code, u_int32 group, int datalen);
 
 /* igmp_proto.c */
@@ -406,6 +407,7 @@ extern int      register_input_handler (int fd, ihfunc_t func);
 
 /* mrt.c */
 extern void         init_pim_mrt     ();
+extern void         mrt_clean        ();
 extern mrtentry_t   *find_route      (u_int32 source, u_int32 group, u_int16 flags, char create);
 extern grpentry_t   *find_group      (u_int32 group);
 extern srcentry_t   *find_source     (u_int32 source);
@@ -415,6 +417,7 @@ extern void         delete_grpentry  (grpentry_t *grpentry_ptr);
 
 /* pim.c */
 extern void         init_pim         ();
+extern void         pim_clean        ();
 extern void         send_pim         (char *buf, u_int32 src, u_int32 dst, int type, int datalen);
 extern void         send_pim_unicast (char *buf, u_int32 src, u_int32 dst, int type, int datalen);
 
@@ -448,6 +451,7 @@ extern void   trigger_prune_alert    (mrtentry_t *mrtentry_ptr);
 
 /* routesock.c */
 extern int    init_routesock         ();
+extern void   routesock_clean        ();
 extern int    k_req_incoming         (u_int32 source, struct rpfctl *rpfp);
 extern int    routing_socket;
 

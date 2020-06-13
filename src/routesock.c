@@ -118,6 +118,15 @@ init_routesock()
 }
 
 
+void
+routesock_clean()
+{
+    if (routing_socket > 0)
+	close(routing_socket);
+    routing_socket = 0;
+}
+
+
 struct {
     struct  rt_msghdr m_rtm;
     char    m_space[512];
