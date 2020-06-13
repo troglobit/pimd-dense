@@ -64,10 +64,10 @@ k_init_pim(socket)
 {
     int v = 1;
     
-    if (setsockopt(socket, IPPROTO_IP, MRT_INIT, (char *)&v, sizeof(int)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, MRT_INIT, &v, sizeof(int)) < 0)
 	logit(LOG_ERR, errno, "cannot enable multicast routing in kernel");
     
-    if(setsockopt(socket, IPPROTO_IP, MRT_ASSERT, (char *)&v, sizeof(int)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, MRT_ASSERT, &v, sizeof(int)) < 0)
 	logit(LOG_ERR, errno, "cannot set ASSERT flag in kernel");
 }
 
@@ -82,10 +82,10 @@ k_stop_pim(socket)
 {
     int v = 0;
     
-    if (setsockopt(socket, IPPROTO_IP, MRT_DONE, (char *)NULL, 0) < 0)
+    if (setsockopt(socket, IPPROTO_IP, MRT_DONE, NULL, 0) < 0)
 	logit(LOG_ERR, errno, "cannot disable multicast routing in kernel");
     
-    if(setsockopt(socket, IPPROTO_IP, MRT_ASSERT, (char *)&v, sizeof(int)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, MRT_ASSERT, &v, sizeof(int)) < 0)
 	logit(LOG_ERR, errno, "cannot reset ASSERT flag in kernel");
 }
 
@@ -108,16 +108,14 @@ void k_set_rcvbuf(socket, bufsize, minsize)
      * value.  The highest acceptable value being smaller than
      * minsize is a fatal error.
      */
-    if (setsockopt(socket, SOL_SOCKET, SO_RCVBUF,
-		   (char *)&bufsize, sizeof(bufsize)) < 0) {
+    if (setsockopt(socket, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0) {
 	bufsize -= delta;
 	while (1) {
 	    iter++;
 	    if (delta > 1)
 	      delta /= 2;
 	    
-	    if (setsockopt(socket, SOL_SOCKET, SO_RCVBUF,
-			   (char *)&bufsize, sizeof(bufsize)) < 0) {
+	    if (setsockopt(socket, SOL_SOCKET, SO_RCVBUF, &bufsize, sizeof(bufsize)) < 0) {
 		bufsize -= delta;
 	    } else {
 		if (delta < 1024)
@@ -150,8 +148,7 @@ void k_hdr_include(socket, bool)
     int bool;
 {
 #ifdef IP_HDRINCL
-    if (setsockopt(socket, IPPROTO_IP, IP_HDRINCL,
-		   (char *)&bool, sizeof(bool)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_HDRINCL, &bool, sizeof(bool)) < 0)
 	logit(LOG_ERR, errno, "setsockopt IP_HDRINCL %u", bool);
 #endif
 }
@@ -172,8 +169,7 @@ void k_set_ttl(socket, t)
     u_char ttl;
     
     ttl = t;
-    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_TTL,
-		   (char *)&ttl, sizeof(ttl)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof(ttl)) < 0)
 	logit(LOG_ERR, errno, "setsockopt IP_MULTICAST_TTL %u", ttl);
 #endif
 }
@@ -189,8 +185,7 @@ void k_set_loop(socket, flag)
     u_char loop;
 
     loop = flag;
-    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_LOOP,
-		   (char *)&loop, sizeof(loop)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop)) < 0)
 	logit(LOG_ERR, errno, "setsockopt IP_MULTICAST_LOOP %u", loop);
 }
 
@@ -205,8 +200,7 @@ void k_set_if(socket, ifa)
     struct in_addr adr;
 
     adr.s_addr = ifa;
-    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF,
-		   (char *)&adr, sizeof(adr)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_MULTICAST_IF, &adr, sizeof(adr)) < 0)
 	logit(LOG_ERR, errno, "setsockopt IP_MULTICAST_IF %s",
 	    inet_fmt(ifa, s1));
 }
@@ -225,8 +219,7 @@ void k_join(socket, grp, ifa)
     mreq.imr_multiaddr.s_addr = grp;
     mreq.imr_interface.s_addr = ifa;
 
-    if (setsockopt(socket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-		   (char *)&mreq, sizeof(mreq)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
 	logit(LOG_WARNING, errno, "cannot join group %s on interface %s",
 	    inet_fmt(grp, s1), inet_fmt(ifa, s2));
 }
@@ -245,8 +238,7 @@ void k_leave(socket, grp, ifa)
     mreq.imr_multiaddr.s_addr = grp;
     mreq.imr_interface.s_addr = ifa;
     
-    if (setsockopt(socket, IPPROTO_IP, IP_DROP_MEMBERSHIP,
-		   (char *)&mreq, sizeof(mreq)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, IP_DROP_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
 	logit(LOG_WARNING, errno, "cannot leave group %s on interface %s",
 	    inet_fmt(grp, s1), inet_fmt(ifa, s2));
 }
@@ -273,10 +265,9 @@ void k_add_vif(socket, vifi, v)
 {
     struct vifctl vc = { 0 };
 
-    vc.vifc_vifi            = vifi;
+    vc.vifc_vifi = vifi;
     uvif_to_vifctl(&vc, v);
-    if (setsockopt(socket, IPPROTO_IP, MRT_ADD_VIF,
-		   (char *)&vc, sizeof(vc)) < 0)
+    if (setsockopt(socket, IPPROTO_IP, MRT_ADD_VIF, &vc, sizeof(vc)) < 0)
 	logit(LOG_ERR, errno, "setsockopt MRT_ADD_VIF on vif %d", vifi);
 }
 
@@ -324,10 +315,9 @@ k_del_mfc(socket, source, group)
     mc.mfcc_origin.s_addr   = source;
     mc.mfcc_mcastgrp.s_addr = group;
 	
-    if (setsockopt(socket, IPPROTO_IP, MRT_DEL_MFC, (char *)&mc,
-		   sizeof(mc)) < 0) {
+    if (setsockopt(socket, IPPROTO_IP, MRT_DEL_MFC, &mc, sizeof(mc)) < 0) {
 	logit(LOG_WARNING, errno, "setsockopt k_del_mfc");
-	return FALSE;
+	return 1;
     }
 	
     IF_DEBUG(DEBUG_MFC)
@@ -335,7 +325,7 @@ k_del_mfc(socket, source, group)
 	    inet_fmt(mc.mfcc_origin.s_addr, s1),
 	    inet_fmt(mc.mfcc_mcastgrp.s_addr, s2));
 
-    return(TRUE);
+    return 0;
 }
 
 
@@ -367,14 +357,13 @@ k_chg_mfc(socket, source, group, iif, oifs)
 	    mc.mfcc_ttls[vifi] = 0;
     }
     
-    if (setsockopt(socket, IPPROTO_IP, MRT_ADD_MFC, (char *)&mc,
-                   sizeof(mc)) < 0) {
-        logit(LOG_WARNING, errno,
-	    "setsockopt MRT_ADD_MFC for source %s and group %s",
+    if (setsockopt(socket, IPPROTO_IP, MRT_ADD_MFC, &mc, sizeof(mc)) < 0) {
+        logit(LOG_WARNING, errno, "Failed MRT_ADD_MFC for source %s and group %s",
 	    inet_fmt(source, s1), inet_fmt(group, s2));
-        return FALSE;
+        return 1;
     }
-    return(TRUE);
+
+    return 0;
 }
 
 
@@ -391,17 +380,18 @@ int k_get_vif_count(vifi, retval)
     struct sioc_vif_req vreq = { 0 };
 
     vreq.vifi = vifi;
-    if (ioctl(udp_socket, SIOCGETVIFCNT, (char *)&vreq) < 0) {
+    if (ioctl(udp_socket, SIOCGETVIFCNT, &vreq) < 0) {
 	logit(LOG_WARNING, errno, "SIOCGETVIFCNT on vif %d", vifi);
 	retval->icount = retval->ocount = retval->ibytes =
 	    retval->obytes = 0xffffffff;
-	return (1);
+	return 1;
     }
     retval->icount = vreq.icount;
     retval->ocount = vreq.ocount;
     retval->ibytes = vreq.ibytes;
     retval->obytes = vreq.obytes;
-    return (0);
+
+    return 0;
 }
 
 
@@ -420,22 +410,20 @@ k_get_sg_cnt(socket, source, group, retval)
     
     sgreq.src.s_addr = source;
     sgreq.grp.s_addr = group;
-    if ((ioctl(socket, SIOCGETSGCNT, (char *)&sgreq) < 0)
-	|| (sgreq.wrong_if == 0xffffffff)) {
+    if ((ioctl(socket, SIOCGETSGCNT, &sgreq) < 0) || (sgreq.wrong_if == 0xffffffff)) {
 	/* XXX: ipmulti-3.5 has bug in ip_mroute.c, get_sg_cnt():
 	 * the return code is always 0, so this is why we need to check
 	 * the wrong_if value.
 	 */
 	logit(LOG_WARNING, errno, "SIOCGETSGCNT on (%s %s)",
-	    inet_fmt(source, s1), inet_fmt(group, s2));
+	      inet_fmt(source, s1), inet_fmt(group, s2));
 	retval->pktcnt = retval->bytecnt = retval->wrong_if = ~0;
-	return(1);
+	return 1;
     }
+
     retval->pktcnt = sgreq.pktcnt;
     retval->bytecnt = sgreq.bytecnt;
     retval->wrong_if = sgreq.wrong_if;
-    return(0);
+
+    return 0;
 }
-
-
-
