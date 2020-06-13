@@ -58,8 +58,9 @@
 /*
  * Forward declarations.
  */
-static char *next_word  (char **);
-static int parse_phyint (char *s);
+static char     *next_word    (char **);
+static int       parse_phyint (char *s);
+static uint32_t  ifname2addr  (char *s);
 
 
 /*
@@ -327,15 +328,17 @@ parse_phyint(s)
     if (EQUAL((w = next_word(&s)), "")) {
 	logit(LOG_WARNING, 0, "Missing phyint address in %s", configfilename);
 	return FALSE;
-    }		/* if empty */
+    }
     
-    local = inet_parse(w, 4);
-    if (!inet_valid_host(local)) {
-	logit(LOG_WARNING, 0, "Invalid phyint address '%s' in %s", w,
-	    configfilename);
-	return FALSE;
-    }		/* invalid address */
-    
+    local = ifname2addr(w);
+    if (!local) {
+	local = inet_parse(w, 4);
+	if (!inet_valid_host(local)) {
+	    logit(LOG_WARNING, 0, "Unknown phyint name or invalid address '%s' in %s, skipping.", w, configfilename);
+	    return FALSE;
+	}
+    }
+
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
 	if (local != v->uv_lcl_addr)
 	    continue;
@@ -531,6 +534,22 @@ config_vifs_from_file()
     }
 
     fclose(fp);
+}
+
+
+static uint32_t
+ifname2addr(s)
+    char *s;
+{
+    struct uvif *v;
+    vifi_t vifi;
+
+    for (vifi = 0, v = uvifs; vifi < numvifs; vifi++, v++) {
+	if (!strcmp(v->uv_name, s))
+	    return v->uv_lcl_addr;
+    }
+
+    return 0;
 }
 
 
