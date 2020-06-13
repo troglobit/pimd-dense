@@ -62,6 +62,7 @@
 #include <sys/time.h>
 #include <net/if.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
 #include <netinet/igmp.h>
@@ -99,6 +100,7 @@ typedef void (*ihfunc_t) (int, fd_set *);
 #include "pimdd.h"
 #include "mrt.h"
 #include "igmpv2.h"
+#include "igmpv3.h"
 #include "vif.h"
 #include "debug.h"
 #include "pathnames.h"
@@ -262,6 +264,11 @@ extern char *		sys_errlist[];
 #endif
 #define IGMP_V2_LEAVE_GROUP		IGMP_HOST_LEAVE_MESSAGE
 #endif
+#if defined(__FreeBSD__)		/* From FreeBSD 8.x */
+#define IGMP_V3_MEMBERSHIP_REPORT       IGMP_v3_HOST_MEMBERSHIP_REPORT
+#else
+#define IGMP_V3_MEMBERSHIP_REPORT	0x22	/* Ver. 3 membership report */
+#endif
 
 #if defined(NetBSD) || defined(OpenBSD) || defined(__FreeBSD__)
 #define IGMP_MTRACE_RESP                IGMP_MTRACE_REPLY
@@ -359,6 +366,7 @@ extern void     query_groups            (struct uvif *v);
 extern void     accept_membership_query (u_int32 src, u_int32 dst, u_int32 group, int tmo);
 extern void     accept_group_report     (u_int32 src, u_int32 dst, u_int32 group, int r_type);
 extern void     accept_leave_message    (u_int32 src, u_int32 dst, u_int32 group);
+extern void     accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *report, ssize_t reportlen);
 extern int      check_grp_membership    (struct uvif *v, u_int32 group);
 
 /* inet.c */

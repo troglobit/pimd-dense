@@ -369,6 +369,166 @@ of queries remaining.
 
 
 /*
+ * Loop through and process all sources in a v3 record.
+ *
+ * Parameters:
+ *     igmp_report_type   Report type of IGMP message
+ *     igmp_src           Src address of IGMP message
+ *     group              Multicast group
+ *     sources            Pointer to the beginning of sources list in the IGMP message
+ *     report_pastend     Pointer to the end of IGMP message
+ *
+ * Returns:
+ *     1 if succeeded, 0 if failed
+ */
+int accept_sources(int igmp_report_type, uint32_t igmp_src, uint32_t group, uint8_t *sources,
+    uint8_t *report_pastend, int rec_num_sources)
+{
+    int j;
+    uint8_t *src;
+
+    for (j = 0, src = sources; j < rec_num_sources; ++j, src += 4) {
+	struct in_addr *ina = (struct in_addr *)src;
+
+        if ((src + 4) > report_pastend) {
+	    IF_DEBUG(DEBUG_IGMP)
+		logit(LOG_DEBUG, 0, "src +4 > report_pastend");
+            return 0;
+        }
+
+	IF_DEBUG(DEBUG_IGMP)
+	    logit(LOG_DEBUG, 0, "Add source (%s,%s)", inet_fmt(ina->s_addr, s2), inet_fmt(group, s1));
+
+        accept_group_report(igmp_src, ina->s_addr, group, igmp_report_type);
+    }
+
+    return 1;
+}
+
+
+/*
+ * Handle IGMP v3 membership reports (join/leave)
+ */
+void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *report, ssize_t reportlen)
+{
+    struct igmpv3_grec *record;
+    int num_groups, i;
+    uint8_t *report_pastend = (uint8_t *)report + reportlen;
+
+    num_groups = ntohs(report->ngrec);
+    if (num_groups < 0) {
+	logit(LOG_INFO, 0, "Invalid Membership Report from %s: num_groups = %d",
+	      inet_fmt(src, s1), num_groups);
+	return;
+    }
+
+    IF_DEBUG(DEBUG_IGMP)
+	logit(LOG_DEBUG, 0, "%s(): IGMP v3 report, %d bytes, from %s to %s with %d group records.",
+	      __func__, reportlen, inet_fmt(src, s1), inet_fmt(dst, s2), num_groups);
+
+    record = &report->grec[0];
+
+    for (i = 0; i < num_groups; i++) {
+	struct in_addr  rec_group;
+	uint8_t        *sources;
+	int             rec_type;
+	int             rec_auxdatalen;
+	int             rec_num_sources;
+	int             j;
+	int record_size = 0;
+
+	rec_num_sources = ntohs(record->grec_nsrcs);
+	rec_auxdatalen = record->grec_auxwords;
+	record_size = sizeof(struct igmpv3_grec) + sizeof(uint32_t) * rec_num_sources + rec_auxdatalen;
+	if ((uint8_t *)record + record_size > report_pastend) {
+	    logit(LOG_INFO, 0, "Invalid group report %p > %p",
+		  (uint8_t *)record + record_size, report_pastend);
+	    return;
+	}
+
+	rec_type = record->grec_type;
+	rec_group.s_addr = (in_addr_t)record->grec_mca;
+	sources = (u_int8_t *)record->grec_src;
+
+	switch (rec_type) {
+	    case IGMP_MODE_IS_EXCLUDE:
+		if (rec_num_sources == 0) {
+		    /* RFC 5790: EXCLUDE (*,G) join can be
+		     *           interpreted by the router as a
+		     *           request to include all sources.
+		     */
+		    accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
+		} else {
+		    /* RFC 5790: LW-IGMPv3 does not use EXCLUDE filter-mode with a non-null source address list.*/
+		    logit(LOG_INFO, 0, "Record type MODE_IS_EXCLUDE with non-null source list is currently unsupported.");
+		}
+		break;
+
+	    case IGMP_CHANGE_TO_EXCLUDE_MODE:
+		if (rec_num_sources == 0) {
+		    /* RFC 5790: EXCLUDE (*,G) join can be
+		     *           interpreted by the router as a
+		     *           request to include all sources.
+		     */
+		    accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
+		} else {
+		    /* RFC 5790: LW-IGMPv3 does not use EXCLUDE filter-mode with a non-null source address list.*/
+		    logit(LOG_DEBUG, 0, "Record type MODE_TO_EXCLUDE with non-null source list is currently unsupported.");
+		}
+		break;
+
+	    case IGMP_MODE_IS_INCLUDE:
+		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Accept sources failed.");
+		    return;
+		}
+		break;
+
+	    case IGMP_CHANGE_TO_INCLUDE_MODE:
+		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Accept sources failed.");
+		    return;
+		}
+		break;
+
+	    case IGMP_ALLOW_NEW_SOURCES:
+		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
+		    logit(LOG_DEBUG, 0, "Accept sources failed.");
+		    return;
+		}
+		break;
+
+	    case IGMP_BLOCK_OLD_SOURCES:
+		for (j = 0; j < rec_num_sources; j++) {
+		    uint8_t *gsrc = (uint8_t *)&record->grec_src[j];
+		    struct in_addr *ina = (struct in_addr *)gsrc;
+
+		    if (gsrc > report_pastend) {
+			logit(LOG_INFO, 0, "Invalid group record");
+			return;
+		    }
+
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Remove source[%d] (%s,%s)", j, inet_fmt(ina->s_addr, s2), inet_ntoa(rec_group));
+		    accept_leave_message(src, ina->s_addr, rec_group.s_addr);
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Accepted");
+		}
+		break;
+
+	    default:
+		/* RFC3376: Unrecognized Record Type values MUST be silently ignored. */
+		break;
+	}
+
+	record = (struct igmpv3_grec *)((uint8_t *)record + record_size);
+    }
+}
+
+
+/*
  * Time out record of a group membership on a vif
  */
 static void

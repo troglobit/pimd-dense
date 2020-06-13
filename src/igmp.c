@@ -203,6 +203,15 @@ accept_igmp(recvlen)
 	accept_leave_message(src, dst, group);
 	return;
 	
+    case IGMP_V3_MEMBERSHIP_REPORT:
+	if (igmpdatalen < IGMP_V3_GROUP_RECORD_MIN_SIZE) {
+	    logit(LOG_INFO, 0, "Too short IGMP v3 Membership report: igmpdatalen(%d) < MIN(%d)",
+		  igmpdatalen, IGMP_V3_GROUP_RECORD_MIN_SIZE);
+	    return;
+	}
+	accept_membership_report(src, dst, (struct igmpv3_report *)igmp, ipdatalen);
+	return;
+
     case IGMP_DVMRP:
 	/* XXX: TODO: most of the stuff below is not implemented. We are still
 	 * only PIM router.
