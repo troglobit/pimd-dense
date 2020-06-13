@@ -178,9 +178,11 @@ start_all_vifs()
 		logit(LOG_INFO, 0,
 		    "%s is DOWN; vif #%u out of service", 
 		    v->uv_name, vifi);
-	    }
-	else
-	    start_vif(vifi);
+
+	    continue;
+	}
+
+	start_vif(vifi);
     }
 }
 
@@ -281,7 +283,7 @@ stop_vif(vifi)
     while (v->uv_groups != NULL) {
 	a = v->uv_groups;
 	v->uv_groups = a->al_next;
-	free((char *)a);
+	free(a);
     }
     
     /*
@@ -301,21 +303,20 @@ stop_vif(vifi)
     RESET_TIMER(v->uv_gq_timer);
     for (n = v->uv_pim_neighbors; n != NULL; n = next) {
 	next = n->next;	/* Free the space for each neighbour */
-	free((char *)n);
+	free(n);
     }
     v->uv_pim_neighbors = NULL;
 
     /* TODO: currently not used */
    /* The Access Control List (list with the scoped addresses) */
-    while (v->uv_acl != NULL) {
+    while (v->uv_acl) {
 	acl = v->uv_acl;
 	v->uv_acl = acl->acl_next;
-	free((char *)acl);
+	free(acl);
     }
 
     vifs_down = TRUE;
-    logit(LOG_INFO, 0,
-	"%s goes down; vif #%u out of service", v->uv_name, vifi);
+    logit(LOG_INFO, 0, "%s goes down; vif #%u out of service", v->uv_name, vifi);
 }		
 
 
@@ -353,8 +354,7 @@ check_vif_state()
 	strlcpy(ifr.ifr_name, v->uv_name, sizeof(ifr.ifr_name));
 	/* get the interface flags */
 	if (ioctl(udp_socket, SIOCGIFFLAGS, (char *)&ifr) < 0)
-	    logit(LOG_ERR, errno,
-		"check_vif_state: ioctl SIOCGIFFLAGS for %s", ifr.ifr_name);
+	    logit(LOG_ERR, errno, "check_vif_state: ioctl SIOCGIFFLAGS for %s", ifr.ifr_name);
 
 	if (v->uv_flags & VIFF_DOWN) {
 	    if (ifr.ifr_flags & IFF_UP)
@@ -364,9 +364,7 @@ check_vif_state()
 	}
 	else {
 	    if (!(ifr.ifr_flags & IFF_UP)) {
-		logit(LOG_NOTICE, 0,
-		    "%s has gone down; vif #%u taken out of service",
-		    v->uv_name, vifi);
+		logit(LOG_NOTICE, 0, "%s has gone down; vif #%u taken out of service", v->uv_name, vifi);
 		stop_vif(vifi);
 		vifs_down = TRUE;
 	    }
@@ -394,21 +392,23 @@ find_vif_direct(src)
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN | VIFF_TUNNEL))
 	    continue;
 	if (src == v->uv_lcl_addr)
-	    return (NO_VIF);     /* src is one of our IP addresses */
+	    return NO_VIF;     /* src is one of our IP addresses */
 	if ((src & v->uv_subnetmask) == v->uv_subnet && 
 	    ((v->uv_subnetmask == 0xffffffff) ||
 	     (src != v->uv_subnetbcast)))
-	    return(vifi);
+	    return vifi;
+
 	/* Check the extra subnets for this vif */
 	/* TODO: don't think currently pimd can handle extra subnets */
 	for (p = v->uv_addrs; p; p = p->pa_next) {
 	    if ((src & p->pa_subnetmask) == p->pa_subnet &&
 		((p->pa_subnetmask == 0xffffffff) ||
 		 (src != p->pa_subnetbcast)))
-		return(vifi);
+		return vifi;
 	}
     }
-    return (NO_VIF);
+
+    return NO_VIF;
 } 
 
 
@@ -428,11 +428,12 @@ local_address(src)
 	    continue;
 	if (src != v->uv_lcl_addr)
 	    continue;
-	else 
-	    return(vifi);
+
+	return vifi;
     }   
+
     /* Returning NO_VIF means not a local address */
-    return (NO_VIF);	
+    return NO_VIF;	
 }
 
 /*
@@ -453,21 +454,23 @@ find_vif_direct_local(src)
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN | VIFF_TUNNEL))
 	    continue;
 	if (src == v->uv_lcl_addr)
-	    return (vifi);     /* src is one of our IP addresses */
+	    return vifi;     /* src is one of our IP addresses */
 	if ((src & v->uv_subnetmask) == v->uv_subnet && 
 	    ((v->uv_subnetmask == 0xffffffff) ||
 	     (src != v->uv_subnetbcast)))
-	    return(vifi);
+	    return vifi;
+
 	/* Check the extra subnets for this vif */
 	/* TODO: don't think currently pimd can handle extra subnets */
 	for (p = v->uv_addrs; p; p = p->pa_next) {
 	    if ((src & p->pa_subnetmask) == p->pa_subnet &&
 		((p->pa_subnetmask == 0xffffffff) ||
 		 (src != p->pa_subnetbcast)))
-		return(vifi);
+		return vifi;
 	}
     }
-    return (NO_VIF);
+
+    return NO_VIF;
 } 
 
 /*
@@ -484,8 +487,10 @@ max_local_address()
 	/* Count vif if not DISABLED or DOWN */
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN))
 	    continue;
+
 	if (ntohl(v->uv_lcl_addr) > ntohl(max_address))
 	    max_address = v->uv_lcl_addr;
     }
-    return(max_address);
+
+    return max_address;
 }
