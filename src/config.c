@@ -50,9 +50,10 @@
 
 #define CONF_UNKNOWN                           -1
 #define CONF_EMPTY                              1
-#define CONF_PHYINT                             2
-#define CONF_DEFAULT_ROUTE_METRIC               3
-#define CONF_DEFAULT_ROUTE_DISTANCE             4
+#define CONF_NO                                 2
+#define CONF_PHYINT                             3
+#define CONF_DEFAULT_ROUTE_METRIC               4
+#define CONF_DEFAULT_ROUTE_DISTANCE             5
 
 /*
  * Forward declarations.
@@ -278,6 +279,8 @@ parse_option(word)
 {
     if (EQUAL(word, ""))
 	return CONF_EMPTY;
+    if (EQUAL(word, "no"))
+	return CONF_NO;
     if (EQUAL(word, "phyint"))
 	return CONF_PHYINT;
     if (EQUAL(word, "default_source_metric"))     /* compat */
@@ -291,6 +294,17 @@ parse_option(word)
 
     return CONF_UNKNOWN;
 }
+
+static void
+disable_all_phyint(void)
+{
+    struct uvif *v;
+    vifi_t vifi;
+
+    for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v)
+	v->uv_flags |= VIFF_DISABLED;
+}
+
 
 /*
  * function name: parse_phyint
@@ -329,6 +343,9 @@ parse_phyint(s)
 	while (!EQUAL((w = next_word(&s)), "")) {
 	    if (EQUAL(w, "disable")) {
 		v->uv_flags |= VIFF_DISABLED;
+	    }
+	    else if (EQUAL(w, "enable")) {
+		v->uv_flags &= ~VIFF_DISABLED;
 	    }
 	    else if(EQUAL(w, "distance")) {
                 if(EQUAL((w = next_word(&s)), "")) 
@@ -469,6 +486,7 @@ config_vifs_from_file()
     struct ifconf ifc;
     int lineno = 0;
     char ifbuf[BUFSIZ];
+    int no = 0;
 
     fp = fopen(configfilename, "r");
     if (!fp) {
@@ -485,15 +503,22 @@ config_vifs_from_file()
     while (fgets(linebuf, sizeof(linebuf), fp)) {
 	lineno++;
 	s = linebuf;
+    next:
 	w = next_word(&s);
 
 	switch(parse_option(w)) {
 	case CONF_EMPTY:
-	    continue;
 	    break;
 
+	case CONF_NO:
+	    no = 1;
+	    goto next;
+
 	case CONF_PHYINT:
-	    parse_phyint(s);
+	    if (no)
+		disable_all_phyint();
+	    else
+		parse_phyint(s);
 	    break;
 
 	default:
@@ -501,6 +526,8 @@ config_vifs_from_file()
 		  configfilename, lineno, w);
 	    break;
 	}
+
+	no = 0;
     }
 
     fclose(fp);
