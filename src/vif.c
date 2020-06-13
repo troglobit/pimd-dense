@@ -192,10 +192,13 @@ start_all_vifs()
 void
 stop_all_vifs()
 {
+    struct uvif *v;
     vifi_t vifi;
 
     for (vifi = 0; vifi < numvifs; vifi++) {
-	stop_vif(vifi);
+	v = &uvifs[vifi];
+	if (!(v->uv_flags & (VIFF_DOWN | VIFF_DISABLED)))
+	    stop_vif(vifi);
     }
 }
 
