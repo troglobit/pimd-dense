@@ -548,7 +548,11 @@ process_wrong_iif(igmpctl)
     source = igmpctl->im_src.s_addr;
     vifi   = igmpctl->im_vif;
 
-    /* PIMDM TODO Don't create routing entries for the LAN scoped addresses */
+    IF_DEBUG(DEBUG_MRT)
+	logit(LOG_DEBUG, 0, "Wrong iif: src %s, dst %s, iif %d",
+	      inet_fmt(source, s1), inet_fmt(group, s2), vifi);
+
+    /* Don't create routing entries for the LAN scoped addresses */
     if (ntohl(group) <= INADDR_MAX_LOCAL_GROUP)
 	return;
 
