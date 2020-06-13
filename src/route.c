@@ -201,9 +201,10 @@ void set_leaves(mrtentry_ptr)
     struct uvif *v;
     
     /* Check for a group report on each vif */
-    for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) 
-	if(check_grp_membership(v, mrtentry_ptr->group->group)) 
+    for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
+	if (check_grp_membership(v, mrtentry_ptr->group->group))
 	    VIFM_SET(vifi, mrtentry_ptr->leaves);
+    }
 }
 
 
@@ -552,20 +553,20 @@ process_wrong_iif(igmpctl)
 	return;
 
     /* Ratelimit prunes or asserts */
-    if(uvifs[vifi].uv_flags & VIFF_POINT_TO_POINT) {
+    if (uvifs[vifi].uv_flags & VIFF_POINT_TO_POINT) {
 
 	mrtentry_ptr = find_route(source, group, MRTF_SG, DONT_CREATE);
-	if(mrtentry_ptr == (mrtentry_t *)NULL)
+	if (!mrtentry_ptr)
 	    return;
 
 	/* Wrong vif on P2P interface - rate-limit prunes */
 
-	if(mrtentry_ptr->last_prune[vifi] == virtual_time)
+	if (mrtentry_ptr->last_prune[vifi] == virtual_time)
 	    /* Skip due to rate-limiting */
 	    return;
 	mrtentry_ptr->last_prune[vifi] = virtual_time;
 
-	if(uvifs[vifi].uv_rmt_addr)
+	if (uvifs[vifi].uv_rmt_addr)
 	    send_pim_jp(mrtentry_ptr, PIM_ACTION_PRUNE, vifi, 
 			uvifs[vifi].uv_rmt_addr, 
 			max_prune_timeout(mrtentry_ptr));
@@ -579,7 +580,7 @@ process_wrong_iif(igmpctl)
 	/* Wrong vif on LAN interface - rate-limit asserts */
 
 	mrtentry_ptr = find_route(source, group, MRTF_SG, DONT_CREATE);
-	if(mrtentry_ptr == (mrtentry_t *)NULL) {
+	if (!mrtentry_ptr) {
 	    pref = 0x7fffffff;
 	    metric = 0x7fffffff;
 	}
@@ -588,7 +589,7 @@ process_wrong_iif(igmpctl)
 	    metric = mrtentry_ptr->source->metric;
 	}
 	    
-	if(mrtentry_ptr->last_assert[vifi] == virtual_time)
+	if (mrtentry_ptr->last_assert[vifi] == virtual_time)
 	    /* Skip due to rate-limiting */
 	    return;
 	mrtentry_ptr->last_assert[vifi] = virtual_time;
