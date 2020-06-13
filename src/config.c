@@ -138,7 +138,7 @@ config_vifs_from_kernel()
 	 * SIOCGIFFLAGS stomps over it because the requests
 	 * are returned in a union.)
 	 */
-	bcopy(ifrp->ifr_name, ifr.ifr_name, sizeof(ifr.ifr_name));
+	strlcpy(ifr.ifr_name, ifrp->ifr_name, sizeof(ifr.ifr_name));
 	
 	/*
 	 * Ignore loopback interfaces and interfaces that do not
@@ -221,7 +221,7 @@ config_vifs_from_kernel()
 	v->uv_subnet		= subnet;
 	v->uv_subnetmask	= mask;
 	v->uv_subnetbcast	= subnet | ~mask;
-	strncpy(v->uv_name, ifr.ifr_name, IFNAMSIZ);
+	strlcpy(v->uv_name, ifr.ifr_name, IFNAMSIZ);
 	v->uv_groups		= (struct listaddr *)NULL;
 	v->uv_dvmrp_neighbors   = (struct listaddr *)NULL;
 	NBRM_CLRALL(v->uv_nbrmap);

@@ -111,7 +111,7 @@ init_vifs()
 	v->uv_subnet		= INADDR_ANY_N;
 	v->uv_subnetmask	= INADDR_ANY_N;
 	v->uv_subnetbcast	= INADDR_ANY_N;
-	strncpy(v->uv_name, "", IFNAMSIZ);
+	strlcpy(v->uv_name, "", IFNAMSIZ);
 	v->uv_groups		= (struct listaddr *)NULL;
 	v->uv_dvmrp_neighbors   = (struct listaddr *)NULL;
 	NBRM_CLRALL(v->uv_nbrmap);
@@ -350,7 +350,7 @@ check_vif_state()
 	if (v->uv_flags & VIFF_DISABLED)
 	    continue;
 	
-	memcpy(ifr.ifr_name, v->uv_name, sizeof(ifr.ifr_name));
+	strlcpy(ifr.ifr_name, v->uv_name, sizeof(ifr.ifr_name));
 	/* get the interface flags */
 	if (ioctl(udp_socket, SIOCGIFFLAGS, (char *)&ifr) < 0)
 	    logit(LOG_ERR, errno,
