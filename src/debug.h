@@ -115,3 +115,5 @@ extern int	debug_list	(int mask, char *buf, size_t len);
 extern int	debug_parse	(char *arg);
 
 extern int	log_str2lvl	(char *level);
+extern const char *log_lvl2str	(int val);
+extern int	log_list	(char *buf, size_t len);

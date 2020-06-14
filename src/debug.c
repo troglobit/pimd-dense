@@ -361,6 +361,39 @@ log_str2lvl(level)
 }
 
 
+const char *
+log_lvl2str(val)
+    int val;
+{
+    int i;
+
+    for (i = 0; prioritynames[i].c_name; i++) {
+	if (prioritynames[i].c_val == val)
+	    return prioritynames[i].c_name;
+    }
+
+    return "unknown";
+}
+
+
+int
+log_list(buf, len)
+    char *buf;
+    size_t len;
+{
+    int i;
+
+    memset(buf, 0, len);
+    for (i = 0; prioritynames[i].c_name; i++) {
+	if (i > 0)
+	    strlcat(buf, ", ", len);
+	strlcat(buf, prioritynames[i].c_name, len);
+    }
+
+    return 0;
+}
+
+
 /*
  * Some messages are more important than others.  This routine
  * determines the logging level at which to log a send error (often
