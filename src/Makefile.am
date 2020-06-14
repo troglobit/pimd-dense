@@ -8,10 +8,10 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS      = -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE -I$(top_srcdir)/include
 AM_CPPFLAGS     += -DSYSCONFDIR=\"@sysconfdir@\" -DLOCALSTATEDIR=\"@localstatedir@\"
 
-sbin_PROGRAMS    = pimdd
+sbin_PROGRAMS    = pimdd pimctl
 pimdd_SOURCES    = igmp.c igmp_proto.c trace.c				\
 		   inet.c kern.c main.c config.c debug.c  		\
-		   callout.c						\
+		   callout.c ipc.c ipc.h				\
 		   route.c vif.c timer.c mrt.c pim.c pim_proto.c	\
 		   dvmrp_proto.c					\
 		   debug.h defs.h dvmrp.h igmpv2.h mrt.h pathnames.h pimdd.h	\
@@ -32,3 +32,6 @@ if RSRR
 AM_CPPFLAGS     += -DPIM
 pimdd_SOURCES   += rsrr.c		rsrr_var.h	rsrr.h
 endif
+
+pimctl_SOURCES   = pimctl.c		ipc.h
+pimctl_LDADD     = $(LIBS) $(LIBOBJS)

@@ -111,6 +111,9 @@ extern int log_nmsgs;
 #define DEBUG_PARSE_FAIL      0x80000000
 #define DEBUG_ALL             0xffffffff
 
+extern void	dump_vifs	(FILE *fp, int detail);
+extern void	dump_pim_mrt	(FILE *fp, int detail);
+
 extern int	debug_list	(int mask, char *buf, size_t len);
 extern int	debug_parse	(char *arg);
 

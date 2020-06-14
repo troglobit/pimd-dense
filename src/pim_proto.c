@@ -191,7 +191,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
     }
     
     IF_DEBUG(DEBUG_PIM_HELLO)
-	dump_vifs(stderr);     	/* Show we got a new neighbor */
+	dump_vifs(stderr, 0);     	/* Show we got a new neighbor */
     return(TRUE);
 }
 

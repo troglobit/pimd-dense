@@ -102,6 +102,7 @@ typedef void (*ihfunc_t) (int, fd_set *);
 #include "mrt.h"
 #include "igmpv2.h"
 #include "igmpv3.h"
+#include "ipc.h"
 #include "vif.h"
 #include "debug.h"
 #include "pathnames.h"
@@ -341,11 +342,6 @@ extern char    *packet_kind  (u_int proto, u_int type, u_int code);
 extern int      debug_kind   (u_int proto, u_int type, u_int code);
 extern void     logit        (int, int, char *, ...);
 extern int      log_severity (u_int proto, u_int type, u_int code);
-extern void     dump         (int i);
-extern void     fdump        (int i);
-extern void     cdump        (int i);
-extern void     dump_vifs    (FILE *fp);
-extern void     dump_pim_mrt (FILE *fp);
 
 /* dvmrp_proto.c */
 extern void	dvmrp_accept_probe        (u_int32 src, u_int32 dst, char *p, int datalen, u_int32 level);
@@ -404,7 +400,9 @@ extern int      k_get_sg_cnt    (int socket, u_int32 source, u_int32 group, stru
 extern int      foreground;
 extern char    *progname;
 
-extern int      register_input_handler (int fd, ihfunc_t func);
+extern int      register_input_handler	(int fd, ihfunc_t func);
+extern int	daemon_restart		(void *arg);
+extern int	daemon_kill		(void *arg);
 
 /* mrt.c */
 extern void         init_pim_mrt     ();

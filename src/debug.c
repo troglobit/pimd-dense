@@ -447,78 +447,50 @@ log_severity(proto, type, code)
 
 
 /*
- * Dump internal data structures to stderr.
- */
-/* TODO: currently not used
-void 
-dump(int i)
-{
-    dump_vifs(stderr);
-    dump_pim_mrt(stderr);
-}	
+            1         2         3         4         5         6         7         8
+  012345678901234567890123456789012345678901234567890123456789012345678901234567890
+  Virtual Interface Table
+  Vif  Local-Address    Subnet                Thresh  Flags          Neighbors
+  0  10.0.3.1         10.0.3/24             1       DR NO-NBR
+  1  172.16.12.254    172.16.12/24          1       DR PIM         172.16.12.2
+                                                                   172.16.12.3
+  2  192.168.122.147  register_vif0         1
 */
-
-/*
- * Dump internal data structures to a file.
- */
-void 
-fdump(i)
-    int i;
+void dump_vifs(FILE *fp, int detail)
 {
-    FILE *fp;
-    fp = fopen(dumpfilename, "w");
-    if (fp != NULL) {
-	dump_vifs(fp);
-	dump_pim_mrt(fp);
-	(void) fclose(fp);
-    }
-}
-
-/* TODO: dummy, to be used in the future. */
-/*
- * Dump local cache contents to a file.
- */
-void
-cdump(i)
-    int i;
-{
-    FILE *fp;
-    
-    fp = fopen(cachefilename, "w");
-    if (fp != NULL) {
-      /* TODO: implement it:
-	 dump_cache(fp); 
-	 */
-	(void) fclose(fp);
-    }
-}
-
-void
-dump_vifs(fp)
-    FILE *fp;
-{	
     vifi_t vifi;
     struct uvif *v;
     pim_nbr_entry_t *n;
     int width;
     int i;
-    
-    fprintf(fp, "Virtual Interface Table\n %-4s %-17s %-16s %-8s %-14s %s",
-	    "Vif", "Local-Address", "Subnet", "Thresh", "Flags",
-	    "Neighbors\n");
-    
+
+    if (detail)
+	fprintf(fp, "\nVirtual Interface Table\n");
+    fprintf(fp, "VIF  Local Address    Subnet              Thresh  Flags      Neighbors=\n");
+
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
-	fprintf(fp, "  %-3u %-17s ", vifi, inet_fmt(v->uv_lcl_addr, s1));
+	int down = 0;
+
+	fprintf(fp, "%3u  %-15s  ", vifi, inet_fmt(v->uv_lcl_addr, s1));
+
 	if (v->uv_flags & VIFF_REGISTER)
-	    fprintf(fp, "%-16s ", v->uv_name);
+	    fprintf(fp, "%-18s  ", v->uv_name);
 	else
-	    fprintf(fp,"%-16.16s ", netname(v->uv_subnet, v->uv_subnetmask));
-	fprintf(fp, "%-5u   ", v->uv_threshold);
+	    fprintf(fp,"%-18.18s  ", netname(v->uv_subnet, v->uv_subnetmask));
+
+	fprintf(fp, "%6u ", v->uv_threshold);
+
+	/* TODO: XXX: Print VIFF_TUNNEL? */
 	width = 0;
-	if (v->uv_flags & VIFF_DISABLED)
+	if (v->uv_flags & VIFF_DISABLED) {
 	    fprintf(fp, " DISABLED");
-	if (v->uv_flags & VIFF_DOWN)
+	    down = 1;
+	}
+	if (v->uv_flags & VIFF_DOWN) {
 	    fprintf(fp, " DOWN");
+	    down = 1;
+	}
+
 	if (v->uv_flags & VIFF_DR) {
 	    fprintf(fp, " DR");
 	    width += 3;
@@ -532,25 +504,22 @@ dump_vifs(fp)
 	    width += 6;
 	}
 	if (v->uv_flags & VIFF_NONBRS) {
-	    fprintf(fp, " %-12s", "NO-NBR");
+	    fprintf(fp, " NO-NBR");
 	    width += 6;
 	}
 
-	if ((n = v->uv_pim_neighbors) != NULL) {
-	    /* Print the first neighbor on the same line */
-	    for (i = width; i <= 15; i++)
+	n = v->uv_pim_neighbors;
+	if (!down && n) {
+	    for (i = width; i <= 11; i++)
 		fprintf(fp, " ");
-	    fprintf(fp, "%-12s\n", inet_fmt(n->address, s1));
-	    for (n = n->next; n != NULL; n = n->next)
-		fprintf(fp, "%64s %-15s\n", "", inet_fmt(n->address, s1));
-	    
-	}
-	else
+	    fprintf(fp, "%-15s\n", inet_fmt(n->address, s1));
+	    for (n = n->next; n; n = n->next)
+		fprintf(fp, "%61s%-15s\n", "", inet_fmt(n->address, s1));
+	} else {
 	    fprintf(fp, "\n");
-    }  
-    fprintf(fp, "\n");
+	}
+    }
 }
-
 
 /*
  * Log errors and other messages to the system log daemon and to stderr,
@@ -622,8 +591,9 @@ done:
 
 /* TODO: format the output for better readability */
 void 
-dump_pim_mrt(fp)
+dump_pim_mrt(fp, detail)
     FILE *fp;
+    int detail;
 {
     grpentry_t *g;
     mrtentry_t *r;

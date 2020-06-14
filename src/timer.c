@@ -146,7 +146,7 @@ age_vifs()
     }
 
     IF_DEBUG(DEBUG_IF)
-	dump_vifs(stderr);
+	dump_vifs(stderr, 0);
 }
 
 
@@ -330,6 +330,6 @@ age_routes()
     }
 
     IF_DEBUG(DEBUG_PIM_MRT)
-	dump_pim_mrt(stderr);
+	dump_pim_mrt(stderr, 0);
     return;
 }

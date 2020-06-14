@@ -48,3 +48,4 @@
 #define _PATH_PIMD_GENID	LOCALSTATEDIR "/run/pimdd.genid"
 #define _PATH_PIMD_DUMP		LOCALSTATEDIR "/tmp/pimdd.dump"
 #define _PATH_PIMD_CACHE	LOCALSTATEDIR "/tmp/pimdd.cache"
+#define _PATH_PIMD_SOCK		LOCALSTATEDIR "/run/pimdd.sock"

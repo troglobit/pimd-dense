@@ -62,7 +62,7 @@ static int sighandled = 0;
 #define GOT_SIGUSR2     0x08
 #define GOT_SIGALRM     0x10
 
-#define NHANDLERS       3
+#define NHANDLERS       4
 
 static struct ihandler {
     int fd;			/* File descriptor               */
@@ -99,46 +99,6 @@ static void pidfile_cleanup(void)
     remove(pidfilename);
 }
 
-/* Send signal to running daemon and the show resulting file. */
-static int killshow(int signo, char *file)
-{
-    int retries = 10;
-    char buf[100];
-    pid_t pid;
-    FILE *fp;
-
-    fp = fopen(pidfilename, "r");
-    if (!fp)
-	return 1;
-
-    if (fscanf(fp, "%d", &pid) != 1)
-	pid = -1;
-    fclose(fp);
-
-    if (pid == -1)
-	return 1;
-
-    if (file)
-	remove(file);
-
-    kill(pid, signo);
-    if (file) {
-	while (access(file, R_OK) && retries--)
-	    usleep(100000);
-
-	fp = fopen(file, "r");
-	if (!fp)
-	    return 1;
-
-	while (fgets(buf, sizeof(buf), fp))
-	    fputs(buf, stdout);
-
-	fclose(fp);
-    }
-
-    return 0;
-}
-
 int usage(int code)
 {
     char buf[768];
@@ -149,9 +109,6 @@ int usage(int code)
     printf(" -h        This help text\n");
     printf(" -l LVL    Set log level: none, err, notice (default), info, debug\n");
     printf(" -n        Run in foreground, do not detach from calling terminal\n");
-    printf(" -p        Send SIGHUP to poke a running %s to reload %s\n", progname, _PATH_PIMD_CONF);
-    printf(" -q        Send SIGTERM to a running %s\n", progname);
-    printf(" -r        Show state of VIFs and the multicast routing table\n");
     printf(" -s        Use syslog, default unless running in foreground, -n\n");
     printf(" -v        Show program version\n");
     
@@ -216,7 +173,7 @@ main(argc, argv)
     else
 	progname = argv[0];
 
-    while ((ch = getopt(argc, argv, "cd:f:h?l:nqrsv")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?l:nsv")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -245,15 +202,6 @@ main(argc, argv)
 	    if (log_syslog > 0)
 		log_syslog--;
 	    break;
-
-	case 'p':
-	    return killshow(SIGHUP, NULL);
-
-	case 'q':
-	    return killshow(SIGTERM, NULL);
-
-	case 'r':
-	    return killshow(SIGUSR1, dumpfilename);
 
 	case 's':
 	    if (log_syslog == 0)
@@ -336,7 +284,8 @@ main(argc, argv)
     init_routesock(); /* Both for Linux netlink and BSD routing socket */
     init_pim_mrt();
     init_timers();
-    
+    ipc_init();
+
     /* TODO: check the kernel DVMRP/MROUTED/PIM support version */
     
     init_vifs();
@@ -352,8 +301,6 @@ main(argc, argv)
     sigaction(SIGHUP, &sa, NULL);
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGUSR1, &sa, NULL);
-    sigaction(SIGUSR2, &sa, NULL);
     
     FD_ZERO(&readers);
     FD_SET(igmp_socket, &readers);
@@ -365,9 +312,9 @@ main(argc, argv)
     }
     
     IF_DEBUG(DEBUG_IF)
-	dump_vifs(stderr);
+	dump_vifs(stderr, 0);
     IF_DEBUG(DEBUG_PIM_MRT)
-	dump_pim_mrt(stderr);
+	dump_pim_mrt(stderr, 0);
     
     /* schedule first timer interrupt */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
@@ -406,14 +353,6 @@ main(argc, argv)
 	    if (sighandled & GOT_SIGHUP) {
 		sighandled &= ~GOT_SIGHUP;
 		restart(SIGHUP);
-	    }
-	    if (sighandled & GOT_SIGUSR1) {
-		sighandled &= ~GOT_SIGUSR1;
-		fdump(SIGUSR1);
-	    }
-	    if (sighandled & GOT_SIGUSR2) {
-		sighandled &= ~GOT_SIGUSR2;
-		cdump(SIGUSR2);
 	    }
 	    if (sighandled & GOT_SIGALRM) {
 		sighandled &= ~GOT_SIGALRM;
@@ -546,6 +485,7 @@ cleanup()
     igmp_clean();
     pim_clean();
     mrt_clean();
+    ipc_exit();
 
     /*
      * When IOCTL_OK_ON_RAW_SOCKET is defined, 'udp_socket' is equal
@@ -587,14 +527,6 @@ handler(sig)
     case SIGHUP:
 	sighandled |= GOT_SIGHUP;
 	break;
-	
-    case SIGUSR1:
-	sighandled |= GOT_SIGUSR1;
-	break;
-	
-    case SIGUSR2:
-	sighandled |= GOT_SIGUSR2;
-	break;
     }
 }
 
@@ -627,6 +559,7 @@ restart(i)
     init_routesock();
     init_pim_mrt();
     init_vifs();
+    ipc_init();
 
 #ifdef RSRR
     rsrr_init();
@@ -634,6 +567,25 @@ restart(i)
 
     /* schedule timer interrupts */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
+}
+
+
+int
+daemon_restart(void *arg)
+{
+    (void)arg;
+    restart(1);
+
+    return 0;
+}
+
+int
+daemon_kill(void *arg)
+{
+    (void)arg;
+    handler(SIGTERM);
+
+    return 0;
 }
 
 

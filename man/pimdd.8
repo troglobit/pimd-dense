@@ -11,7 +11,7 @@
 .Nd PIM-DM multicast routing daemon
 .Sh SYNOPSIS
 .Nm pimdd
-.Op Fl hnpqrsv
+.Op Fl hnsv
 .Op Fl f Ar FILE
 .Op Fl d Ar SYS[,SYS,...]
 .Op Fl l Ar LEVEL
@@ -186,21 +186,6 @@ Informational
 .It Cm debug
 Debug-level messages
 .El
-.It Fl p
-Send SIGHUP to poke a running
-.Nm
-to reload its
-.Pa /etc/pimdd.conf .
-.It Fl q
-Send SIGTERM to a running
-.Nm .
-.It Fl r
-Show state of VIFs and the multicast routing table.  Same as sending
-SIGUSR1 and waiting for
-.Pa /var/tmp/pimdd.dump .
-.It Fl s
-Use syslog, default unless running in foreground,
-.Fl n .
 .It Fl v
 Show
 .Nm
@@ -316,9 +301,6 @@ Terminate execution gracefully, i.e. by sending good-bye messages to neighboring
 routers
 .It INT
 The same as TERM
-.It USR1
-Dump internal state of VIFs and multicast routing table in
-.Pa /var/tmp/pimdd.dump
 .El
 .Pp
 For convenience in sending signals,
@@ -327,18 +309,21 @@ writes its process ID to
 .Pa /var/run/pimdd.pid
 upon startup.
 .Sh FILES
-.Bl -tag -width /var/run/pimd.sock -compact
+.Bl -tag -width /var/run/pimdd.sock -compact
 .It Pa /etc/pimdd.conf
 Main configuration file
 .It Pa /var/run/pimdd.pid
 Pidfile (re)created by
 .Nm
 daemon when it has started up and is ready to receive commands.
-.It Pa /var/tmp/pimdd.dump
-Internal state, used to show configured VIFs and multicast routing table.
+.It Pa /var/run/pimdd.sock
+.Ux Ns -domain
+socket used for communication with
+.Xr pimctl 8
 .El
 .Sh SEE ALSO
-.Xr pimcd 8 ,
+.Xr pimctl 8 ,
+.Xr pimd 8 ,
 .Xr mrouted 8 ,
 .Xr smcroute 8 ,
 .Xr /usr/share/doc/pimdd/
