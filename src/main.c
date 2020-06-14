@@ -41,9 +41,8 @@
  * Leland Stanford Junior University.
  */
 
-#define SYSLOG_NAMES
-#include <getopt.h>
 #include "defs.h"
+#include <getopt.h>
 
 char configfilename[256] = _PATH_PIMD_CONF;
 char versionstring[100];
@@ -70,65 +69,6 @@ static struct ihandler {
     ihfunc_t func;		/* Function to call with &fd_set */
 } ihandlers[NHANDLERS];
 static int nhandlers = 0;
-
-static struct debugname {
-    char   *name;
-    int	    level;
-    size_t  nchars;
-} debugnames[] = {
-    {   "igmp_proto",	    DEBUG_IGMP_PROTO,     6	    },
-    {   "igmp_timers",	    DEBUG_IGMP_TIMER,     6	    },
-    {   "igmp_members",	    DEBUG_IGMP_MEMBER,    6	    },
-    {   "groups",	    DEBUG_MEMBER,         1	    },
-    {   "membership",       DEBUG_MEMBER,         2	    },
-    {   "igmp",	            DEBUG_IGMP, 	  1	    },
-    {   "trace",	    DEBUG_TRACE,          2	    },
-    {   "mtrace",	    DEBUG_TRACE,          2	    },
-    {   "traceroute",       DEBUG_TRACE,          2	    },
-    {   "timeout",	    DEBUG_TIMEOUT,        2	    },
-    {   "callout",	    DEBUG_TIMEOUT,        3	    },
-    {   "pkt",	            DEBUG_PKT,  	  2	    },
-    {   "packets",	    DEBUG_PKT,  	  2	    },
-    {   "interfaces",       DEBUG_IF,   	  2	    },
-    {   "vif",	            DEBUG_IF,   	  1	    },
-    {   "kernel",           DEBUG_KERN,           2	    },
-    {   "cache",            DEBUG_MFC,   	  1	    },
-    {   "mfc",              DEBUG_MFC,  	  2	    },
-    {   "k_cache",          DEBUG_MFC,  	  2	    },
-    {   "k_mfc",            DEBUG_MFC,  	  2	    },
-    {   "rsrr",	            DEBUG_RSRR, 	  2	    },
-    {   "pim_detail",       DEBUG_PIM_DETAIL,     5	    },
-    {   "pim_hello",        DEBUG_PIM_HELLO,      5	    },
-    {   "pim_neighbors",    DEBUG_PIM_HELLO,      5	    },
-    {   "pim_register",     DEBUG_PIM_REGISTER,   5	    },
-    {   "registers",        DEBUG_PIM_REGISTER,   2	    },
-    {   "pim_join_prune",   DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_j_p",          DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_jp",           DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_graft",        DEBUG_PIM_GRAFT,      5         },
-    {   "pim_bootstrap",    DEBUG_PIM_BOOTSTRAP,  5	    },
-    {   "pim_bsr",          DEBUG_PIM_BOOTSTRAP,  5	    },
-    {   "bsr",	            DEBUG_PIM_BOOTSTRAP,  1	    },
-    {   "bootstrap",        DEBUG_PIM_BOOTSTRAP,  1	    },
-    {   "pim_asserts",      DEBUG_PIM_ASSERT,     5	    },
-    {   "pim_routes",       DEBUG_PIM_MRT,        6	    },
-    {   "pim_routing",      DEBUG_PIM_MRT,        6	    },
-    {   "pim_mrt",          DEBUG_PIM_MRT,        5	    },
-    {   "pim_timers",       DEBUG_PIM_TIMER,      5	    },
-    {   "pim_rpf",          DEBUG_PIM_RPF,        6	    },
-    {   "rpf",              DEBUG_RPF,            3	    },
-    {   "pim",              DEBUG_PIM,  	  1	    },
-    {   "routes",	    DEBUG_MRT,            1	    },
-    {   "routing",	    DEBUG_MRT,            1	    },
-    {   "mrt",  	    DEBUG_MRT,            1	    },
-    {   "routers",          DEBUG_NEIGHBORS,      6	    },
-    {   "mrouters",         DEBUG_NEIGHBORS,      7	    },
-    {   "neighbors",        DEBUG_NEIGHBORS,      1	    },
-    {   "timers",           DEBUG_TIMER,          1	    },
-    {   "asserts",          DEBUG_ASSERT,         1	    },
-    {   "all",              DEBUG_ALL,            2         },
-    {   "3",	            0xffffffff,           1	    }    /* compat. */
-};
 
 /*
  * Forward declarations.
@@ -197,83 +137,6 @@ static int killshow(int signo, char *file)
     }
 
     return 0;
-}
-
-int debug_list(int mask, char *buf, size_t len)
-{
-    struct debugname *d;
-    size_t i;
-
-    memset(buf, 0, len);
-    for (i = 0, d = debugnames; i < NELEMS(debugnames); i++, d++) {
-	if (!(mask & d->level))
-	    continue;
-
-	if (mask != (int)DEBUG_ALL)
-	    mask &= ~d->level;
-
-	strlcat(buf, d->name, len);
-
-	if (mask && i + 1 < NELEMS(debugnames))
-	    strlcat(buf, ", ", len);
-    }
-
-    return 0;
-}
-
-int debug_parse(char *arg)
-{
-    struct debugname *d;
-    size_t i, len;
-    char *next = NULL;
-    int sys = 0;
-
-    if (!arg || !strlen(arg) || strstr(arg, "none"))
-	return sys;
-
-    while (arg) {
-	int no = 0;
-
-	next = strchr(arg, ',');
-	if (next)
-	    *next++ = '\0';
-	/* disable log level if flag preceded by '-' */
-	if (arg[0] == '-') {
-	    arg++;
-	    no = 1;
-	}
-
-	len = strlen(arg);
-	for (i = 0, d = debugnames; i < NELEMS(debugnames); i++, d++) {
-	    if (len >= d->nchars && strncmp(d->name, arg, len) == 0)
-		break;
-	}
-
-	if (i == NELEMS(debugnames))
-	    return DEBUG_PARSE_FAIL;
-
-	if (no)
-	    sys &= ~d->level;
-	else
-	    sys |= d->level;
-	arg = next;
-    }
-
-    return sys;
-}
-
-int log_str2lvl(char *level)
-{
-    int i;
-
-    for (i = 0; prioritynames[i].c_name; i++) {
-	size_t len = MIN(strlen(prioritynames[i].c_name), strlen(level));
-
-	if (!strncasecmp(prioritynames[i].c_name, level, len))
-	    return prioritynames[i].c_val;
-    }
-
-    return atoi(level);
 }
 
 int usage(int code)

@@ -111,3 +111,7 @@ extern int log_nmsgs;
 #define DEBUG_PARSE_FAIL      0x80000000
 #define DEBUG_ALL             0xffffffff
 
+extern int	debug_list	(int mask, char *buf, size_t len);
+extern int	debug_parse	(char *arg);
+
+extern int	log_str2lvl	(char *level);
