@@ -241,10 +241,10 @@ extern int		udp_socket;
 
 extern int		vifs_down;
 
-extern char		s1[];
-extern char		s2[];
-extern char		s3[];
-extern char		s4[];
+extern char		s1[19];
+extern char		s2[19];
+extern char		s3[19];
+extern char		s4[19];
 
 #if !((defined(BSD) && (BSD >= 199103)) || defined(__linux__))
 extern int		errno;
