@@ -311,11 +311,6 @@ main(argc, argv)
 	    nfds = ihandlers[i].fd + 1;
     }
     
-    IF_DEBUG(DEBUG_IF)
-	dump_vifs(stderr, 0);
-    IF_DEBUG(DEBUG_PIM_MRT)
-	dump_pim_mrt(stderr, 0);
-    
     /* schedule first timer interrupt */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
 

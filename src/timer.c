@@ -144,9 +144,6 @@ age_vifs()
 	IF_TIMEOUT(v->uv_gq_timer)
 	    query_groups(v);
     }
-
-    IF_DEBUG(DEBUG_IF)
-	dump_vifs(stderr, 0);
 }
 
 
@@ -329,7 +326,5 @@ age_routes()
 	}
     }
 
-    IF_DEBUG(DEBUG_PIM_MRT)
-	dump_pim_mrt(stderr, 0);
     return;
 }
