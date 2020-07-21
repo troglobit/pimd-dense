@@ -18,6 +18,9 @@ the master branch has been infused with fresh DNA strands from the
 [pimd][] project, including a netlink back-end to read the unicast
 routing table.
 
+> **HELP NEEDED:** The project needs more volunteers to test and update
+> `pimdd` to RFC3973.
+
 
 Running pimdd
 -------------
@@ -76,7 +79,7 @@ Building from GIT
 
 If you want to contribute, or simply just try out the latest but
 unreleased features, then you need to know a few things about the
-[GNU build system][buildsystem]:
+[GNU build system][build]:
 
 - `configure.ac` and a per-directory `Makefile.am` are key files
 - `configure` and `Makefile.in` are generated from `autogen.sh`
@@ -118,3 +121,4 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 [Badge]:   https://img.shields.io/badge/License-BSD%204--Clause-blue.svg
 [Travis]:  https://travis-ci.org/troglobit/pimd-dense
 [CIstat]:  https://travis-ci.org/troglobit/pimd-dense.png?branch=master
+[build]:   https://autotools.io/
