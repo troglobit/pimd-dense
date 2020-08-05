@@ -122,9 +122,6 @@ unsigned long debug = 0x00000000;        /* If (long) is smaller than
 					  * 4 bytes, then we are in
 					  * trouble.
 					  */
-char dumpfilename[] = _PATH_PIMD_DUMP;
-char cachefilename[] = _PATH_PIMD_CACHE; /* TODO: notused */
-
 
 char *
 packet_kind(proto, type, code)

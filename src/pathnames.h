@@ -41,11 +41,9 @@
  */
 
 #ifndef _PATH_PIMD_CONF
-#define _PATH_PIMD_CONF		SYSCONFDIR "/pimdd.conf"
+#define _PATH_PIMD_CONF         SYSCONFDIR "/pimdd.conf"
 #endif
 
-#define _PATH_PIMD_PID		LOCALSTATEDIR "/run/pimdd.pid"
-#define _PATH_PIMD_GENID	LOCALSTATEDIR "/run/pimdd.genid"
-#define _PATH_PIMD_DUMP		LOCALSTATEDIR "/tmp/pimdd.dump"
-#define _PATH_PIMD_CACHE	LOCALSTATEDIR "/tmp/pimdd.cache"
-#define _PATH_PIMD_SOCK		LOCALSTATEDIR "/run/pimdd.sock"
+#define _PATH_PIMD_PID          LOCALSTATEDIR "/run/pimdd.pid"
+#define _PATH_PIMD_GENID        LOCALSTATEDIR "/run/pimdd.genid"
+#define _PATH_PIMD_SOCK         LOCALSTATEDIR "/run/pimdd.sock"
