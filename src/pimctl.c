@@ -45,10 +45,9 @@ static int plain = 0;
 static int detail = 0;
 static int heading = 1;
 
-char *ident = "pimd";
+char *ident = NULL;
 
-
-static int do_connect(char *ident)
+static int do_connect(char *nm)
 {
 	struct sockaddr_un sun;
 	int sd;
@@ -57,7 +56,18 @@ static int do_connect(char *ident)
 	sun.sun_len = 0;	/* <- correct length is set by the OS */
 #endif
 	sun.sun_family = AF_UNIX;
-	snprintf(sun.sun_path, sizeof(sun.sun_path), _PATH_PIMD_SOCK, ident);
+	if (!nm) {
+		char *possib[] = { "pimd", "pimdd", NULL };
+		int i;
+
+		for (i = 0; possib[i]; i++) {
+			snprintf(sun.sun_path, sizeof(sun.sun_path), _PATH_PIMD_SOCK, possib[i]);
+			if (!access(sun.sun_path, F_OK))
+				break;
+		}
+	} else
+		snprintf(sun.sun_path, sizeof(sun.sun_path), _PATH_PIMD_SOCK, nm);
+
 	sd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (-1 == sd)
 		goto error;
