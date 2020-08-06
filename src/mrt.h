@@ -41,6 +41,8 @@
  * Leland Stanford Junior University.
  */
 
+#include "queue.h"
+
 #define MRTF_SPT                0x0001	/* iif toward source                */
 #define MRTF_WC                 0x0002	/* (*,G) entry                      */
 #define MRTF_RP                 0x0004	/* iif toward RP                    */
@@ -122,8 +124,7 @@ struct sg_count {
 
 typedef struct mrtentry mrtentry_t;
 typedef struct pim_graft_entry {
-    struct pim_graft_entry    *next;
-    struct pim_graft_entry    *prev;
+    LIST_ENTRY(pim_graft_entry) link;
     mrtentry_t                *mrtlink;
 } pim_graft_entry_t;
 

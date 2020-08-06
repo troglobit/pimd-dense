@@ -42,6 +42,7 @@
  */
 
 #include "defs.h"
+#include "queue.h"
 
 /*
  * Local functions definitions.
@@ -1114,30 +1115,26 @@ compare_metrics(local_preference, local_metric, local_address,
 
 
 u_long              graft_retrans_timer;   /* Graft retransmission timer */
-pim_graft_entry_t   *graft_list;           /* Active grafting entries */
+static LIST_HEAD(, pim_graft_entry) graft_list = LIST_HEAD_INITIALIZER(); /* Active grafting entries */
 
 
 void
 delete_pim_graft_entry(mrtentry_ptr)
      mrtentry_t *mrtentry_ptr;
 {
-    pim_graft_entry_t *graft_entry;
+    pim_graft_entry_t *e;
 
-    if(mrtentry_ptr->graft == (pim_graft_entry_t *)NULL)
+    if (!mrtentry_ptr || !mrtentry_ptr->graft)
 	return;
-    graft_entry = mrtentry_ptr->graft;
-    
-    if(graft_entry->prev)
-	graft_entry->prev->next = graft_entry->next;
-    else 
-	graft_list = graft_entry->next;
-    if(graft_entry->next)
-	graft_entry->next->prev = graft_entry->prev;
-    mrtentry_ptr->graft = (pim_graft_entry_t *)NULL;
-    free(graft_entry);
+
+    e = mrtentry_ptr->graft;
+    LIST_REMOVE(e, link);
+
+    mrtentry_ptr->graft = NULL;
+    free(e);
 
     /* Stop the timer if there are no more entries */
-    if(!graft_list) {
+    if (LIST_EMPTY(&graft_list)) {
 	timer_clearTimer(graft_retrans_timer);
 	RESET_TIMER(graft_retrans_timer);
     }
@@ -1194,27 +1191,22 @@ static void
 retransmit_all_pim_grafts(arg)
      void *arg; /* UNUSED */
 {
-    pim_graft_entry_t *graft_ptr;
+    pim_graft_entry_t *e, *tmp;
 
     IF_DEBUG(DEBUG_PIM_GRAFT)
 	logit(LOG_DEBUG, 0, "Retransmitting all pending PIM-Grafts");
   
-
-    for(graft_ptr = graft_list; 
-	graft_ptr != NULL; 
-	graft_ptr = graft_ptr->next) {
-
+    LIST_FOREACH_SAFE(e, &graft_list, link, tmp) {
 	IF_DEBUG(DEBUG_PIM_GRAFT)
 	    logit(LOG_DEBUG, 0, "\tGRAFT src %s, grp %s",
-		inet_fmt(graft_ptr->mrtlink->source->address, s1),
-		inet_fmt(graft_ptr->mrtlink->group->group, s2));
+		inet_fmt(e->mrtlink->source->address, s1),
+		inet_fmt(e->mrtlink->group->group, s2));
 
-	retransmit_pim_graft(graft_ptr->mrtlink);
+	retransmit_pim_graft(e->mrtlink);
     }
 
-    if(graft_list)
-	timer_setTimer(PIM_GRAFT_RETRANS_PERIOD, retransmit_all_pim_grafts, 
-		       (void *)NULL);
+    if (!LIST_EMPTY(&graft_list))
+	timer_setTimer(PIM_GRAFT_RETRANS_PERIOD, retransmit_all_pim_grafts, NULL);
 }
 
 
@@ -1355,7 +1347,7 @@ int
 send_pim_graft(mrtentry_ptr)
      mrtentry_t *mrtentry_ptr;
 {
-    pim_graft_entry_t *new_graft;
+    pim_graft_entry_t *e;
     int was_sent = 0;
 
     if(mrtentry_ptr->graft != (pim_graft_entry_t *)NULL)
@@ -1368,20 +1360,19 @@ send_pim_graft(mrtentry_ptr)
 	return FALSE;
 
     /* Set up retransmission */
-    new_graft = (pim_graft_entry_t *)malloc(sizeof(pim_graft_entry_t));
-    if (new_graft == (pim_graft_entry_t *)NULL) {
+    e = malloc(sizeof(pim_graft_entry_t));
+    if (!e) {
 	logit(LOG_WARNING, 0, 
 	    "Memory allocation error for graft entry src %s, grp %s",
 	    inet_fmt(mrtentry_ptr->source->address, s1),
 	    inet_fmt(mrtentry_ptr->group->group, s2));
 	return FALSE;
     }
-    new_graft->next = graft_list;
-    new_graft->prev = (pim_graft_entry_t *)NULL;
-    new_graft->mrtlink = mrtentry_ptr;
-    if(graft_list == (pim_graft_entry_t *)NULL)
-	graft_list = new_graft;
-    mrtentry_ptr->graft = new_graft;
+
+    LIST_INSERT_HEAD(&graft_list, e, link);
+
+    e->mrtlink = mrtentry_ptr;
+    mrtentry_ptr->graft = e;
 	
     /* Set up timer if not running */
     if(!graft_retrans_timer) 
