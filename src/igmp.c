@@ -73,8 +73,12 @@ init_igmp()
 {
     struct ip *ip;
     
-    igmp_recv_buf = malloc(RECV_BUF_SIZE);
-    igmp_send_buf = malloc(RECV_BUF_SIZE);
+    igmp_recv_buf = calloc(1, RECV_BUF_SIZE);
+    if (!igmp_recv_buf)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+    igmp_send_buf = calloc(1, RECV_BUF_SIZE);
+    if (!igmp_send_buf)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
 
     if ((igmp_socket = socket(AF_INET, SOCK_RAW, IPPROTO_IGMP)) < 0) 
 	logit(LOG_ERR, errno, "IGMP socket");

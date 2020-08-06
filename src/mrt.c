@@ -69,7 +69,9 @@ init_pim_mrt()
     /* Initialize the source list */
     /* The first entry has address 'INADDR_ANY' and is not used */
     /* The order is the smallest address first. */
-    srclist	        = malloc(sizeof(srcentry_t));
+    srclist	        = calloc(1, sizeof(srcentry_t));
+    if (!srclist)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
     srclist->next       = NULL;
     srclist->prev       = NULL;
     srclist->address	= INADDR_ANY_N;
@@ -83,7 +85,9 @@ init_pim_mrt()
     /* Initialize the group list */
     /* The first entry has address 'INADDR_ANY' and is not used */
     /* The order is the smallest address first. */
-    grplist	        = malloc(sizeof(grpentry_t));
+    grplist	        = calloc(1, sizeof(grpentry_t));
+    if (!grplist)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
     grplist->next       = NULL;
     grplist->prev       = NULL;
     grplist->group	= INADDR_ANY_N;
@@ -390,7 +394,7 @@ create_srcentry(source)
     if (search_srclist(source, &srcentry_prev) == TRUE)
 	return srcentry_prev;
     
-    srcentry_ptr = malloc(sizeof(srcentry_t));
+    srcentry_ptr = calloc(1, sizeof(srcentry_t));
     if (!srcentry_ptr) {
 	logit(LOG_WARNING, 0, "Memory allocation error for srcentry %s", inet_fmt(source, s1));
 	return NULL;
@@ -431,7 +435,7 @@ create_grpentry(group)
     if (search_grplist(group, &grpentry_prev) == TRUE)
 	return grpentry_prev;
     
-    grpentry_ptr = malloc(sizeof(grpentry_t));
+    grpentry_ptr = calloc(1, sizeof(grpentry_t));
     if (!grpentry_ptr) {
 	logit(LOG_WARNING, 0, "Memory allocation error for grpentry %s", inet_fmt(group, s1));
 	return NULL;
@@ -582,7 +586,7 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     u_long  *il_ptr;
     u_int8  vif_numbers;
     
-    mrtentry_ptr = malloc(sizeof(mrtentry_t));
+    mrtentry_ptr = calloc(1, sizeof(mrtentry_t));
     if (!mrtentry_ptr) {
 	logit(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	return NULL;
@@ -614,16 +618,16 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
  * need to delete the routing table and disturb the forwarding.
  */
 #ifdef SAVE_MEMORY
-    mrtentry_ptr->prune_timers = malloc(sizeof(u_int16) * numvifs);
-    mrtentry_ptr->prune_delay_timerids = malloc(sizeof(u_long) * numvifs);
-    mrtentry_ptr->last_assert = malloc(sizeof(u_long) * numvifs);
-    mrtentry_ptr->last_prune = malloc(sizeof(u_long) * numvifs);
+    mrtentry_ptr->prune_timers         = calloc(numvifs, sizeof(u_int16));
+    mrtentry_ptr->prune_delay_timerids = calloc(numvifs, sizeof(u_long));
+    mrtentry_ptr->last_assert          = calloc(numvifs, sizeof(u_long));
+    mrtentry_ptr->last_prune           = calloc(numvifs, sizeof(u_long));
     vif_numbers = numvifs;
 #else
-    mrtentry_ptr->prune_timers = malloc(sizeof(u_int16) * total_interfaces);
-    mrtentry_ptr->prune_delay_timerids = malloc(sizeof(u_long) * total_interfaces);
-    mrtentry_ptr->last_assert = malloc(sizeof(u_long) * total_interfaces);
-    mrtentry_ptr->last_prune = malloc(sizeof(u_long) * total_interfaces);
+    mrtentry_ptr->prune_timers         = calloc(total_interfaces, sizeof(u_int16));
+    mrtentry_ptr->prune_delay_timerids = calloc(total_interfaces, sizeof(u_long));
+    mrtentry_ptr->last_assert          = calloc(total_interfaces, sizeof(u_long));
+    mrtentry_ptr->last_prune           = calloc(total_interfaces, sizeof(u_long));
     vif_numbers = total_interfaces;
 #endif /* SAVE_MEMORY */
 

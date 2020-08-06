@@ -71,8 +71,12 @@ init_pim()
 
     allpimrouters_group = htonl(INADDR_ALL_PIM_ROUTERS);
 
-    pim_recv_buf = malloc(RECV_BUF_SIZE);
-    pim_send_buf = malloc(RECV_BUF_SIZE);
+    pim_recv_buf = calloc(1, RECV_BUF_SIZE);
+    if (!pim_recv_buf)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+    pim_send_buf = calloc(1, RECV_BUF_SIZE);
+    if (!pim_send_buf)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
 
     /* One time setup in the buffers */
     ip           = (struct ip *)pim_send_buf;

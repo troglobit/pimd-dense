@@ -128,7 +128,7 @@ timer_setTimer(delay, action, data)
 #endif
 
     /* create a node */	
-    node = malloc(sizeof(struct timeout_q));
+    node = calloc(1, sizeof(struct timeout_q));
     if (!node) {
 	logit(LOG_WARNING, 0, "Failed allocating memory in timer_settimer()\n");
 	return -1;

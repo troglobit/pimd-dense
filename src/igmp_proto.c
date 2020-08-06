@@ -152,8 +152,10 @@ accept_membership_query(src, dst, group, tmo)
 		    inet_fmt(v->uv_querier->al_addr, s2) :
 		    "me", vifi);
             if (!v->uv_querier) {
-                v->uv_querier = (struct listaddr *)
-		    malloc(sizeof(struct listaddr));
+                v->uv_querier = calloc(1, sizeof(struct listaddr));
+		if (!v->uv_querier)
+		    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+
 		v->uv_querier->al_next = (struct listaddr *)NULL;
 		v->uv_querier->al_timer = 0;
 		v->uv_querier->al_genid = 0;
@@ -267,11 +269,11 @@ accept_group_report(src, dst, group, igmp_report_type)
     /*
      * If not found, add it to the list and update kernel cache.
      */
-    if (g == NULL) {
-	g = (struct listaddr *)malloc(sizeof(struct listaddr));
-        if (g == NULL)
-            logit(LOG_ERR, 0, "ran out of memory");    /* fatal */
-	
+    if (!g) {
+	g = calloc(1, sizeof(struct listaddr));
+        if (!g)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+
         g->al_addr   = group;
         if (igmp_report_type == IGMP_V1_MEMBERSHIP_REPORT)
             g->al_old = DVMRP_OLD_AGE_THRESHOLD;
@@ -573,9 +575,15 @@ SetTimer(vifi, g)
 {
     cbk_t *cbk;
     
-    cbk = (cbk_t *) malloc(sizeof(cbk_t));
+    cbk = calloc(1, sizeof(cbk_t));
+    if (!cbk) {
+	logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+	return -1;
+    }
+
     cbk->vifi = vifi;
     cbk->g = g;
+
     return timer_setTimer(g->al_timer, DelVif, cbk);
 }
 
@@ -623,10 +631,16 @@ SetQueryTimer(g, vifi, to_expire, q_time)
 {
     cbk_t *cbk;
 
-    cbk = (cbk_t *) malloc(sizeof(cbk_t));
+    cbk = calloc(1, sizeof(cbk_t));
+    if (!cbk) {
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+	    return -1;
+    }
+
     cbk->g = g;
     cbk->q_time = q_time;
     cbk->vifi = vifi;
+
     return timer_setTimer(to_expire, SendQuery, cbk);
 }
 
@@ -646,5 +660,6 @@ int check_grp_membership(v, group)
         if (group == g->al_addr) 
         	return TRUE;
     }
-	return FALSE;
+
+    return FALSE;
 }

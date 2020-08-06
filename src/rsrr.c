@@ -75,8 +75,12 @@ rsrr_init()
     int servlen;
     struct sockaddr_un serv_addr;
 
-    rsrr_recv_buf = malloc(RSRR_MAX_LEN);
-    rsrr_send_buf = malloc(RSRR_MAX_LEN);
+    rsrr_recv_buf = calloc(1, RSRR_MAX_LEN);
+    if (!rsrr_recv_buf)
+	logit(LOG_ERR, errno, "rsrr_init(): out of memory");
+    rsrr_send_buf = calloc(1, RSRR_MAX_LEN);
+    if (!rsrr_send_buf)
+	logit(LOG_ERR, errno, "rsrr_init(): out of memory");
 
     if ((rsrr_socket = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0)
 	logit(LOG_ERR, errno, "Can't create RSRR socket");
@@ -400,9 +404,10 @@ rsrr_cache(gt, route_query)
     /* Cache entry doesn't already exist.  Create one and insert at
      * front of list.
      */
-    rc = (struct rsrr_cache *) malloc(sizeof(struct rsrr_cache));
-    if (rc == NULL)
+    rc = calloc(1, sizeof(struct rsrr_cache));
+    if (!rc)
 	logit(LOG_ERR, 0, "ran out of memory");
+
     rc->route_query.source_addr = route_query->source_addr;
     rc->route_query.dest_addr = route_query->dest_addr;
     rc->route_query.query_id = route_query->query_id;

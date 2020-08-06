@@ -135,7 +135,10 @@ receive_pim_hello(src, dst, pim_message, datalen)
      * This is a new neighbor. Create a new entry for it.
      * It must be added right after `prev_nbr`
      */
-    new_nbr = malloc(sizeof(pim_nbr_entry_t));
+    new_nbr = calloc(1, sizeof(pim_nbr_entry_t));
+    if (!new_nbr)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+
     new_nbr->address          = src;
     new_nbr->vifi             = vifi;
     SET_TIMER(new_nbr->timer, holdtime);
@@ -423,7 +426,10 @@ schedule_delayed_join(mrtentry_ptr, target)
 	return;
     }
 
-    cbk = malloc(sizeof(join_delay_cbk_t));
+    cbk = calloc(1, sizeof(join_delay_cbk_t));
+    if (!cbk)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+
     cbk->source = mrtentry_ptr->source->address;
     cbk->group = mrtentry_ptr->group->group;
     cbk->target = target;
@@ -484,7 +490,10 @@ schedule_delayed_prune(mrtentry_ptr, vifi, holdtime)
     if (mrtentry_ptr->prune_delay_timerids[vifi]) 
 	timer_clearTimer(mrtentry_ptr->prune_delay_timerids[vifi]);
 
-    cbk = malloc(sizeof(prune_delay_cbk_t));
+    cbk = calloc(1, sizeof(prune_delay_cbk_t));
+    if (!cbk)
+	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
+
     cbk->vifi = vifi;
     cbk->source = mrtentry_ptr->source->address;
     cbk->group = mrtentry_ptr->group->group;
@@ -1342,7 +1351,7 @@ send_pim_graft(mrtentry_ptr)
 	return FALSE;
 
     /* Set up retransmission */
-    e = malloc(sizeof(pim_graft_entry_t));
+    e = calloc(1, sizeof(pim_graft_entry_t));
     if (!e) {
 	logit(LOG_WARNING, 0, "Memory allocation error for graft entry src %s, grp %s",
 	      inet_fmt(mrtentry_ptr->source->address, s1),

@@ -124,7 +124,7 @@ static int compose_paths(void)
     if (!config_file) {
 	size_t len = strlen(SYSCONFDIR) + strlen(ident) + 7;
 
-	config_file = malloc(len);
+	config_file = calloc(1, len);
 	if (!config_file) {
 	    logit(LOG_ERR, errno, "Failed allocating memory, exiting.");
 	    exit(1);
@@ -136,7 +136,7 @@ static int compose_paths(void)
     if (!pid_file) {
 	size_t len = strlen(_PATH_PIMD_RUNDIR) + strlen(ident) + 6;
 
-	pid_file = malloc(len);
+	pid_file = calloc(1, len);
 	if (!pid_file) {
 	    logit(LOG_ERR, errno, "Failed allocating memory, exiting.");
 	    exit(1);
