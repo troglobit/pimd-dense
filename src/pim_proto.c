@@ -893,7 +893,10 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	    assert_preference, assert_metric);
  
     mrtentry_ptr = find_route(source, group, MRTF_SG, CREATE);
-    if(mrtentry_ptr->flags & MRTF_NEW) {
+    if (!mrtentry_ptr)
+	return FALSE;
+
+    if (mrtentry_ptr->flags & MRTF_NEW) {
 	/* For some reason, it's possible for asserts to be processed
 	 * before the data alerts a cache miss.  Therefore, when an
 	 * assert is received, create (S,G) state and continue, since
