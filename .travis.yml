@@ -10,11 +10,28 @@ compiler:
   - gcc
   - clang
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "NapGOS6ujJhAYHnF4B1FrwwOQC1IO4COkzxQrB33E+xjvgwfOjrJ+/dA+9EOO1gYlGIplHK3hFjB/VrmSSMjnExtMWL/rMoANd2FbRbEzDvc7wecoiOy2KNnRGluduM4tn+ya6V2jQR2Juzrr+AqFoGktq1He+8f5aeVT9rRk/gz3W8VnjcfTyRspf2t512OyEjXT6PlVpmT7g/QvnQ8cqyprEDzz8PEEb823rUyobxpWC5N+i0cep/UNdhDt8UfO9AYvlRSR3CA4a1+6Qbb+85/ZjVkdlp8XOcfFDYtg3oTlK4r71Ipk7y2xr2WKFPMPpdEmVWOM2oL3XkfqU8F7KUa44HpZxPhzWLtrYkqz2MiXB6WRL9CeUBbdgRYla380HKDtzXzF7La54Hu1fqCtpKONPSpRTG7q8XT3mV7DmEPpHYo6dpoKrWAtOs2SvVYsnINEP5yaH9H2uha/OLUp7hDpoePgoNAKMFZE9T/tnNGtfW9DTrS+Uof4CDgnao1YE016pBjvdbKfI0h2ky/vtjMdC8LM1iCa2RwqmbxrB3qvO6CyhsJhenKnPRiSe7J4uPGIAaU0DN0nMavD0T11dlZym+aPP0AVbQQ/0rvFtx7Wh79N0nROQx2asidVWWPCKEovp/hcOFfHcgmqobnkjXkBLi1cFNf6EXThjU1hTo="
+
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
 addons:
   apt:
     packages:
       - tree
       - libsystemd-dev
+  coverity_scan:
+    project:
+      name: "troglobit/pimd-dense"
+      description: "Continuation of the original pimd-dense"
+    notification_email: troglobit@gmail.com
+    build_command_prepend: "/autogen.sh && ./configure"
+    build_command: "make clean all"
+    branch_pattern: dev
 
 # We don't store generated files (configure and Makefile) in GIT,
 # so we must customize the default build script to run ./autogen.sh
