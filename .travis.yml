@@ -6,9 +6,9 @@ language: c
 sudo: false
 
 # Test build with both GCC and Clang (LLVM)
+#  - clang
 compiler:
   - gcc
-  - clang
 
 env:
   global:
@@ -29,7 +29,7 @@ addons:
       name: "troglobit/pimd-dense"
       description: "Continuation of the original pimd-dense"
     notification_email: troglobit@gmail.com
-    build_command_prepend: "/autogen.sh && ./configure"
+    build_command_prepend: "./autogen.sh && ./configure"
     build_command: "make clean all"
     branch_pattern: dev
 
