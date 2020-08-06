@@ -326,7 +326,7 @@ parse_phyint(s)
     u_int n;
     
     if (EQUAL((w = next_word(&s)), "")) {
-	logit(LOG_WARNING, 0, "Missing phyint address in %s", configfilename);
+	logit(LOG_WARNING, 0, "Missing phyint address in %s", config_file);
 	return FALSE;
     }
     
@@ -334,7 +334,7 @@ parse_phyint(s)
     if (!local) {
 	local = inet_parse(w, 4);
 	if (!inet_valid_host(local)) {
-	    logit(LOG_WARNING, 0, "Unknown phyint name or invalid address '%s' in %s, skipping.", w, configfilename);
+	    logit(LOG_WARNING, 0, "Unknown phyint name or invalid address '%s' in %s, skipping.", w, config_file);
 	    return FALSE;
 	}
     }
@@ -354,13 +354,13 @@ parse_phyint(s)
                 if(EQUAL((w = next_word(&s)), "")) 
                     logit(LOG_WARNING, 0,
                         "Missing preference for phyint %s in %s",
-                        inet_fmt(local, s1), configfilename);
+                        inet_fmt(local, s1), config_file);
                 else if (sscanf(w, "%u%c", &n, &c) != 1 ||
                          n < 1 || n > 255 )
                     logit(LOG_WARNING, 0,
                         "Invalid preference '%s' for phyint %s in %s",
                         w, inet_fmt(local, s1),
-                        configfilename);
+                        config_file);
 		else {
 		    IF_DEBUG(DEBUG_ASSERT)
 			logit(LOG_DEBUG, 0,
@@ -373,13 +373,13 @@ parse_phyint(s)
                 if(EQUAL((w = next_word(&s)), "")) 
                     logit(LOG_WARNING, 0,
                         "Missing metric for phyint %s in %s",
-                        inet_fmt(local, s1), configfilename);
+                        inet_fmt(local, s1), config_file);
                 else if (sscanf(w, "%u%c", &n, &c) != 1 ||
                          n < 1 || n > 1024 )
                     logit(LOG_WARNING, 0,
                         "Invalid metric '%s' for phyint %s in %s",
                         w, inet_fmt(local, s1),
-                        configfilename);
+                        config_file);
 		else {
 		    IF_DEBUG(DEBUG_ASSERT)
 			logit(LOG_DEBUG, 0,
@@ -491,10 +491,10 @@ config_vifs_from_file()
     char ifbuf[BUFSIZ];
     int no = 0;
 
-    fp = fopen(configfilename, "r");
+    fp = fopen(config_file, "r");
     if (!fp) {
 	if (errno != ENOENT)
-		logit(LOG_WARNING, errno, "Failed opening %s", configfilename);
+		logit(LOG_WARNING, errno, "Failed opening %s", config_file);
 	return;
     }
 
@@ -526,7 +526,7 @@ config_vifs_from_file()
 
 	default:
 	    logit(LOG_WARNING, 0, "%s:%d: unknown command '%s' in %s",
-		  configfilename, lineno, w);
+		  config_file, lineno, w);
 	    break;
 	}
 

@@ -552,7 +552,7 @@ void ipc_init(void)
 	sun.sun_len = 0;	/* <- correct length is set by the OS */
 #endif
 	sun.sun_family = AF_UNIX;
-	strlcpy(sun.sun_path, _PATH_PIMD_SOCK, sizeof(sun.sun_path));
+	snprintf(sun.sun_path, sizeof(sun.sun_path), _PATH_PIMD_SOCK, ident);
 
 	unlink(sun.sun_path);
 	logit(LOG_DEBUG, 0, "Binding IPC socket to %s", sun.sun_path);

@@ -56,8 +56,8 @@ static int do_connect(char *ident)
 #ifdef HAVE_SOCKADDR_UN_SUN_LEN
 	sun.sun_len = 0;	/* <- correct length is set by the OS */
 #endif
-	sun.sun_family = AF_UNIX,
-	strlcpy(sun.sun_path, _PATH_PIMD_SOCK, sizeof(sun.sun_path));
+	sun.sun_family = AF_UNIX;
+	snprintf(sun.sun_path, sizeof(sun.sun_path), _PATH_PIMD_SOCK, ident);
 	sd = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (-1 == sd)
 		goto error;
@@ -69,7 +69,8 @@ static int do_connect(char *ident)
 
 	return sd;
 error:
-	perror("Failed connecting to pimd");
+	fprintf(stderr, "Failed connecting to pimd at %s: %s\n",
+		sun.sun_path, strerror(errno));
 	return -1;
 }
 

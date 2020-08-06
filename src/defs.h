@@ -55,6 +55,7 @@
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #if ((defined(SYSV)) || (defined(BSDI)) || ((defined SunOS) && (SunOS < 50)))
@@ -227,7 +228,9 @@ extern int              rsrr_socket;
 #endif /* RSRR */
 
 extern u_long		virtual_time;
-extern char		configfilename[];
+extern char		*config_file;
+extern char		*prognm;
+extern char		*ident;
 
 extern u_int32          default_route_metric;
 extern u_int32          default_route_distance;
@@ -398,7 +401,7 @@ extern int      k_get_sg_cnt    (int socket, u_int32 source, u_int32 group, stru
 
 /* main.c */
 extern int      foreground;
-extern char    *progname;
+extern char    *prognm;
 
 extern int      register_input_handler	(int fd, ihfunc_t func);
 extern int	daemon_restart		(void *arg);

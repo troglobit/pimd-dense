@@ -44,16 +44,18 @@
 #include "defs.h"
 #include <getopt.h>
 
-char configfilename[256] = _PATH_PIMD_CONF;
 char versionstring[100];
 
-static char pidfilename[]  = _PATH_PIMD_PID;
+char *ident       = PACKAGE_NAME;
+char *prognm      = NULL;
+char *pid_file    = NULL;
+char *config_file = NULL;
+
 /* TODO: not used
 static char genidfilename[] = _PATH_PIMD_GENID;
 */
 
 int   foreground = 0;
-char *progname;
 
 static int sighandled = 0;
 #define GOT_SIGINT      0x01
@@ -96,17 +98,63 @@ ihfunc_t func;
 
 static void pidfile_cleanup(void)
 {
-    remove(pidfilename);
+    remove(pid_file);
+}
+
+static void pidfile(void)
+{
+    FILE *fp;
+
+    atexit(pidfile_cleanup);
+
+    fp = fopen(pid_file, "w");
+    if (fp) {
+	fprintf(fp, "%d\n", getpid());
+	fclose(fp);
+    }
+}
+
+static int compose_paths(void)
+{
+    /* Default .conf file path: "/etc" + '/' + "pimd" + ".conf" */
+    if (!config_file) {
+	size_t len = strlen(SYSCONFDIR) + strlen(ident) + 7;
+
+	config_file = malloc(len);
+	if (!config_file) {
+	    logit(LOG_ERR, errno, "Failed allocating memory, exiting.");
+	    exit(1);
+	}
+
+	snprintf(config_file, len, _PATH_PIMD_CONF, ident);
+    }
+
+    if (!pid_file) {
+	size_t len = strlen(_PATH_PIMD_RUNDIR) + strlen(ident) + 6;
+
+	pid_file = malloc(len);
+	if (!pid_file) {
+	    logit(LOG_ERR, errno, "Failed allocating memory, exiting.");
+	    exit(1);
+	}
+
+	snprintf(pid_file, len, _PATH_PIMD_PID, ident);
+    }
+
+    return 0;
 }
 
 int usage(int code)
 {
     char buf[768];
 
-    printf("Usage: %s [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]\n\n", progname);
+    compose_paths();
+
+    printf("Usage: %s [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]\n\n", prognm);
     printf(" -d SYS    Enable debug of subsystem(s)\n");
-    printf(" -f FILE   Configuration file, default: %s\n", _PATH_PIMD_CONF);
+    printf(" -f FILE   Configuration file, default: %s\n", config_file);
     printf(" -h        This help text\n");
+    printf(" -i NAME   Identity for config + PID file, and syslog, default: %s\n", prognm);
     printf(" -l LVL    Set log level: none, err, notice (default), info, debug\n");
     printf(" -n        Run in foreground, do not detach from calling terminal\n");
     printf(" -s        Use syslog, default unless running in foreground, -n\n");
@@ -146,7 +194,23 @@ int usage(int code)
     printf("Project homepage: %s\n", PACKAGE_URL);
 #endif
 
+    free(config_file);
+    free(pid_file);
+
     return code;
+}
+
+static char *progname(char *arg0)
+{
+       char *nm;
+
+       nm = strrchr(arg0, '/');
+       if (nm)
+	       nm++;
+       else
+	       nm = arg0;
+
+       return nm;
 }
 
 int
@@ -155,7 +219,6 @@ main(argc, argv)
     char *argv[];
 {	
     int dummy, dummysigalrm;
-    FILE *fp;
     struct timeval tv, difftime, curtime, lasttime, *timeout;
     fd_set rfds, readers;
     int nfds, n, i, secs;
@@ -167,13 +230,8 @@ main(argc, argv)
     setlinebuf(stderr);
     snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
 
-    progname = strrchr(argv[0], '/');
-    if (progname)
-	progname++;
-    else
-	progname = argv[0];
-
-    while ((ch = getopt(argc, argv, "d:f:h?l:nsv")) != EOF) {
+    prognm = ident = progname(argv[0]);
+    while ((ch = getopt(argc, argv, "d:f:h?i:l:nsv")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -183,12 +241,16 @@ main(argc, argv)
 	    break;
 
 	case 'f':
-	    strcpy(configfilename, optarg);
+	    config_file = strdup(optarg);
 	    break;
 
 	case '?':
 	case 'h':
 	    return usage(0);
+
+	case 'i':
+	    ident = optarg;
+	    break;
 
 	case 'l':
 	    rc = log_str2lvl(optarg);
@@ -220,6 +282,8 @@ main(argc, argv)
     argc -= optind;
     if (argc > 0)
 	return usage(1);
+
+    compose_paths();
 
     if (debug) {
 	char buf[350];
@@ -264,7 +328,7 @@ main(argc, argv)
     } /* End of child process code */
 
     if (log_syslog) {
-	openlog(progname, LOG_PID, LOG_DAEMON);
+	openlog(prognm, LOG_PID, LOG_DAEMON);
 	setlogmask(LOG_UPTO(log_level));
     }
 
@@ -313,14 +377,8 @@ main(argc, argv)
     
     /* schedule first timer interrupt */
     timer_setTimer(TIMER_INTERVAL, timer, NULL);
+    pidfile();
 
-    atexit(pidfile_cleanup);
-    fp = fopen(pidfilename, "w");
-    if (fp) {
-	fprintf(fp, "%d\n", getpid());
-	fclose(fp);
-    }
-    
     /*
      * Main receive loop.
      */
@@ -424,7 +482,10 @@ main(argc, argv)
 
     logit(LOG_NOTICE, 0, "%s exiting", versionstring);
     cleanup();
-    exit(0);
+    free(config_file);
+    free(pid_file);
+
+    return 0;
 }
 
 /*

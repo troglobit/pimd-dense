@@ -134,7 +134,7 @@ init_vifs()
 
     logit(LOG_INFO, 0, "Getting vifs from kernel");
     config_vifs_from_kernel();
-    logit(LOG_INFO, 0, "Getting vifs from %s", configfilename);
+    logit(LOG_INFO, 0, "Getting vifs from %s", config_file);
     config_vifs_from_file();
 
     /*
