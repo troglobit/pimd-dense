@@ -325,6 +325,7 @@ delete_mrtentry(mrtentry_ptr)
     if (mrtentry_ptr->srcnext != (mrtentry_t *)NULL)
 	mrtentry_ptr->srcnext->srcprev = mrtentry_ptr->srcprev;
 
+    delete_pim_graft_entry(mrtentry_ptr);
     FREE_MRTENTRY(mrtentry_ptr);
 }
 
