@@ -118,9 +118,9 @@ age_vifs()
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
 	if (v->uv_flags & (VIFF_DISABLED | VIFF_DOWN))
 	    continue;
+
 	/* Timeout neighbors */
-	for (curr_nbr = v->uv_pim_neighbors; curr_nbr != NULL;
-	     curr_nbr = next_nbr) {
+	for (curr_nbr = v->uv_pim_neighbors; curr_nbr; curr_nbr = next_nbr) {
 	    next_nbr = curr_nbr->next;
 	    /*
 	     * Never timeout neighbors with holdtime = 0xffff.
@@ -167,7 +167,7 @@ age_routes()
     /*
      * Timing out of the global `unicast_routing_timer` and data rate timer
      */
-   IF_TIMEOUT(unicast_routing_timer) {
+    IF_TIMEOUT(unicast_routing_timer) {
 	ucast_flag = TRUE;
 	SET_TIMER(unicast_routing_timer, unicast_routing_check_interval);
     }
@@ -176,17 +176,13 @@ age_routes()
     }
 
     /* Walk the the (S,G) entries */
-    if(grplist == (grpentry_t *)NULL) 
+    if (!grplist)
 	return;
-    for(grpentry_ptr = grplist;
-	grpentry_ptr != (grpentry_t *)NULL; 
-	grpentry_ptr = grpentry_next) {
+
+    for (grpentry_ptr = grplist; grpentry_ptr; grpentry_ptr = grpentry_next) {
 	grpentry_next = grpentry_ptr->next;
 
-	for(mrtentry_ptr = grpentry_ptr->mrtlink; 
-	    mrtentry_ptr != (mrtentry_t *)NULL; 
-	    mrtentry_ptr = mrtentry_next) {
-
+	for (mrtentry_ptr = grpentry_ptr->mrtlink; mrtentry_ptr; mrtentry_ptr = mrtentry_next) {
 	    int mrtentry_is_timedout;
 	    u_int16 mrtentry_timeout;
 	    u_int16 prune_timeout;
@@ -209,8 +205,8 @@ age_routes()
 		delete_mrtentry(mrtentry_ptr);
 		continue;
 	    }
-	    if(!(VIFM_ISEMPTY(mrtentry_ptr->oifs)) && 
-	       curr_bytecnt != mrtentry_ptr->sg_count.bytecnt) {
+
+	    if (!(VIFM_ISEMPTY(mrtentry_ptr->oifs)) && curr_bytecnt != mrtentry_ptr->sg_count.bytecnt) {
 		/* Packets have been forwarded - refresh timer
 		 * Note that these counters count packets received, 
 		 * not packets forwarded.  So only refresh if packets
@@ -227,7 +223,7 @@ age_routes()
 	    }	    
 
 	    /* Time out asserts */
-	    if(mrtentry_ptr->flags & MRTF_ASSERTED) 
+	    if (mrtentry_ptr->flags & MRTF_ASSERTED) 
 		IF_TIMEOUT(mrtentry_ptr->assert_timer) {
 		    mrtentry_ptr->flags &= ~MRTF_ASSERTED;
 		    mrtentry_ptr->upstream = mrtentry_ptr->source->upstream;
@@ -243,7 +239,7 @@ age_routes()
 		if (VIFM_ISSET(vifi, mrtentry_ptr->pruned_oifs))
 		    IF_TIMEOUT(mrtentry_ptr->prune_timers[vifi]) {
 		        /* TODO: XXX: TIMER implem. dependency! */
-		        if(prune_timeout < min_prune_timeout) 
+		        if (prune_timeout < min_prune_timeout) 
 			    min_prune_timeout = prune_timeout;
 		        VIFM_CLR(vifi, mrtentry_ptr->pruned_oifs);
 			RESET_TIMER(mrtentry_ptr->prune_timers[vifi]);
@@ -260,8 +256,7 @@ age_routes()
 		srcentry_save.preference = mrtentry_ptr->source->preference;
 		srcentry_save.metric = mrtentry_ptr->source->metric;
 		
-		if (set_incoming(mrtentry_ptr->source,
-				 PIM_IIF_SOURCE) != TRUE) {
+		if (set_incoming(mrtentry_ptr->source, PIM_IIF_SOURCE) != TRUE) {
 		    /*
 		     * XXX: not in the spec!
 		     * Cannot find route toward that source.
@@ -270,30 +265,23 @@ age_routes()
 		    delete_mrtentry(mrtentry_ptr);
 		    continue;
 		}
-		else {
-		    /* iif info found */
-		    if (!(mrtentry_ptr->flags & MRTF_ASSERTED) && 
-			((srcentry_save.incoming !=
-			  mrtentry_ptr->incoming)
-			 || (srcentry_save.upstream !=
-			     mrtentry_ptr->upstream))) {
+
+		/* iif info found */
+		if (!(mrtentry_ptr->flags & MRTF_ASSERTED) && 
+		    ((srcentry_save.incoming != mrtentry_ptr->incoming)
+		     || (srcentry_save.upstream != mrtentry_ptr->upstream))) {
 			/* Route change has occur */
 			update_src_iif = TRUE;
-			mrtentry_ptr->incoming =
-			    mrtentry_ptr->source->incoming;
-			mrtentry_ptr->upstream =
-			    mrtentry_ptr->source->upstream;
+			mrtentry_ptr->incoming = mrtentry_ptr->source->incoming;
+			mrtentry_ptr->upstream = mrtentry_ptr->source->upstream;
 			/* mrtentry should have pref/metric of upstream
 			 * assert winner, but we dont have that info,
 			 * so use the source pref/metric, which will be
 			 * larger and thus the correct assert winner
 			 * from upstream will be chosen.
 			 */
-			mrtentry_ptr->preference = 
-			    mrtentry_ptr->source->preference;
-			mrtentry_ptr->metric = 
-			    mrtentry_ptr->source->metric;
-		    }
+			mrtentry_ptr->preference = mrtentry_ptr->source->preference;
+			mrtentry_ptr->metric = mrtentry_ptr->source->metric;
 		}
 	    }
 	    
@@ -301,20 +289,15 @@ age_routes()
 	     * or if a prune timed out before the mrt
 	     */
 	    /* TODO: XXX: TIMER implem. dependency! */
-	    if ((mrtentry_is_timedout &&
-		 min_prune_timeout <= mrtentry_timeout)
-		|| 
-		(!mrtentry_is_timedout && 
-		 (change_flag == TRUE || update_src_iif == TRUE))) {
+	    if ((mrtentry_is_timedout && min_prune_timeout <= mrtentry_timeout)
+		||
+		(!mrtentry_is_timedout && (change_flag == TRUE || update_src_iif == TRUE))) {
 		/* Flush the changes */
-		state_change = 
-		    change_interfaces(mrtentry_ptr,
-				      mrtentry_ptr->incoming,
-				      mrtentry_ptr->pruned_oifs,
-				      mrtentry_ptr->leaves);
-		if(state_change == -1)
+		state_change = change_interfaces(mrtentry_ptr, mrtentry_ptr->incoming,
+						 mrtentry_ptr->pruned_oifs, mrtentry_ptr->leaves);
+		if (state_change == -1)
 		    trigger_prune_alert(mrtentry_ptr);
-		if(state_change == 1) 
+		if (state_change == 1) 
 		    trigger_join_alert(mrtentry_ptr);
 	    }
 	    
@@ -325,6 +308,4 @@ age_routes()
 	    }
 	}
     }
-
-    return;
 }
