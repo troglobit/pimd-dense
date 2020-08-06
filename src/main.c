@@ -98,7 +98,11 @@ ihfunc_t func;
 
 static void pidfile_cleanup(void)
 {
-    remove(pid_file);
+    if (pid_file) {
+	remove(pid_file);
+	free(pid_file);
+	pid_file = NULL;
+    }
 }
 
 static void pidfile(void)
@@ -195,7 +199,6 @@ int usage(int code)
 #endif
 
     free(config_file);
-    free(pid_file);
 
     return code;
 }
