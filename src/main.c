@@ -99,7 +99,8 @@ ihfunc_t func;
 static void pidfile_cleanup(void)
 {
     if (pid_file) {
-	remove(pid_file);
+	if (remove(pid_file))
+	    logit(LOG_INFO, errno, "Failed removing %s", pid_file);
 	free(pid_file);
 	pid_file = NULL;
     }
