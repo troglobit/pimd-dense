@@ -331,10 +331,10 @@ accept_mtrace(src, dst, group, data, no, datalen)
 	    parent_address = INADDR_ANY;
 
 	resp->tr_rmtaddr = parent_address;
-	if (!VIFM_ISSET(vifi, mrt->oifs)) {
+	if (vifi == NO_VIF || !VIFM_ISSET(vifi, mrt->oifs)) {
 	    IF_DEBUG(DEBUG_TRACE)
 		logit(LOG_DEBUG, 0, "Destination %s not on forwarding tree for src %s",
-		    inet_fmt(qry->tr_dst, s1), inet_fmt(qry->tr_src, s2));
+		      inet_fmt(qry->tr_dst, s1), inet_fmt(qry->tr_src, s2));
 	    resp->tr_rflags = TR_WRONG_IF;
 	}
 #if 0
