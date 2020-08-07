@@ -525,8 +525,7 @@ config_vifs_from_file()
 	    break;
 
 	default:
-	    logit(LOG_WARNING, 0, "%s:%d: unknown command '%s' in %s",
-		  config_file, lineno, w);
+	    logit(LOG_WARNING, 0, "%s:%d: unknown command '%s'", config_file, lineno, w);
 	    break;
 	}
 
