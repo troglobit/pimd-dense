@@ -326,7 +326,7 @@ typedef struct pim_jp_encod_grp_ {
 #if defined(BYTE_ORDER) && (BYTE_ORDER == LITTLE_ENDIAN)
 #define GET_NETLONG(val, cp)                    \
         do {                                    \
-                u_long Xv;                      \
+                u_int32 Xv;			\
                 Xv  = *(cp)++;                  \
                 Xv |= (*(cp)++) <<  8;          \
                 Xv |= (*(cp)++) << 16;          \
