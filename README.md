@@ -123,4 +123,4 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 [CIstat]:  https://travis-ci.org/troglobit/pimd-dense.png?branch=master
 [build]:   https://autotools.io/
 [Scan]:    https://scan.coverity.com/projects/troglobit-pimd-dense
-[Cstat]:   https://img.shields.io/coverity/scan/21569.svg"
+[Cstat]:   https://scan.coverity.com/projects/21569/badge.svg
