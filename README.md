@@ -118,7 +118,7 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 [draft]:   https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-05
 [RFC3973]: https://tools.ietf.org/html/rfc3973
 [License]: https://en.wikipedia.org/wiki/BSD_licenses
-[Badge]:   https://img.shields.io/badge/License-BSD%204--Clause-blue.svg
+[Badge]:   https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
 [Travis]:  https://travis-ci.org/troglobit/pimd-dense
 [CIstat]:  https://travis-ci.org/troglobit/pimd-dense.png?branch=master
 [build]:   https://autotools.io/
