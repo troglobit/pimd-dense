@@ -578,9 +578,8 @@ process_wrong_iif(igmpctl)
 			uvifs[vifi].uv_rmt_addr, 
 			max_prune_timeout(mrtentry_ptr));
 	else 
-	    logit(LOG_WARNING, 0, 
-		"Can't send wrongvif prune on p2p %s: no remote address",
-		uvifs[vifi].uv_lcl_addr);
+	    logit(LOG_WARNING, 0,  "Can't send wrongvif prune on p2p %s: no remote address",
+		  inet_fmt(uvifs[vifi].uv_lcl_addr, s1));
     } else {
 	u_int32 pref, metric;
 
