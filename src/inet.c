@@ -248,9 +248,8 @@ trimdomain(cp)
     
     if (first) {
 	first = 0;
-	if (gethostname(domain, MAXHOSTNAMELEN) == 0 &&
-	    (s = strchr(domain, '.')))
-	    (void) strcpy(domain, s + 1);
+	if (gethostname(domain, MAXHOSTNAMELEN) == 0 && (s = strchr(domain, '.')))
+	    strlcpy(domain, s + 1, sizeof(domain));
 	else
 	    domain[0] = 0;
     }
