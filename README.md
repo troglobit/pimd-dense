@@ -7,13 +7,13 @@ Introduction
 
 pimdd is the dense-mode cousin to [pimd][], the reference implementation
 for [PIM-DM draft 5][draft].  [RFC3973][] later revised the protocol,
-pimdd does not (yet) support that revision.
+which pimdd does not (yet) fully support.
 
-This code is old and was sort of dead and forgotten.  The only project
-that kept it running was FreeBSD in their ports collection.  As such it
-was included in the BSD Router Project.
+PIM-DM is very similar to DVRMP ([mrouted][]), they both follow the
+flood-and-prune paradigm, but unlike DVMRP a PIM-DM implementation
+relies on the underlying unicast routes to already be established.
 
-This project at GitHub is an attempt at reviving it.  The latest code on
+This GitHub project is an attempt at reviving pimdd.  The latest code on
 the master branch has been infused with fresh DNA strands from the
 [pimd][] project, including a netlink back-end to read the unicast
 routing table.
@@ -107,6 +107,10 @@ systems, unless you know what you are doing!
 Origin & References
 -------------------
 
+This code is old and was sort of dead and forgotten.  The only project
+that kept it running was FreeBSD in their ports collection.  As such it
+was included in the BSD Router Project.
+
 pimdd was written by Kurt Windisch when he was at University of Oregon.
 It is based on the PIM sparse-mode daemon, pimd, which in turn is based
 on the DVMRP daemon mrouted.
@@ -120,6 +124,7 @@ University of Southern California.
 mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 2002 The Board of Trustees of Leland Stanford Junior University
 
+[mrouted]: https://github.com/troglobit/mrouted
 [pimd]:    https://github.com/troglobit/pimd
 [draft]:   https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-05
 [RFC3973]: https://tools.ietf.org/html/rfc3973
