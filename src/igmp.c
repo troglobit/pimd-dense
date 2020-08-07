@@ -160,7 +160,7 @@ accept_igmp(recvlen)
     int ipdatalen, iphdrlen, igmpdatalen;
     
     if (recvlen < (ssize_t)sizeof(struct ip)) {
-	logit(LOG_WARNING, 0, "received packet too short (%z bytes) for IP header", recvlen);
+	logit(LOG_WARNING, 0, "received packet too short (%zd bytes) for IP header", recvlen);
 	return;
     }
     
@@ -183,7 +183,7 @@ accept_igmp(recvlen)
 
     if (iphdrlen + ipdatalen != recvlen) {
 	logit(LOG_WARNING, 0,
-	    "received packet from %s shorter (%z bytes) than hdr+data length (%d+%d)",
+	    "received packet from %s shorter (%zd bytes) than hdr+data length (%d+%d)",
 	    inet_fmt(src, s1), recvlen, iphdrlen, ipdatalen);
 	return;
     }

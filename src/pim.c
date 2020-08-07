@@ -150,7 +150,7 @@ accept_pim(recvlen)
     ssize_t iphdrlen, pimlen;
     
     if (recvlen < (ssize_t)sizeof(struct ip)) {
-	logit(LOG_WARNING, 0, "packet too short (%z bytes) for IP header", recvlen);
+	logit(LOG_WARNING, 0, "packet too short (%zd bytes) for IP header", recvlen);
 	return;
     }
     
@@ -162,7 +162,7 @@ accept_pim(recvlen)
     pim         = (pim_header_t *)(pim_recv_buf + iphdrlen);
     pimlen	= recvlen - iphdrlen;
     if (pimlen < (ssize_t)sizeof(*pim)) {
-	logit(LOG_WARNING, 0, "IP data field too short (%z bytes) for PIM header, from %s to %s",
+	logit(LOG_WARNING, 0, "IP data field too short (%zd bytes) for PIM header, from %s to %s",
 	      pimlen, inet_fmt(src, s1), inet_fmt(dst, s2));
 	return;
     }
