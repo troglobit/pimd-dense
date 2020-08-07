@@ -57,51 +57,45 @@
 #define MRTF_PMBR               0x4000  /* (*,*,RP) entry (for interop)     */
 
 /* Macro to duplicate oif info (oif bits, timers) */
-#define VOIF_COPY(from, to)                                                \
-	    do {                                                           \
-                VIFM_COPY((from)->joined_oifs, (to)->joined_oifs);         \
-                VIFM_COPY((from)->oifs, (to)->oifs);                       \
-                VIFM_COPY((from)->leaves, (to)->leaves);                   \
-                VIFM_COPY((from)->pruned_oifs, (to)->pruned_oifs);         \
-                bcopy((from)->prune_timers, (to)->prune_timers,            \
-		      numvifs*sizeof((from)->prune_timers[0]));            \
-                bcopy((from)->prune_delay_timerids,                        \
-		      (to)->prune_delay_timerids,                          \
-		      numvifs*sizeof((from)->prune_delay_timerids[0]));    \
-                (to)->join_delay_timerid = (from)->join_delay_timerid;     \
-	    } while (0)
+#define VOIF_COPY(from, to)                                     \
+    do {                                                        \
+        VIFM_COPY((from)->joined_oifs, (to)->joined_oifs);      \
+        VIFM_COPY((from)->oifs, (to)->oifs);                    \
+        VIFM_COPY((from)->leaves, (to)->leaves);                \
+        VIFM_COPY((from)->pruned_oifs, (to)->pruned_oifs);      \
+        bcopy((from)->prune_timers, (to)->prune_timers,         \
+              numvifs*sizeof((from)->prune_timers[0]));         \
+        bcopy((from)->prune_delay_timerids,                     \
+              (to)->prune_delay_timerids,                       \
+              numvifs*sizeof((from)->prune_delay_timerids[0])); \
+        (to)->join_delay_timerid = (from)->join_delay_timerid;  \
+    } while (0)
 
-#ifdef SAVE_MEMORY
-#define FREE_MRTENTRY(mrtentry_ptr)                                        \
-             do {                                                          \
-                  u_int16 i;                                               \
-                  u_long *il_ptr;                                          \
-		  free((char *)((mrtentry_ptr)->prune_timers));            \
-		  for(i=0, il_ptr=(mrtentry_ptr)->prune_delay_timerids;    \
-                      i<numvifs; i++, il_ptr++)                            \
-		       timer_clearTimer(*il_ptr);                          \
-		  free((char *)((mrtentry_ptr)->prune_delay_timerids));    \
-                  timer_clearTimer((mrtentry_ptr)->join_delay_timerid);    \
-		  delete_pim_graft_entry((mrtentry_ptr));                  \
-                  free((char *)(mrtentry_ptr));                            \
-	     } while (0)
-#else
-#define FREE_MRTENTRY(mrtentry_ptr)                                        \
-             do {                                                          \
-                  u_int16 i;                                               \
-                  u_long *il_ptr;                                          \
-		  free((char *)((mrtentry_ptr)->prune_timers));            \
-		  for(i=0, il_ptr=(mrtentry_ptr)->prune_delay_timerids;    \
-                      i<total_interfaces; i++, il_ptr++)                   \
-		       timer_clearTimer(*il_ptr);                          \
-		  free((char *)((mrtentry_ptr)->prune_delay_timerids));    \
-                  free((char *)((mrtentry_ptr)->last_assert));             \
-                  free((char *)((mrtentry_ptr)->last_prune));              \
-                  timer_clearTimer((mrtentry_ptr)->join_delay_timerid);    \
-		  delete_pim_graft_entry((mrtentry_ptr));                  \
-                  free((char *)(mrtentry_ptr));                            \
-	     } while (0)
-#endif  /* SAVE_MEMORY */
+#define FREE_MRTENTRY(mrtentry_ptr)                             \
+    do {                                                        \
+        if (!(mrtentry_ptr))                                    \
+            break;                                              \
+                                                                \
+        if ((mrtentry_ptr)->prune_timers)                       \
+            free((mrtentry_ptr)->prune_timers);			\
+        if ((mrtentry_ptr)->prune_delay_timerids) {		\
+	    u_long *ptr;					\
+	    u_int16 i;						\
+	    							\
+	    ptr = (mrtentry_ptr)->prune_delay_timerids;		\
+	    for (i = 0; i < total_interfaces; i++, ptr++)	\
+		timer_clearTimer(*ptr);				\
+            free((mrtentry_ptr)->prune_delay_timerids);         \
+	}							\
+        if ((mrtentry_ptr)->last_assert)                        \
+            free((mrtentry_ptr)->last_assert);                  \
+        if ((mrtentry_ptr)->last_prune)                         \
+            free((mrtentry_ptr)->last_prune);                   \
+        timer_clearTimer((mrtentry_ptr)->join_delay_timerid);   \
+        delete_pim_graft_entry((mrtentry_ptr));                 \
+        free(mrtentry_ptr);					\
+    } while (0)
+
 
 typedef struct pim_nbr_entry {
     struct	pim_nbr_entry *next;	  /* link to next neighbor	    */

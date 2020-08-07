@@ -609,40 +609,23 @@ alloc_mrtentry(srcentry_ptr, grpentry_ptr)
     mrtentry_ptr->rsrr_cache = NULL;
 #endif /* RSRR */
 
-/*
- * XXX: TODO: if we are short in memory, we can reserve as few as possible
- * space for vif timers (per group and/or routing entry), but then everytime
- * when a new interfaces is configured, the router will be restarted and
- * will delete the whole routing table. The "memory is cheap" solution is
- * to reserve timer space for all potential vifs in advance and then no
- * need to delete the routing table and disturb the forwarding.
- */
-#ifdef SAVE_MEMORY
-    mrtentry_ptr->prune_timers         = calloc(numvifs, sizeof(u_int16));
-    mrtentry_ptr->prune_delay_timerids = calloc(numvifs, sizeof(u_long));
-    mrtentry_ptr->last_assert          = calloc(numvifs, sizeof(u_long));
-    mrtentry_ptr->last_prune           = calloc(numvifs, sizeof(u_long));
-    vif_numbers = numvifs;
-#else
-    mrtentry_ptr->prune_timers         = calloc(total_interfaces, sizeof(u_int16));
-    mrtentry_ptr->prune_delay_timerids = calloc(total_interfaces, sizeof(u_long));
-    mrtentry_ptr->last_assert          = calloc(total_interfaces, sizeof(u_long));
-    mrtentry_ptr->last_prune           = calloc(total_interfaces, sizeof(u_long));
-    vif_numbers = total_interfaces;
-#endif /* SAVE_MEMORY */
-
+    mrtentry_ptr->prune_timers = calloc(total_interfaces, sizeof(u_int16));
     if (!mrtentry_ptr->prune_timers)
 	    goto nomem;
+    mrtentry_ptr->prune_delay_timerids = calloc(total_interfaces, sizeof(u_long));
     if (!mrtentry_ptr->prune_delay_timerids)
 	    goto nomem;
+    mrtentry_ptr->last_assert = calloc(total_interfaces, sizeof(u_long));
     if (!mrtentry_ptr->last_assert)
 	    goto nomem;
+    mrtentry_ptr->last_prune = calloc(total_interfaces, sizeof(u_long));
     if (!mrtentry_ptr->last_prune) {
     nomem:
 	logit(LOG_WARNING, 0, "alloc_mrtentry(): out of memory");
 	FREE_MRTENTRY(mrtentry_ptr);
 	return NULL;
     }
+    vif_numbers = total_interfaces;
 
     /* Reset the timers */
     for (i = 0, i_ptr = mrtentry_ptr->prune_timers; i < vif_numbers;
