@@ -587,20 +587,17 @@ process_wrong_iif(igmpctl)
 
 	mrtentry_ptr = find_route(source, group, MRTF_SG, DONT_CREATE);
 	if (!mrtentry_ptr) {
-	    pref = 0x7fffffff;
+	    pref   = 0x7fffffff;
 	    metric = 0x7fffffff;
-	}
-	else {
-	    pref = mrtentry_ptr->source->preference;
+	} else {
+	    pref   = mrtentry_ptr->source->preference;
 	    metric = mrtentry_ptr->source->metric;
-	}
-	    
-	if (mrtentry_ptr->last_assert[vifi] == virtual_time)
-	    /* Skip due to rate-limiting */
-	    return;
-	mrtentry_ptr->last_assert[vifi] = virtual_time;
 
-	/* Send the assert */
+	    if (mrtentry_ptr->last_assert[vifi] == virtual_time)
+		return;		/* Skip due to rate-limiting */
+	    mrtentry_ptr->last_assert[vifi] = virtual_time;
+	}
+
 	send_pim_assert(source, group, vifi, pref, metric);
     }
 }
