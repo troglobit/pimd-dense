@@ -302,8 +302,8 @@ parse_pim_hello(pim_message, datalen, src, holdtime)
 	GET_HOSTSHORT(option_length, data_ptr);
 
 	switch (option_type) {
-	case PIM_MESSAGE_HELLO_HOLDTIME:
-	    if (PIM_MESSAGE_HELLO_HOLDTIME_LENGTH != option_length) {
+	case PIM_HELLO_HOLDTIME:
+	    if (PIM_HELLO_HOLDTIME_LENGTH != option_length) {
 		IF_DEBUG(DEBUG_PIM_HELLO)
 		    logit(LOG_DEBUG, 0,
 		       "PIM HELLO Holdtime from %s: invalid OptionLength = %u",
@@ -349,10 +349,9 @@ send_pim_hello(v, holdtime)
 
     buf = pim_send_buf + sizeof(struct ip) + sizeof(pim_header_t);
     data_ptr = (u_int8 *)buf;
-    PUT_HOSTSHORT(PIM_MESSAGE_HELLO_HOLDTIME, data_ptr);
-    PUT_HOSTSHORT(PIM_MESSAGE_HELLO_HOLDTIME_LENGTH, data_ptr);
+    PUT_HOSTSHORT(PIM_HELLO_HOLDTIME, data_ptr);
+    PUT_HOSTSHORT(PIM_HELLO_HOLDTIME_LENGTH, data_ptr);
     PUT_HOSTSHORT(holdtime, data_ptr);
-    
     datalen = data_ptr - (u_int8 *)buf;
 
     send_pim(pim_send_buf, v->uv_lcl_addr, allpimrouters_group, PIM_HELLO,

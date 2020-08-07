@@ -228,9 +228,9 @@ typedef struct pim_jp_encod_grp_ {
 
 /* Vartious options from PIM messages definitions */
 /* PIM_HELLO definitions */
-#define PIM_MESSAGE_HELLO_HOLDTIME              1
-#define PIM_MESSAGE_HELLO_HOLDTIME_LENGTH       2
-#define PIM_MESSAGE_HELLO_HOLDTIME_FOREVER      0xffff
+#define PIM_HELLO_HOLDTIME              1
+#define PIM_HELLO_HOLDTIME_LENGTH       2
+#define PIM_HELLO_HOLDTIME_FOREVER      0xffff
 
 
 #define MASK_TO_MASKLEN(mask, masklen)                           \
