@@ -191,10 +191,9 @@ accept_membership_query(src, dst, group, tmo)
         struct listaddr *g;
 	
         IF_DEBUG(DEBUG_IGMP)
-	    logit(LOG_DEBUG, 0,
-		"%s for %s from %s on vif %d, timer %d",
-		"Group-specific membership query",
-		inet_fmt(group, s2), inet_fmt(src, s1), vifi, tmo);
+	    logit(LOG_DEBUG, 0, "%s for %s from %s on vif %d, timer %d",
+		  "Group-specific membership query",
+		  inet_fmt(group, s2), inet_fmt(src, s1), vifi, tmo);
         
         for (g = v->uv_groups; g != NULL; g = g->al_next) {
             if (group == g->al_addr && g->al_query == 0) {
@@ -207,8 +206,7 @@ accept_membership_query(src, dst, group, tmo)
                 g->al_query = -1;
                 g->al_timerid = SetTimer(vifi, g);
                 IF_DEBUG(DEBUG_IGMP)
-		    logit(LOG_DEBUG, 0,
-			"timer for grp %s on vif %d set to %d",
+		    logit(LOG_DEBUG, 0, "timer for grp %s on vif %d set to %lu",
 			inet_fmt(group, s2), vifi, g->al_timer);
                 break;
             }
@@ -313,9 +311,8 @@ accept_leave_message(src, dst, group)
     }
     
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_INFO, 0,
-	    "accepting IGMP leave message: src %s, dst% s, grp %s",
-	    inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
+	logit(LOG_INFO, 0, "accepting IGMP leave message: src %s, dst %s, grp %s",
+	      inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
 
     v = &uvifs[vifi];
     
@@ -330,9 +327,8 @@ accept_leave_message(src, dst, group)
     for (g = v->uv_groups; g != NULL; g = g->al_next) {
         if (group == g->al_addr) {
             IF_DEBUG(DEBUG_IGMP)
-		logit(LOG_DEBUG, 0,
-		    "[vif.c, _accept_leave_message] %d %d \n",
-		    g->al_old, g->al_query);
+		logit(LOG_DEBUG, 0, "[vif.c, _accept_leave_message] %d %lu",
+		      g->al_old, g->al_query);
 	    
             /* Ignore the leave message if there are old hosts present */
             if (g->al_old)
