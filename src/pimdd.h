@@ -305,7 +305,7 @@ typedef struct pim_jp_encod_grp_ {
 
 #define GET_HOSTLONG(val, cp)                   \
         do {                                    \
-                u_long Xv;                      \
+                u_int32 Xv;			\
                 Xv  = (*(cp)++) << 24;          \
                 Xv |= (*(cp)++) << 16;          \
                 Xv |= (*(cp)++) <<  8;          \
