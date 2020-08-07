@@ -434,21 +434,24 @@ static u_int16
 max_prune_timeout(mrtentry_ptr)
      mrtentry_t *mrtentry_ptr;
 {
+    u_int16 max_holdtime = 0;
     vifi_t vifi;
-    u_int16 time_left, max_holdtime = 0;
 
-    for(vifi=0; vifi < numvifs; ++vifi) 
-	if(VIFM_ISSET(vifi, mrtentry_ptr->pruned_oifs))
-	    IF_TIMER_SET(mrtentry_ptr->prune_timers[vifi]) 
-		/* XXX - too expensive ? */
-		/* XXX: TIMER implem. dependency! */
-		if(mrtentry_ptr->prune_timers[vifi] > max_holdtime) 
-		    max_holdtime = time_left;
+    /* XXX: TIMER implem. dependency! */
+    for (vifi = 0; vifi < numvifs; vifi++) {
+	if (!VIFM_ISSET(vifi, mrtentry_ptr->pruned_oifs))
+	    continue;
+	IF_TIMER_NOT_SET(mrtentry_ptr->prune_timers[vifi])
+	    continue;
+
+	if (mrtentry_ptr->prune_timers[vifi] > max_holdtime)
+	    max_holdtime = mrtentry_ptr->prune_timers[vifi];
+    }
     
-    if(max_holdtime == 0) 
+    if (max_holdtime == 0)
 	max_holdtime = (u_int16)PIM_JOIN_PRUNE_HOLDTIME;
 
-    return(max_holdtime);
+    return max_holdtime;
 }
 
 
