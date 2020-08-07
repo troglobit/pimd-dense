@@ -25,9 +25,18 @@ routing table.
 Running pimdd
 -------------
 
-Run pimdd as a root.  It is highly recommended to run it in debug mode.
-Because there are many debug messages, you can specify only a subset of
-the messages to be printed out:
+If you have more than one router, you need to have unicast routing set
+up already between all subnets.  Usually an IGP like OSPF or even RIP
+is used for this.  Then start pimdd as root, it backgrounds itself as
+a proper UNIX daemon:
+
+    pimdd
+
+Use the `pimctl` tool (shared with pimd) to query status.
+
+To help out with development, or tracking down bugs, it is recommended
+to run pimdd in debug mode.  Since there are many debug messages, you
+can specify only a subset of the messages to be printed out:
 
 ```
 Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
@@ -37,9 +46,6 @@ Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
  -h        This help text
  -l LVL    Set log level: none, err, notice (default), info, debug
  -n        Run in foreground, do not detach from calling terminal
- -p        Send SIGHUP to poke a running pimdd to reload /etc/pimdd.conf
- -q        Send SIGTERM to a running pimdd
- -r        Show state of VIFs and the multicast routing table
  -s        Use syslog, default unless running in foreground, -n
  -v        Show program version
 
