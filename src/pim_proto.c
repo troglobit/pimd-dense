@@ -415,7 +415,7 @@ schedule_delayed_join(mrtentry_ptr, target)
     random_delay = lrand48() % (long)PIM_RANDOM_DELAY_JOIN_TIMEOUT;
     
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
-	logit(LOG_DEBUG, 0, "Scheduling join for src %s, grp %s, delay %d",
+	logit(LOG_DEBUG, 0, "Scheduling join for src %s, grp %s, delay %lu",
 	    inet_fmt(mrtentry_ptr->source->address, s1), 
 	    inet_fmt(mrtentry_ptr->group->group, s2),
 	    random_delay);
@@ -856,8 +856,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
          * non-directly connected router. Ignore it.
          */
         if (local_address(src) == NO_VIF)
-            logit(LOG_INFO, 0,
-                "Ignoring PIM_ASSERT from non-neighbor router %s",
+            logit(LOG_INFO, 0, "Ignoring PIM_ASSERT from non-neighbor router %s",
                 inet_fmt(src, s1));
         return FALSE;
     }
@@ -883,10 +882,9 @@ receive_pim_assert(src, dst, pim_message, datalen)
     group = egaddr.mcast_addr;
  
     IF_DEBUG(DEBUG_PIM_ASSERT)
-	logit(LOG_DEBUG, 0,
-	    "PIM Assert received from : src %s, grp %s, pref %d, metric %d",
-	    inet_fmt(src, s1), inet_fmt(source, s2), inet_fmt(group, s3),
-	    assert_preference, assert_metric);
+	logit(LOG_DEBUG, 0, "PIM Assert received from %s: src %s, grp %s, pref %d, metric %d",
+	      inet_fmt(src, s1), inet_fmt(source, s2), inet_fmt(group, s3),
+	      assert_preference, assert_metric);
  
     mrtentry_ptr = find_route(source, group, MRTF_SG, CREATE);
     if (!mrtentry_ptr)
