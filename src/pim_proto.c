@@ -926,19 +926,21 @@ receive_pim_assert(src, dst, pim_message, datalen)
     if (vifi == mrtentry_ptr->incoming) {
 	/* assert arrived on iif ==> I'm a downstream router */
 
+	/* Ignore assert message if we do not have an upstream router */
+	if (mrtentry_ptr->upstream == NULL)
+	    return FALSE;
+
 	/* Determine local (really that of upstream nbr!) pref/metric */
 	local_metric = mrtentry_ptr->metric;
 	local_preference = mrtentry_ptr->preference;
  
-	if (mrtentry_ptr->upstream &&
-	   mrtentry_ptr->upstream->address == src &&
-	   assert_preference == local_preference &&
-	   assert_metric == local_metric)
+	if (mrtentry_ptr->upstream->address == src &&
+	    assert_preference == local_preference &&
+	    assert_metric == local_metric)
 	   
 	   /* if assert from previous winner w/ same pref/metric, 
 	    * then assert sender wins again */
 	    local_wins = FALSE;
-
 	else
 	    /* assert from someone else or something changed */
 	    local_wins = compare_metrics(local_preference, local_metric,
