@@ -160,6 +160,7 @@ struct uvif {
     struct phaddr   *uv_addrs;	    /* Additional subnets on this vif       */
     struct vif_filter *uv_filter;   /* Route filters on this vif	    */
     u_int16	    uv_pim_hello_timer;/* timer for sending PIM hello msgs  */
+    u_int32	    uv_genid;	    /* Random PIM Hello Generation ID	    */
     u_int16	    uv_gq_timer;    /* Group Query timer        	    */
     int             uv_local_pref;  /* default local preference for assert  */
     int             uv_local_metric; /* default local metric for assert     */

@@ -44,5 +44,4 @@
 
 #define _PATH_PIMD_CONF         SYSCONFDIR        "/%s.conf"
 #define _PATH_PIMD_PID          _PATH_PIMD_RUNDIR "/%s.pid"
-#define _PATH_PIMD_GENID        _PATH_PIMD_RUNDIR "/%s.genid"
 #define _PATH_PIMD_SOCK         _PATH_PIMD_RUNDIR "/%s.sock"

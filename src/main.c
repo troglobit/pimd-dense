@@ -51,10 +51,6 @@ char *prognm      = NULL;
 char *pid_file    = NULL;
 char *config_file = NULL;
 
-/* TODO: not used
-static char genidfilename[] = _PATH_PIMD_GENID;
-*/
-
 int   foreground = 0;
 
 static int sighandled = 0;

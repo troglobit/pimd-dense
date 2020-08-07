@@ -352,11 +352,17 @@ send_pim_hello(v, holdtime)
     PUT_HOSTSHORT(PIM_HELLO_HOLDTIME, data_ptr);
     PUT_HOSTSHORT(PIM_HELLO_HOLDTIME_LENGTH, data_ptr);
     PUT_HOSTSHORT(holdtime, data_ptr);
+
+    PUT_HOSTSHORT(PIM_HELLO_GENID, data_ptr);
+    PUT_HOSTSHORT(PIM_HELLO_GENID_LEN, data_ptr);
+    PUT_HOSTLONG(v->uv_genid, data_ptr);
+
     datalen = data_ptr - (u_int8 *)buf;
 
     send_pim(pim_send_buf, v->uv_lcl_addr, allpimrouters_group, PIM_HELLO,
 	     datalen);
     SET_TIMER(v->uv_pim_hello_timer, PIM_TIMER_HELLO_PERIOD);
+
     return TRUE;
 }
 

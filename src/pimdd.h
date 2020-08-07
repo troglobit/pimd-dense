@@ -232,6 +232,8 @@ typedef struct pim_jp_encod_grp_ {
 #define PIM_HELLO_HOLDTIME_LENGTH       2
 #define PIM_HELLO_HOLDTIME_FOREVER      0xffff
 
+#define PIM_HELLO_GENID                 20
+#define PIM_HELLO_GENID_LEN             4
 
 #define MASK_TO_MASKLEN(mask, masklen)                           \
     do {                                                         \

@@ -123,6 +123,7 @@ init_vifs()
 	v->uv_addrs		= (struct phaddr *)NULL;
 	v->uv_filter		= (struct vif_filter *)NULL;
 	RESET_TIMER(v->uv_pim_hello_timer);
+	v->uv_genid		= 0;
 	RESET_TIMER(v->uv_gq_timer);
 	v->uv_pim_neighbors	= (struct pim_nbr_entry *)NULL;
 	v->uv_local_pref        = default_route_distance;
@@ -219,9 +220,15 @@ start_vif(vifi)
 
     v		    = &uvifs[vifi];
     src             = v->uv_lcl_addr;
+
     /* Initialy no router on any vif */
     v->uv_flags = (v->uv_flags | VIFF_DR | VIFF_NONBRS) & ~VIFF_DOWN;
+
     SET_TIMER(v->uv_pim_hello_timer, 1 + RANDOM() % PIM_TIMER_HELLO_PERIOD);
+
+    /* https://tools.ietf.org/html/draft-ietf-pim-hello-genid-01 */
+    v->uv_genid = RANDOM();
+
     RESET_TIMER(v->uv_gq_timer);
     v->uv_pim_neighbors = (pim_nbr_entry_t *)NULL;
     
