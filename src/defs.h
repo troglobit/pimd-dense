@@ -343,7 +343,7 @@ extern int      log_level;
 
 extern char    *packet_kind  (u_int proto, u_int type, u_int code);
 extern int      debug_kind   (u_int proto, u_int type, u_int code);
-extern void     logit        (int, int, char *, ...);
+extern void     logit        (int, int, const char *, ...) __attribute__((format (printf, 3, 4)));
 extern int      log_severity (u_int proto, u_int type, u_int code);
 
 /* dvmrp_proto.c */
