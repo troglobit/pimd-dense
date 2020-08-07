@@ -213,11 +213,10 @@ age_routes()
 		 * received and non-null oiflist.
 		 */
 		IF_DEBUG(DEBUG_MFC)
-		    logit(LOG_DEBUG, 0,
-			"Refreshing src %s, dst %s after %d bytes forwarded",
-			inet_fmt(mrtentry_ptr->source->address, s1), 
-			inet_fmt(mrtentry_ptr->group->group, s2), 
-			mrtentry_ptr->sg_count.bytecnt); 
+		    logit(LOG_DEBUG, 0, "Refreshing src %s, dst %s after %lu bytes forwarded",
+			  inet_fmt(mrtentry_ptr->source->address, s1),
+			  inet_fmt(mrtentry_ptr->group->group, s2),
+			  mrtentry_ptr->sg_count.bytecnt);
 		SET_TIMER(mrtentry_ptr->timer, PIM_DATA_TIMEOUT);
 		mrtentry_is_timedout = FALSE;
 	    }	    

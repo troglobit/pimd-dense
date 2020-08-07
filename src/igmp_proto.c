@@ -236,9 +236,8 @@ accept_group_report(src, dst, group, igmp_report_type)
     }
     
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_INFO, 0,
-	    "accepting IGMP group membership report: src %s, dst% s, grp %s",
-	    inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
+	logit(LOG_INFO, 0, "accepting IGMP group membership report: src %s, dst %s, grp %s",
+	      inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
     
     v = &uvifs[vifi];
     
@@ -421,7 +420,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
     }
 
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_DEBUG, 0, "%s(): IGMP v3 report, %d bytes, from %s to %s with %d group records.",
+	logit(LOG_DEBUG, 0, "%s(): IGMP v3 report, %z bytes, from %s to %s with %d group records.",
 	      __func__, reportlen, inet_fmt(src, s1), inet_fmt(dst, s2), num_groups);
 
     record = &report->grec[0];
