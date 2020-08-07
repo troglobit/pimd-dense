@@ -9,13 +9,11 @@ AM_CPPFLAGS      = -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_GNU_SOURCE -I$(top_srcdir)
 AM_CPPFLAGS     += -DSYSCONFDIR=\"@sysconfdir@\" -DLOCALSTATEDIR=\"@localstatedir@\"
 
 sbin_PROGRAMS    = pimdd pimctl
-pimdd_SOURCES    = igmp.c igmp_proto.c trace.c				\
-		   inet.c kern.c main.c config.c debug.c  		\
-		   callout.c ipc.c ipc.h				\
-		   route.c vif.c timer.c mrt.c pim.c pim_proto.c	\
-		   dvmrp_proto.c					\
-		   debug.h defs.h dvmrp.h igmpv2.h mrt.h pathnames.h pimdd.h	\
-		   trace.h vif.h
+pimdd_SOURCES    = callout.c config.c debug.c debug.h defs.h dvmrp.h	\
+		   dvmrp_proto.c igmpv2.h igmp.c igmp_proto.c inet.c	\
+		   ipc.c ipc.h kern.c main.c mrt.c mrt.h		\
+		   pathnames.h pimdd.h pim.c pim_proto.c queue.h	\
+		   route.c vif.c timer.c trace.c trace.h vif.h
 pimdd_CFLAGS     = -W -Wall -Wextra -Wno-unused
 pimdd_LDADD      = $(LIBS) $(LIBOBJS)
 
