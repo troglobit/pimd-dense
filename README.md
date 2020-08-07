@@ -1,6 +1,6 @@
 PIM-DM Multicast Routing for UNIX
 =================================
-[![Badge][]][License] [![CIstat][]][Travis]
+[![Badge][]][License] [![CIstat][]][Travis] [![Cstat][]][Scan]
 
 Introduction
 ------------
@@ -122,3 +122,5 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 [Travis]:  https://travis-ci.org/troglobit/pimd-dense
 [CIstat]:  https://travis-ci.org/troglobit/pimd-dense.png?branch=master
 [build]:   https://autotools.io/
+[Scan]:    https://scan.coverity.com/projects/troglobit-pimd-dense
+[Cstat]:   https://img.shields.io/coverity/scan/21569.svg"
