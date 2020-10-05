@@ -77,6 +77,17 @@ static void show_neighbor(FILE *fp, struct uvif *uv, pim_nbr_entry_t *n)
 		tmp, buf);
 }
 
+static const char *ifstate(struct uvif *uv)
+{
+	if (uv->uv_flags & VIFF_DOWN)
+		return "Down";
+
+	if (uv->uv_flags & VIFF_DISABLED)
+		return "Disabled";
+
+	return "Up";
+}
+
 /* PIM Neighbor Table */
 static void show_neighbors(FILE *fp, int detail)
 {
@@ -118,9 +129,9 @@ static void show_interface(FILE *fp, struct uvif *uv)
 	for (n = uv->uv_pim_neighbors; n; n = n->next)
 		num++;
 
-	fprintf(fp, "%-16s  %-4s   %-15s  %3zu  %5d  %4s  %-15s\n",
+	fprintf(fp, "%-16s  %-8s  %-15s  %3zu  %5d  %4s  %-15s\n",
 		uv->uv_name,
-		(uv->uv_flags & VIFF_DOWN) ? "DOWN" : "UP",
+		ifstate(uv),
 		inet_fmt(uv->uv_lcl_addr, s1),
 		num, PIM_TIMER_HELLO_PERIOD,
 		pri, inet_fmt(addr, s2));
@@ -134,7 +145,7 @@ static void show_interfaces(FILE *fp, int detail)
 	(void)detail;
 
 	if (numvifs)
-		fprintf(fp, "Interface         State  Address          Nbr  Hello  Prio  DR Address =\n");
+		fprintf(fp, "Interface         State     Address          Nbr  Hello  Prio  DR Address =\n");
 
 	for (vifi = 0; vifi < numvifs; vifi++)
 		show_interface(fp, &uvifs[vifi]);
@@ -287,17 +298,6 @@ static void show_igmp_groups(FILE *fp, int detail)
 			continue;
 		}
 	}
-}
-
-static const char *ifstate(struct uvif *uv)
-{
-	if (uv->uv_flags & VIFF_DOWN)
-		return "Down";
-
-	if (uv->uv_flags & VIFF_DISABLED)
-		return "Disabled";
-
-	return "Up";
 }
 
 static void show_igmp_iface(FILE *fp, int detail)
