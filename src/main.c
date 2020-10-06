@@ -483,7 +483,6 @@ main(argc, argv)
     logit(LOG_NOTICE, 0, "%s exiting", versionstring);
     cleanup();
     free(config_file);
-    free(pid_file);
 
     return 0;
 }
