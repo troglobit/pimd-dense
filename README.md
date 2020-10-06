@@ -58,7 +58,7 @@ Available subystems for debug:
   pim_routing, pim_mrt, pim_timers, pim_rpf, rpf, pim, routes, routing, mrt, 
   routers, mrouters, neighbors, timers, asserts, all, 3
 
-Bug report address: https://github.com/troglobit/pimdd/issues
+Bug report address: https://github.com/troglobit/pimd-dense/issues
 ```
 
 If you want to see all messages, use `pimdd -d all`.  When debugging
@@ -77,7 +77,7 @@ process.  E.g., to install pimd to `/usr` instead of the default
 
     ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
 	make
-    make DESTDIR=/tmp/pimdd-1.0.0 install-strip
+    make DESTDIR=/tmp/pimd-dense-1.0.0 install-strip
 
 
 Building from GIT
