@@ -626,18 +626,20 @@ restart(i)
 
 
 int
-daemon_restart(void *arg)
+daemon_restart(char *buf, size_t len)
 {
-    (void)arg;
+    (void)buf;
+    (void)len;
     restart(1);
 
     return 0;
 }
 
 int
-daemon_kill(void *arg)
+daemon_kill(char *buf, size_t len)
 {
-    (void)arg;
+    (void)buf;
+    (void)len;
     handler(SIGTERM);
 
     return 0;

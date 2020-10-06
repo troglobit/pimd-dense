@@ -27,10 +27,67 @@
  * SUCH DAMAGE.
  */
 
+/*
+ * IPC API:
+ *    - text based for compat with any PIM daemon
+ *    - required commands: HELP, SHOW, VERSION
+ *
+ * Client asks daemon for available commands with HELP (help sep. w/ two spaces)
+ * Client can also send VERSION to get daemon version
+ * Client can send SHOW to get general status overview
+ *
+ * Daemon requires commands to be EXACT MATCH, so the client must
+ * translate any short-commands to the full command before sending
+ * it to the daemon.
+ */
+
 #include "defs.h"
+
+#define ENABLED(v) (v ? "Enabled" : "Disabled")
 
 static struct sockaddr_un sun;
 static int ipc_socket = -1;
+static int detail = 0;
+
+enum {
+	IPC_ERR = -1,
+	IPC_OK  = 0,
+	IPC_HELP,
+	IPC_VERSION,
+	IPC_STATUS,
+	IPC_RESTART,
+	IPC_DEBUG,
+	IPC_LOGLEVEL,
+	IPC_KILL,
+	IPC_IGMP_GRP,
+	IPC_IGMP_IFACE,
+	IPC_PIM_IFACE,
+	IPC_PIM_NEIGH,
+	IPC_PIM_ROUTE,
+	IPC_PIM_DUMP
+};
+
+struct ipcmd {
+	int   op;
+	char *cmd;
+	char *arg;
+	char *help;
+} cmds[] = {
+	{ IPC_DEBUG,      "debug", "[? | none | SYS]", "Debug subystem(s), separate multiple with comma"},
+	{ IPC_HELP,       "help", NULL, "This help text" },
+	{ IPC_KILL,       "kill", NULL, "Kill running pimd-dense daemon, like SIGTERM"},
+	{ IPC_LOGLEVEL,   "log", "[? | none | LEVEL]" , "Set pimd-dense log level: none, err, notice*, info, debug"},
+	{ IPC_RESTART,    "restart", NULL, "Restart pimd and reload the .conf file, like SIGHUP"},
+	{ IPC_VERSION,    "version", NULL, "Show pimd-dense version" },
+	{ IPC_STATUS,     "show status", NULL, "Show pimd-dense status, default" },
+	{ IPC_IGMP_GRP,   "show igmp groups", NULL, "Show IGMP group memberships" },
+	{ IPC_IGMP_IFACE, "show igmp interface", NULL, "Show IGMP interface status" },
+	{ IPC_PIM_IFACE,  "show pim interface", NULL, "Show PIM interface table" },
+	{ IPC_PIM_NEIGH,  "show pim neighbor", NULL, "Show PIM neighbor table" },
+	{ IPC_PIM_ROUTE,  "show pim routes", "[detail]", "Show PIM routing table" },
+	{ IPC_PIM_DUMP,   "show pim compat", "[detail]", "Show PIM status, compat mode" },
+	{ IPC_PIM_DUMP,   "show", NULL, NULL }, /* hidden default */
+};
 
 static char *timetostr(time_t t, char *buf, size_t len)
 {
@@ -56,6 +113,133 @@ static char *timetostr(time_t t, char *buf, size_t len)
 		snprintf(buf, len, "%dh%dm%ds", hour, min, sec);
 
 	return buf;
+}
+
+static char *chomp(char *str)
+{
+	char *p;
+
+	if (!str || strlen(str) < 1) {
+		errno = EINVAL;
+		return NULL;
+	}
+
+	p = str + strlen(str) - 1;
+        while (*p == '\n')
+		*p-- = 0;
+
+	return str;
+}
+
+static void strip(char *cmd, size_t len)
+{
+	char *ptr;
+
+	ptr = cmd + len;
+	len = strspn(ptr, " \t\n");
+	if (len > 0)
+		ptr += len;
+
+	memmove(cmd, ptr, strlen(ptr) + 1);
+
+	ptr = strstr(cmd, "detail");
+	if (ptr) {
+		char *ptr2;
+
+		detail = 1;
+		ptr2 = ptr + 6;
+		len = strspn(ptr2, " \t\n");
+		if (len > 0)
+			ptr2 += len;
+		memmove(ptr, ptr2, strlen(ptr2) + 1);
+	} else
+		detail = 0;
+
+	chomp(cmd);
+}
+
+static int ipc_read(int sd, char *cmd, ssize_t len)
+{
+	len = read(sd, cmd, len);
+	if (len < 0)
+		return -1;
+	if (len == 0)
+		return IPC_OK;
+
+	cmd[len] = 0;
+
+	for (size_t i = 0; i < NELEMS(cmds); i++) {
+		struct ipcmd *c = &cmds[i];
+
+		if (!strncasecmp(cmd, c->cmd, strlen(c->cmd))) {
+			strip(cmd, strlen(c->cmd));
+			return c->op;
+		}
+	}
+
+	return -1;
+}
+
+static int ipc_write(int sd, void *msg, size_t sz)
+{
+	ssize_t len;
+
+	while ((len = write(sd, msg, sz))) {
+		if (-1 == len && EINTR == errno)
+			continue;
+		break;
+	}
+
+	if (len != (ssize_t)sz)
+		return -1;
+
+	return 0;
+}
+
+static int ipc_close(int sd)
+{
+	return shutdown(sd, SHUT_RDWR) ||
+		close(sd);
+}
+
+static int ipc_send(int sd, char *buf, size_t len, FILE *fp)
+{
+	while (fgets(buf, len, fp)) {
+		if (!ipc_write(sd, buf, strlen(buf)))
+			continue;
+
+		logit(LOG_WARNING, errno, "Failed communicating with client");
+		return -1;
+	}
+
+	return ipc_close(sd);
+}
+
+static void ipc_show(int sd, int (*cb)(FILE *), char *buf, size_t len)
+{
+	FILE *fp;
+
+	fp = tmpfile();
+	if (!fp) {
+		logit(LOG_WARNING, errno, "Failed opening temporary file");
+		return;
+	}
+
+	if (cb(fp))
+		return;
+
+	rewind(fp);
+	ipc_send(sd, buf, len, fp);
+	fclose(fp);
+}
+
+/* wrap simple functions that don't use >768 bytes for I/O */
+static int ipc_wrap(int sd, int (*cb)(char *, size_t), char *buf, size_t len)
+{
+	if (cb(buf, len))
+		return -1;
+
+	return ipc_write(sd, buf, strlen(buf));
 }
 
 static void show_neighbor(FILE *fp, struct uvif *uv, pim_nbr_entry_t *n)
@@ -89,14 +273,12 @@ static const char *ifstate(struct uvif *uv)
 }
 
 /* PIM Neighbor Table */
-static void show_neighbors(FILE *fp, int detail)
+static int show_neighbors(FILE *fp)
 {
 	pim_nbr_entry_t *n;
 	struct uvif *uv;
 	vifi_t vifi;
 	int first = 1;
-
-	(void)detail;
 
 	for (vifi = 0; vifi < numvifs; vifi++) {
 		uv = &uvifs[vifi];
@@ -109,6 +291,8 @@ static void show_neighbors(FILE *fp, int detail)
 			show_neighbor(fp, uv, n);
 		}
 	}
+
+	return 0;
 }
 
 static void show_interface(FILE *fp, struct uvif *uv)
@@ -138,26 +322,26 @@ static void show_interface(FILE *fp, struct uvif *uv)
 }
 
 /* PIM Interface Table */
-static void show_interfaces(FILE *fp, int detail)
+static int show_interfaces(FILE *fp)
 {
 	vifi_t vifi;
-
-	(void)detail;
 
 	if (numvifs)
 		fprintf(fp, "Interface         State     Address          Nbr  Hello  Prio  DR Address =\n");
 
 	for (vifi = 0; vifi < numvifs; vifi++)
 		show_interface(fp, &uvifs[vifi]);
+
+	return 0;
 }
 
-static void dump_route(FILE *fp, mrtentry_t *r, int detail)
+static void dump_route(FILE *fp, mrtentry_t *r)
 {
-	vifi_t vifi;
-	char oifs[MAXVIFS+1];
+	char incoming_iif[MAXVIFS+1];
 	char pruned_oifs[MAXVIFS+1];
 	char leaves_oifs[MAXVIFS+1];
-	char incoming_iif[MAXVIFS+1];
+	char oifs[MAXVIFS+1];
+	vifi_t vifi;
 
 	for (vifi = 0; vifi < numvifs; vifi++) {
 		oifs[vifi] =
@@ -206,7 +390,7 @@ static void dump_route(FILE *fp, mrtentry_t *r, int detail)
 }
 
 /* PIM Multicast Routing Table */
-static void show_pim_mrt(FILE *fp, int detail)
+static int show_pim_mrt(FILE *fp)
 {
 	u_int number_of_groups = 0;
 	grpentry_t *g;
@@ -224,21 +408,20 @@ static void show_pim_mrt(FILE *fp, int detail)
 				inet_fmt(r->source->address, s1),
 				inet_fmt(g->group, s2));
 
-			dump_route(fp, r, detail);
+			dump_route(fp, r);
 		}
 	}
 
 	fprintf(fp, "\nNumber of Groups        : %u\n", number_of_groups);
+
+	return 0;
 }
 
-#define ENABLED(v) (v ? "Enabled" : "Disabled")
-
-static void show_status(FILE *fp, int detail)
+static int show_status(FILE *fp)
 {
 	char buf[10];
 	int len;
 
-	(void)detail;
 /*
 	snprintf(buf, sizeof(buf), "%d", curr_bsr_priority);
 	MASK_TO_MASKLEN(curr_bsr_hash_mask, len);
@@ -272,15 +455,15 @@ static void show_status(FILE *fp, int detail)
 	if (spt_threshold.mode != SPT_INF)
 		fprintf(fp, "SPT Interval         : %d sec\n", spt_threshold.interval);
 */
+
+	return 0;
 }
 
-static void show_igmp_groups(FILE *fp, int detail)
+static int show_igmp_groups(FILE *fp)
 {
 	struct listaddr *group, *source;
 	struct uvif *uv;
 	vifi_t vifi;
-
-	(void)detail;
 
 	fprintf(fp, "Interface         Group            Source           Last Reported    Timeout=\n");
 	for (vifi = 0, uv = uvifs; vifi < numvifs; vifi++, uv++) {
@@ -298,15 +481,16 @@ static void show_igmp_groups(FILE *fp, int detail)
 			continue;
 		}
 	}
+
+	return 0;
 }
 
-static void show_igmp_iface(FILE *fp, int detail)
+static int show_igmp_iface(FILE *fp)
 {
 	struct listaddr *group;
 	struct uvif *uv;
 	vifi_t vifi;
 
-	(void)detail;
 	fprintf(fp, "Interface         State     Querier          Timeout Version  Groups=\n");
 
 	for (vifi = 0, uv = uvifs; vifi < numvifs; vifi++, uv++) {
@@ -339,23 +523,25 @@ static void show_igmp_iface(FILE *fp, int detail)
 		fprintf(fp, "%-16s  %-8s  %-15s  %7s %7d  %6zd\n", uv->uv_name,
 			ifstate(uv), s1, timeout, version, num);
 	}
+
+	return 0;
 }
 
-static void show_dump(FILE *fp, int detail)
+static int show_dump(FILE *fp)
 {
 	dump_vifs(fp, detail);
 	dump_pim_mrt(fp, detail);
+
+	return 0;
 }
 
-static int do_debug(void *arg)
+static int ipc_debug(char *buf, size_t len)
 {
-	struct ipc *msg = (struct ipc *)arg;
+	if (!strcmp(buf, "?"))
+		return debug_list(DEBUG_ALL, buf, len);
 
-	if (!strcmp(msg->buf, "?"))
-		return debug_list(DEBUG_ALL, msg->buf, sizeof(msg->buf));
-
-	if (strlen(msg->buf)) {
-		int rc = debug_parse(msg->buf);
+	if (strlen(buf)) {
+		int rc = debug_parse(buf);
 
 		if ((int)DEBUG_PARSE_FAIL == rc)
 			return 1;
@@ -366,27 +552,27 @@ static int do_debug(void *arg)
 
 	/* Return list of activated subsystems */
 	if (debug)
-		debug_list(debug, msg->buf, sizeof(msg->buf));
+		debug_list(debug, buf, len);
 	else
-		snprintf(msg->buf, sizeof(msg->buf), "none");
+		snprintf(buf, len, "none");
 
 	return 0;
 }
 
-static int do_loglevel(void *arg)
+static int ipc_loglevel(char *buf, size_t len)
 {
-	struct ipc *msg = (struct ipc *)arg;
 	int rc;
 
-	if (!strcmp(msg->buf, "?"))
-		return log_list(msg->buf, sizeof(msg->buf));
+	logit(LOG_NOTICE, 0, "In %s(), buf: '%s', len: %zu", __func__, buf, len);
+	if (!strcmp(buf, "?"))
+		return log_list(buf, len);
 
-	if (!strlen(msg->buf)) {
-		strlcpy(msg->buf, log_lvl2str(log_level), sizeof(msg->buf));
+	if (!strlen(buf)) {
+		strlcpy(buf, log_lvl2str(log_level), len);
 		return 0;
 	}
 
-	rc = log_str2lvl(msg->buf);
+	rc = log_str2lvl(buf);
 	if (-1 == rc)
 		return 1;
 
@@ -396,140 +582,111 @@ static int do_loglevel(void *arg)
 	return 0;
 }
 
-static int ipc_write(int sd, struct ipc *msg)
-{
-	ssize_t len;
-
-	while ((len = write(sd, msg, sizeof(*msg)))) {
-		if (-1 == len && EINTR == errno)
-			continue;
-		break;
-	}
-
-	if (len != sizeof(*msg))
-		return -1;
-
-	return 0;
-}
-
-static int ipc_close(int sd, struct ipc *msg, int status)
-{
-	msg->cmd = status;
-	if (ipc_write(sd, msg)) {
-		logit(LOG_WARNING, errno, "Failed sending EOF/ACK to client");
-		return -1;
-	}
-
-	return 0;
-}
-
-static int ipc_send(int sd, struct ipc *msg, FILE *fp)
-{
-	msg->cmd = IPC_OK_CMD;
-	while (fgets(msg->buf, sizeof(msg->buf), fp)) {
-		if (!ipc_write(sd, msg))
-			continue;
-
-		logit(LOG_WARNING, errno, "Failed communicating with client");
-		return -1;
-	}
-
-	return ipc_close(sd, msg, IPC_EOF_CMD);
-}
-
-static void ipc_show(int sd, struct ipc *msg, void (*cb)(FILE *, int))
+static void ipc_help(int sd, char *buf, size_t len)
 {
 	FILE *fp;
 
 	fp = tmpfile();
 	if (!fp) {
-		logit(LOG_WARNING, errno, "Failed opening temporary file");
-		ipc_close(sd, msg, IPC_ERR_CMD);
+		int sz;
+
+		sz = snprintf(buf, len, "Cannot create tempfile: %s", strerror(errno));
+		if (write(sd, buf, sz) != sz)
+			logit(LOG_INFO, errno, "Client closed connection");
 		return;
 	}
 
-	cb(fp, msg->detail);
+	for (size_t i = 0; i < NELEMS(cmds); i++) {
+		struct ipcmd *c = &cmds[i];
+		char tmp[50];
+
+		if (!c->help)
+			continue; /* skip hidden commands */
+
+		snprintf(tmp, sizeof(tmp), "%s%s%s", c->cmd, c->arg ? " " : "", c->arg ?: "");
+		fprintf(fp, "  %-25s  %s\n", tmp, c->help);
+	}
 	rewind(fp);
-	ipc_send(sd, msg, fp);
+
+	while (fgets(buf, len, fp)) {
+		if (!ipc_write(sd, buf, strlen(buf)))
+			continue;
+
+		logit(LOG_WARNING, errno, "Failed communicating with client");
+	}
+
 	fclose(fp);
-}
-
-static void ipc_generic(int sd, struct ipc *msg, int (*cb)(void *), void *arg)
-{
-	if (cb(arg))
-		msg->cmd = IPC_ERR_CMD;
-	else
-		msg->cmd = IPC_OK_CMD;
-
-	if (write(sd, msg, sizeof(*msg)) == -1)
-		logit(LOG_WARNING, errno, "Failed sending IPC reply");
 }
 
 static void ipc_handle(int sd, fd_set *rfd)
 {
-	socklen_t socklen = 0;
-	struct ipc msg;
+	char cmd[768] = { 0 };
 	ssize_t len;
 	int client;
 
-	client = accept(sd, NULL, &socklen);
+	client = accept(sd, NULL, NULL);
 	if (client < 0)
 		return;
 
-	len = read(client, &msg, sizeof(msg));
-	if (len < 0) {
-		logit(LOG_WARNING, errno, "Failed reading IPC command");
-		close(client);
-		return;
-	}
-
-	switch (msg.cmd) {
-	case IPC_DEBUG_CMD:
-		ipc_generic(client, &msg, do_debug, &msg);
+	switch (ipc_read(client, cmd, sizeof(cmd))) {
+	case IPC_HELP:
+		ipc_help(client, cmd, sizeof(cmd));
 		break;
 
-	case IPC_LOGLEVEL_CMD:
-		ipc_generic(client, &msg, do_loglevel, &msg);
+	case IPC_DEBUG:
+		ipc_wrap(client, ipc_debug, cmd, sizeof(cmd));
 		break;
 
-	case IPC_KILL_CMD:
-		ipc_generic(client, &msg, daemon_kill, NULL);
+	case IPC_LOGLEVEL:
+		ipc_wrap(client, ipc_loglevel, cmd, sizeof(cmd));
 		break;
 
-	case IPC_RESTART_CMD:
-		ipc_generic(client, &msg, daemon_restart, NULL);
+	case IPC_KILL:
+		ipc_wrap(client, daemon_kill, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_IGMP_GROUPS_CMD:
-		ipc_show(client, &msg, show_igmp_groups);
+	case IPC_RESTART:
+		ipc_wrap(client, daemon_restart, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_IGMP_IFACE_CMD:
-		ipc_show(client, &msg, show_igmp_iface);
+	case IPC_IGMP_GRP:
+		ipc_show(client, show_igmp_groups, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_PIM_IFACE_CMD:
-		ipc_show(client, &msg, show_interfaces);
+	case IPC_IGMP_IFACE:
+		ipc_show(client, show_igmp_iface, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_PIM_NEIGH_CMD:
-		ipc_show(client, &msg, show_neighbors);
+	case IPC_PIM_IFACE:
+		ipc_show(client, show_interfaces, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_PIM_ROUTE_CMD:
-		ipc_show(client, &msg, show_pim_mrt);
+	case IPC_PIM_NEIGH:
+		ipc_show(client, show_neighbors, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_STATUS_CMD:
-		ipc_show(client, &msg, show_status);
+	case IPC_PIM_ROUTE:
+		ipc_show(client, show_pim_mrt, cmd, sizeof(cmd));
 		break;
 
-	case IPC_SHOW_PIM_DUMP_CMD:
-		ipc_show(client, &msg, show_dump);
+	case IPC_STATUS:
+		ipc_show(client, show_status, cmd, sizeof(cmd));
+		break;
+
+	case IPC_PIM_DUMP:
+		ipc_show(client, show_dump, cmd, sizeof(cmd));
+		break;
+
+	case IPC_OK:
+		/* client ping, ignore */
+		break;
+
+	case IPC_ERR:
+		logit(LOG_WARNING, errno, "Failed reading command from client");
 		break;
 
 	default:
-		logit(LOG_WARNING, 0, "Invalid IPC command '0x%02x'", msg.cmd);
+		logit(LOG_WARNING, 0, "Invalid IPC command: %s", cmd);
 		break;
 	}
 

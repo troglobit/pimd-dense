@@ -382,6 +382,10 @@ extern char    *inet_fmts         (u_int32 addr, u_int32 mask, char *s);
 extern char    *netname           (u_int32 addr, u_int32 mask);
 extern u_int32  inet_parse        (char *s, int n);
 
+/* ipc.c */
+extern void	ipc_init	(void);
+extern void	ipc_exit	(void);
+
 /* kern.c */
 extern void     k_set_rcvbuf    (int socket, int bufsize, int minsize);
 extern void     k_hdr_include   (int socket, int bool);
@@ -404,8 +408,8 @@ extern int      foreground;
 extern char    *prognm;
 
 extern int      register_input_handler	(int fd, ihfunc_t func);
-extern int	daemon_restart		(void *arg);
-extern int	daemon_kill		(void *arg);
+extern int	daemon_restart		(char *buf, size_t len);
+extern int	daemon_kill		(char *buf, size_t len);
 
 /* mrt.c */
 extern void         init_pim_mrt     ();
