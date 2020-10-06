@@ -80,6 +80,11 @@ SBINDIR=`eval echo $sbindir`
 SBINDIR=`eval echo $SBINDIR`
 AC_SUBST(SBINDIR)
 
+# Workaround for as-of-yet unreleased runstatedir support, planned for
+# autoconf 2.70, which some major distros have backported.
+AS_IF([test -z "$runstatedir"], runstatedir="$localstatedir/run")
+AC_SUBST(runstatedir)
+
 # Generate all files
 AC_OUTPUT
 
@@ -89,12 +94,12 @@ cat <<EOF
  $PACKAGE_NAME version $PACKAGE_VERSION
   Prefix................: $prefix
   Sysconfdir............: `eval echo $sysconfdir`
-  Localstatedir.........: `eval echo $localstatedir`
+  Runstatedir...........: `eval echo $runstatedir`
   C Compiler............: $CC $CFLAGS $CPPFLAGS $LDFLAGS $LIBS
-  systemd...............: $with_systemd
 
 Optional features:
   RSRR (experimental)...: $enable_rsrr
+  systemd...............: $with_systemd
 
 ------------- Compiler version --------------
 $($CC --version || true)
