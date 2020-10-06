@@ -162,7 +162,7 @@ static int ipc_read(int sd, char *cmd, ssize_t len)
 {
 	len = read(sd, cmd, len);
 	if (len < 0)
-		return -1;
+		return IPC_ERR;
 	if (len == 0)
 		return IPC_OK;
 
@@ -177,7 +177,7 @@ static int ipc_read(int sd, char *cmd, ssize_t len)
 		}
 	}
 
-	return -1;
+	return IPC_ERR;
 }
 
 static int ipc_write(int sd, void *msg, size_t sz)
@@ -191,7 +191,7 @@ static int ipc_write(int sd, void *msg, size_t sz)
 	}
 
 	if (len != (ssize_t)sz)
-		return -1;
+		return IPC_ERR;
 
 	return 0;
 }
@@ -209,7 +209,7 @@ static int ipc_send(int sd, char *buf, size_t len, FILE *fp)
 			continue;
 
 		logit(LOG_WARNING, errno, "Failed communicating with client");
-		return -1;
+		return IPC_ERR;
 	}
 
 	return ipc_close(sd);
@@ -237,7 +237,7 @@ static void ipc_show(int sd, int (*cb)(FILE *), char *buf, size_t len)
 static int ipc_wrap(int sd, int (*cb)(char *, size_t), char *buf, size_t len)
 {
 	if (cb(buf, len))
-		return -1;
+		return IPC_ERR;
 
 	return ipc_write(sd, buf, strlen(buf));
 }
@@ -422,7 +422,7 @@ static int show_status(FILE *fp)
 	char buf[10];
 	int len;
 
-/*
+/* TODO: What's relevant daemon status for pimd-dense?
 	snprintf(buf, sizeof(buf), "%d", curr_bsr_priority);
 	MASK_TO_MASKLEN(curr_bsr_hash_mask, len);
 
@@ -515,7 +515,7 @@ static int show_igmp_iface(FILE *fp)
 
 		if (uv->uv_flags & VIFF_IGMPV1)
 			version = 1;
-/*		else if (uv->uv_flags & VIFF_IGMPV2)
+/*		else if (uv->uv_flags & VIFF_IGMPV2) TODO: Add IGMPv3 support!
 			version = 2;
 */		else
 			version = 3;
