@@ -288,6 +288,11 @@ extern char *		sys_errlist[];
 #define IGMP_MTRACE                     IGMP_MTRACE_QUERY
 #endif
 
+#ifndef IGMP_TIMER_SCALE
+#define IGMP_TIMER_SCALE     10	    /* denotes that the igmp->timer filed */
+				    /* specifies time in 10th of seconds  */
+#endif
+
 /* For timeout. The timers count down */
 #define SET_TIMER(timer, value) (timer) = (value)
 #define RESET_TIMER(timer) (timer) = 0
