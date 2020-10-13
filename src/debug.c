@@ -49,12 +49,41 @@
 #define SYSLOG_NAMES
 #include "defs.h"
 
-
 #ifdef __STDC__
 #include <stdarg.h>
 #else
 #include <varargs.h>
 #endif
+
+#ifdef SYSV			/* Only SVR4, the BSD's and Linux have it */
+#define INTERNAL_INVPRI 0x00	/* Value to indicate no priority in f_pmask */
+#define	INTERNAL_NOPRI	0x10	/* the "no priority" priority */
+				/* mark "facility" */
+#define INTERNAL_ALLPRI 0xFF   /* Value to indicate all priorities in f_pmask */
+#define	INTERNAL_MARK	LOG_MAKEPRI(LOG_NFACILITIES, 0)
+
+typedef struct _code {
+	char	*c_name;
+	int	 c_val;
+} CODE;
+
+CODE prioritynames[] = {
+	{ "alert",	LOG_ALERT },
+	{ "crit",	LOG_CRIT },
+	{ "debug",	LOG_DEBUG },
+	{ "emerg",	LOG_EMERG },
+	{ "err",	LOG_ERR },
+	{ "error",	LOG_ERR },		/* DEPRECATED */
+	{ "info",	LOG_INFO },
+	{ "none",	INTERNAL_NOPRI },	/* INTERNAL */
+	{ "notice",	LOG_NOTICE },
+	{ "panic",	LOG_EMERG },		/* DEPRECATED */
+	{ "warn",	LOG_WARNING },		/* DEPRECATED */
+	{ "warning",	LOG_WARNING },
+	{ "*",		INTERNAL_ALLPRI },	/* INTERNAL */
+	{ NULL,		-1 }
+};
+#endif /* SYSV */
 
 static struct debugname {
     char   *name;
