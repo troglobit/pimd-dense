@@ -7,9 +7,9 @@ AM_CPPFLAGS     += -DSYSCONFDIR=\"@sysconfdir@\" -DRUNSTATEDIR=\"@runstatedir@\"
 sbin_PROGRAMS    = pimdd pimctl
 pimdd_SOURCES    = callout.c config.c debug.c debug.h defs.h dvmrp.h	\
 		   dvmrp_proto.c igmpv2.h igmp.c igmp_proto.c inet.c	\
-		   ipc.c ipc.h kern.c main.c mrt.c mrt.h		\
-		   pathnames.h pimdd.h pim.c pim_proto.c queue.h	\
-		   route.c vif.c timer.c trace.c trace.h vif.h
+		   ipc.c kern.c main.c mrt.c mrt.h pathnames.h		\
+		   pimdd.h pim.c pim_proto.c queue.h route.c		\
+		   timer.c trace.c trace.h vif.c vif.h
 pimdd_CFLAGS     = -W -Wall -Wextra -Wno-unused
 pimdd_LDADD      = $(LIBS) $(LIBOBJS)
 
@@ -27,5 +27,5 @@ AM_CPPFLAGS     += -DPIM
 pimdd_SOURCES   += rsrr.c		rsrr_var.h	rsrr.h
 endif
 
-pimctl_SOURCES   = pimctl.c		ipc.h
+pimctl_SOURCES   = pimctl.c
 pimctl_LDADD     = $(LIBS) $(LIBOBJS)

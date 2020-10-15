@@ -103,7 +103,6 @@ typedef void (*ihfunc_t) (int, fd_set *);
 #include "mrt.h"
 #include "igmpv2.h"
 #include "igmpv3.h"
-#include "ipc.h"
 #include "vif.h"
 #include "debug.h"
 #include "pathnames.h"
