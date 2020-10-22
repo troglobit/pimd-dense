@@ -35,6 +35,7 @@
 #include <paths.h>
 #include <poll.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #ifdef HAVE_TERMIOS_H
 # include <termios.h>
@@ -44,6 +45,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+
+#include "queue.h"
+#define MAXARGS	32
 
 /*
  * workaround for SunOS/Solaris/Illumos which defines this in
@@ -66,17 +70,46 @@ extern size_t strlcpy(char *, const char *, size_t);
 #endif
 
 struct cmd {
-	char        *cmd;
-	struct cmd  *ctx;
-	int        (*cb)(char *arg);
-	int         op;
+	char *argv[MAXARGS];
+	int   argc;
+
+	char *opt;
+	char *desc;
+
+	TAILQ_ENTRY(cmd) link;
 };
 
 static int plain = 0;
 static int debug = 0;
 static int heading = 1;
 
-char *ident = NULL;
+static int cmdind;
+static TAILQ_HEAD(head, cmd) cmds = TAILQ_HEAD_INITIALIZER(cmds);
+
+static char *ident = NULL;
+
+
+static void add_cmd(char *cmd, char *opt, char *desc)
+{
+	struct cmd *c;
+	char *token;
+
+	c = calloc(1, sizeof(struct cmd));
+	if (!c)
+		err(1, "Cannot get memory for arg node");
+
+	while ((token = strsep(&cmd, " "))) {
+		if (strlen(token) < 1)
+			continue;
+
+		c->argv[c->argc++] = token;
+	}
+
+	c->opt = opt;
+	c->desc = desc;
+
+	TAILQ_INSERT_TAIL(&cmds, c, link);
+}
 
 static void dedup(char *arr[])
 {
@@ -206,10 +239,10 @@ static int ipc_ping(void)
 
 	sd = ipc_connect();
 	if (sd == -1)
-		return 0;
+		return -1;
 
 	close(sd);
-	return 1;
+	return 0;
 }
 
 #define ESC "\033"
@@ -258,7 +291,7 @@ static char *chomp(char *str)
 	return str;
 }
 
-static void print(char *line)
+static void print(char *line, int indent)
 {
 	int len, head = 0;
 
@@ -287,20 +320,24 @@ static void print(char *line)
 	if (!plain) {
 		fprintf(stdout, "\e[7m%s%*s\e[0m\n", line, len, "");
 	} else {
-		fprintf(stdout, "%s\n", line);
+		fprintf(stdout, "%*s%s\n", indent, "", line);
 		while (len--)
 			fputc('=', stdout);
 		fputs("\n", stdout);
 	}
 }
 
-static int get(char *cmd)
+static int get(char *cmd, FILE *fp)
 {
 	struct pollfd pfd;
+	FILE *lfp = NULL;
+	int indent = 0;
 	char buf[768];
 	ssize_t len;
-	FILE *fp;
 	int sd;
+
+	if (debug)
+		warn("Sending cmd %s", cmd);
 
 	sd = ipc_connect();
 	if (-1 == sd) {
@@ -319,21 +356,27 @@ static int get(char *cmd)
 		return 2;
 	}
 
-	fp = tmpfile();
 	if (!fp) {
-		warn("Failed opening tempfile");
-		close(sd);
-		return 3;
+		lfp = tmpfile();
+		if (!lfp) {
+			warn("Failed opening tempfile");
+			close(sd);
+			return 3;
+		}
+
+		fp = lfp;
 	}
 
 	pfd.fd = sd;
 	pfd.events = POLLIN | POLLHUP;
 	while (poll(&pfd, 1, 2000) > 0) {
 		if (pfd.events & POLLIN) {
-			len = read(sd, buf, sizeof(buf));
+			memset(buf, 0, sizeof(buf));
+			len = read(sd, buf, sizeof(buf) - 1);
 			if (len == -1)
 				break;
 
+			buf[len] = 0;
 			fwrite(buf, len, 1, fp);
 		}
 		if (pfd.revents & POLLHUP)
@@ -342,8 +385,59 @@ static int get(char *cmd)
 	close(sd);
 
 	rewind(fp);
+	if (!lfp)
+		return 0;
+
 	while (fgets(buf, sizeof(buf), fp))
-		print(buf);
+		print(buf, indent);
+
+	fclose(lfp);
+
+	return 0;
+}
+
+static int ipc_fetch(void)
+{
+	char buf[768];
+	char *cmd;
+	FILE *fp;
+
+	if (!TAILQ_EMPTY(&cmds))
+		return 0;
+
+	if (ipc_ping())
+		return 1;
+
+	fp = tmpfile();
+	if (!fp)
+		err(4, "Failed opening tempfile");
+
+	if (get("help", fp)) {
+		fclose(fp);
+		err(5, "Failed fetching commands");
+	}
+
+	while ((cmd = fgets(buf, sizeof(buf), fp))) {
+		char *opt, *desc;
+
+		if (!chomp(cmd))
+			continue;
+
+		cmd = strdup(cmd);
+		if (!cmd)
+			err(1, "Failed strdup(cmd)");
+
+		desc = strchr(cmd, '\t');
+		if (desc)
+			*desc++ = 0;
+
+		opt = strchr(cmd, '[');
+		if (opt)
+			*opt++ = 0;
+
+		add_cmd(cmd, opt, desc);
+	}
+
 	fclose(fp);
 
 	return 0;
@@ -356,8 +450,42 @@ static int string_match(const char *a, const char *b)
    return !strncasecmp(a, b, min);
 }
 
+struct cmd *match(int argc, char *argv[])
+{
+	struct cmd *c;
+
+	TAILQ_FOREACH(c, &cmds, link) {
+		for (int i = 0, j = 0; i < argc && j < c->argc; i++, j++) {
+			if (!string_match(argv[i], c->argv[j]))
+				break;
+
+			cmdind = i + 1;
+			if (i + 1 == c->argc)
+				return c;
+		}
+	}
+
+	return NULL;
+}
+
+char *compose(struct cmd *c, char *buf, size_t len)
+{
+	memset(buf, 0, len);
+
+	for (int i = 0; c && i < c->argc; i++) {
+		if (i > 0)
+			strlcat(buf, " ", len);
+		strlcat(buf, c->argv[i], len);
+	}
+
+	return buf;
+}
+
 static int usage(int rc)
 {
+	struct cmd *c;
+	char buf[120];
+
 	printf("Usage: pimctl [OPTIONS] [COMMAND]\n"
 	       "\n"
 	       "Options:\n"
@@ -367,16 +495,25 @@ static int usage(int rc)
 	       "  -h, --help                 This help text\n"
 	       "\n");
 
-	if (ipc_ping()) {
-		printf("Commands:\n");
-		get("help");
-	} else {
+	if (ipc_fetch()) {
 		if (errno == EACCES)
 			printf("Not enough permissions to query pimd for commands.\n");
 		else
 			printf("No pimd running, no commands available.\n");
+
+		return rc;
 	}
-	printf("\n");
+
+	printf("Commands:\n");
+	TAILQ_FOREACH(c, &cmds, link) {
+		compose(c, buf, sizeof(buf));
+		if (c->opt) {
+			strlcat(buf, " [", sizeof(buf));
+			strlcat(buf, c->opt, sizeof(buf));
+		}
+
+		printf("  %-25s  %s\n", buf, c->desc);
+	}
 
 	return rc;
 }
@@ -389,18 +526,34 @@ static int version(void)
 
 static int cmd(int argc, char *argv[])
 {
-	char line[120] = { 0 };
+	struct cmd *c, *tmp;
+	char buf[768];
+	char *cmd;
 
-	if (!strcmp(argv[0], "help"))
-		return usage(0);
+	if (ipc_fetch()) {
+		if (errno == EACCES)
+			printf("Not enough permissions to send commands to pimd.\n");
+		else
+			printf("No pimd running, no commands available.\n");
 
-	for (int i; i < argc; i++) {
-		if (i != 0)
-			strlcat(line, " ", sizeof(line));
-		strlcat(line, argv[i], sizeof(line));
+		return 1;
 	}
 
-	return get(line);
+	cmd = compose(match(argc, argv), buf, sizeof(buf));
+	while (cmdind < argc) {
+		strlcat(buf, " ", sizeof(buf));
+		strlcat(buf, argv[cmdind++], sizeof(buf));
+	}
+
+	if (strlen(cmd) < 1) {
+		warnx("Invalid command.");
+		return 1;
+	}
+
+	if (!strcmp(cmd, "help"))
+		return usage(0);
+
+	return get(cmd, NULL);
 }
 
 int main(int argc, char *argv[])
@@ -444,7 +597,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (optind >= argc)
-		return get("show");
+		return get("show", NULL);
 
 	return cmd(argc - optind, &argv[optind]);
 }
