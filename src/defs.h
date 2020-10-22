@@ -238,6 +238,7 @@ extern u_long		virtual_time;
 extern char		*config_file;
 extern char		*prognm;
 extern char		*ident;
+extern char             versionstring[];
 
 extern u_int32          default_route_metric;
 extern u_int32          default_route_distance;
