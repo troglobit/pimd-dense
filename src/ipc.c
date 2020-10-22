@@ -402,6 +402,9 @@ static int show_pim_mrt(FILE *fp)
 	grpentry_t *g;
 	mrtentry_t *r;
 
+	if (!detail)
+		fprintf(fp, "Source           Group             Flags =\n");
+
 	/* TODO: remove the dummy 0.0.0.0 group (first in the chain) */
 	for (g = grplist->next; g; g = g->next) {
 		number_of_groups++;
@@ -409,7 +412,7 @@ static int show_pim_mrt(FILE *fp)
 		/* Print all (S,G) routing info */
 		for (r = g->mrtlink; r; r = r->grpnext) {
 			if (detail)
-				fprintf(fp, "\nSource           Group            Flags =\n");
+				fprintf(fp, "\nSource           Group             Flags =\n");
 			fprintf(fp, "%-15s  %-15s  ",
 				inet_fmt(r->source->address, s1),
 				inet_fmt(g->group, s2));
