@@ -575,7 +575,6 @@ static int ipc_loglevel(char *buf, size_t len)
 {
 	int rc;
 
-	logit(LOG_NOTICE, 0, "In %s(), buf: '%s', len: %zu", __func__, buf, len);
 	if (!strcmp(buf, "?"))
 		return log_list(buf, len);
 
