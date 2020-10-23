@@ -69,6 +69,10 @@ extern size_t strlcat(char *, const char *, size_t);
 extern size_t strlcpy(char *, const char *, size_t);
 #endif
 
+#ifndef tempfile
+extern FILE *tempfile(void);
+#endif
+
 struct cmd {
 	char *argv[MAXARGS];
 	int   argc;
@@ -357,7 +361,7 @@ static int get(char *cmd, FILE *fp)
 	}
 
 	if (!fp) {
-		lfp = tmpfile();
+		lfp = tempfile();
 		if (!lfp) {
 			warn("Failed opening tempfile");
 			close(sd);
@@ -408,7 +412,7 @@ static int ipc_fetch(void)
 	if (ipc_ping())
 		return 1;
 
-	fp = tmpfile();
+	fp = tempfile();
 	if (!fp)
 		err(4, "Failed opening tempfile");
 

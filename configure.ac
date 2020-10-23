@@ -62,7 +62,7 @@ AC_CHECK_HEADERS([net/if.h], [], [], [
 #endif])
 
 # Check for usually missing API's, which we can replace
-AC_REPLACE_FUNCS([strlcpy strlcat])
+AC_REPLACE_FUNCS([strlcpy strlcat tempfile])
 AC_CONFIG_LIBOBJ_DIR([lib])
 
 AC_ARG_ENABLE(rsrr,
