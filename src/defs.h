@@ -510,11 +510,11 @@ extern u_int32 max_local_address       (void);
 
 /* compat declarations */
 #ifndef strlcpy
-size_t  strlcpy    (char *dst, const char *src, size_t siz);
+extern size_t  strlcpy		     (char *dst, const char *src, size_t siz);
 #endif
 
 #ifndef strlcat
-size_t  strlcat    (char *dst, const char *src, size_t siz);
+extern size_t  strlcat		     (char *dst, const char *src, size_t siz);
 #endif
 
 #ifndef tempfile
