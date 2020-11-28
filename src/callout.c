@@ -33,7 +33,7 @@ static void print_Q (void);
 void
 callout_init()
 {
-    Q = (struct timeout_q *) 0;
+    Q = NULL;
 }
 
 void
@@ -76,11 +76,11 @@ age_callout_queue(elapsed_time)
 		break;
 	    }
 	    return;
-	} else {
-	    elapsed_time -= Q->time;
-	    ptr = Q;
-	    Q = Q->next;
 	}
+
+	elapsed_time -= Q->time;
+	ptr = Q;
+	Q = Q->next;
     }
     
     /* handle queue of expired timers */
@@ -105,8 +105,10 @@ timer_nextTimer()
 	    logit(LOG_WARNING, 0, "timer_nextTimer top of queue says %d", Q->time);
 	    return 0;
 	}
+
 	return Q->time;
     }
+
     return -1;
 }
 
@@ -161,16 +163,18 @@ timer_setTimer(delay, action, data)
 		    prev->next = node;
 		ptr->time -= node->time;
 		return node->id;
-	    } else  {
-		/* keep moving */
-		
-		delay -= ptr->time; node->time = delay;
-		prev = ptr;
-		ptr = ptr->next;
 	    }
+
+	    /* keep moving */
+	    delay      -= ptr->time;
+	    node->time  = delay;
+	    prev        = ptr;
+	    ptr         = ptr->next;
 	}
+
 	prev->next = node;
     }
+
     return node->id;
 }
 
