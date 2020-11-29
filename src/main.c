@@ -151,7 +151,7 @@ int usage(int code)
 
     compose_paths();
 
-    printf("Usage: %s [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]\n\n", prognm);
+    printf("Usage: %s [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]\n\n", prognm);
     printf(" -d SYS    Enable debug of subsystem(s)\n");
     printf(" -f FILE   Configuration file, default: %s\n", config_file);
     printf(" -h        This help text\n");
@@ -160,6 +160,7 @@ int usage(int code)
     printf(" -n        Run in foreground, do not detach from calling terminal\n");
     printf(" -s        Use syslog, default unless running in foreground, -n\n");
     printf(" -v        Show program version\n");
+    printf(" -w SEC    Initial startup delay before probing interfaces\n");
     
     fprintf(stderr, "\nAvailable subystems for debug:\n");
     if (!debug_list(DEBUG_ALL, buf, sizeof(buf))) {
@@ -218,8 +219,9 @@ main(argc, argv)
     int argc;
     char *argv[];
 {	
-    int dummy, dummysigalrm;
     struct timeval tv, difftime, curtime, lasttime, *timeout;
+    int dummy, dummysigalrm;
+    int startup_delay = 0;
     fd_set rfds, readers;
     int nfds, n, i, secs;
     struct sigaction sa;
@@ -231,7 +233,7 @@ main(argc, argv)
     snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
 
     prognm = ident = progname(argv[0]);
-    while ((ch = getopt(argc, argv, "d:f:h?i:l:nsv")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?i:l:nsvw:")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -273,6 +275,10 @@ main(argc, argv)
 	case 'v':
 	    printf("%s\n", versionstring);
 	    return 0;
+
+	case 'w':
+	    startup_delay = atoi(optarg);
+	    break;
 
 	default:
 	    return usage(1);
@@ -349,6 +355,11 @@ main(argc, argv)
     init_pim_mrt();
     init_timers();
     ipc_init();
+
+    if (startup_delay) {
+	logit(LOG_NOTICE, 0, "Delaying interface probe %d sec ...", startup_delay);
+	sleep(startup_delay);
+    }
 
     /* TODO: check the kernel DVMRP/MROUTED/PIM support version */
     

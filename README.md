@@ -39,7 +39,7 @@ to run pimdd in debug mode.  Since there are many debug messages, you
 can specify only a subset of the messages to be printed out:
 
 ```
-Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
+Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]
 
  -d SYS    Enable debug of subsystem(s)
  -f FILE   Configuration file, default: /etc/pimdd.conf
@@ -48,6 +48,7 @@ Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
  -n        Run in foreground, do not detach from calling terminal
  -s        Use syslog, default unless running in foreground, -n
  -v        Show program version
+ -w SEC    Initial startup delay before probing interfaces
 
 Available subystems for debug:
   all, igmp, groups, igmp_proto, igmp_timers, igmp_members, interfaces, 

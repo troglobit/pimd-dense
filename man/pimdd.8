@@ -15,6 +15,7 @@
 .Op Fl f Ar FILE
 .Op Fl d Ar SYS[,SYS,...]
 .Op Fl l Ar LEVEL
+.Op Fl w Ar SEC
 .Sh DESCRIPTION
 .Nm
 is a stand-alone PIM-DM multicast routing daemon available under the
@@ -188,6 +189,12 @@ Debug-level messages
 Show
 .Nm
 version
+.It Fl w Ar SEC
+Initial startup delay of
+.Ar SEC
+seconds before probing for interfaces.  Useful if
+.Nm
+starts before interfaces are created and have an IP address.
 .El
 .Sh CONFIGURATION
 The configuration is kept in the file
