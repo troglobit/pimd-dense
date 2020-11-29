@@ -262,6 +262,10 @@ accept_group_report(src, dst, group, igmp_report_type)
     struct uvif *v;
     struct listaddr *g;
 
+    /* Do not filter LAN scoped groups */
+    if (ntohl(group) <= INADDR_MAX_LOCAL_GROUP) /* group <= 224.0.0.255? */
+	return;
+
     if ((vifi = find_vif_direct_local(src)) == NO_VIF) {
 	IF_DEBUG(DEBUG_IGMP)
 	    logit(LOG_INFO, 0,
