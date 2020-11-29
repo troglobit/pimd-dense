@@ -6,17 +6,17 @@ Introduction
 ------------
 
 pimdd is the dense-mode cousin to [pimd][], the reference implementation
-for [PIM-DM draft 5][draft].  [RFC3973][] later revised the protocol,
-which pimdd does not (yet) fully support.
+for [PIM-DM draft 5][draft].  Later revised in [RFC3973][], which pimdd
+does not (yet) fully support.
 
 PIM-DM is very similar to DVRMP ([mrouted][]), they both follow the
 flood-and-prune paradigm, but unlike DVMRP a PIM-DM implementation
-relies on the underlying unicast routes to already be established.
+relies on the underlying unicast routes to be established.
 
 This GitHub project is an attempt at reviving pimdd.  The latest code on
 the master branch has been infused with fresh DNA strands from the
 [pimd][] project, including a netlink back-end to read the unicast
-routing table.
+routing table, and full IGMPv3 support (ASM).
 
 > **HELP NEEDED:** The project needs more volunteers to test and update
 > `pimdd` to RFC3973.
@@ -50,15 +50,12 @@ Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL]
  -v        Show program version
 
 Available subystems for debug:
-  igmp_proto, igmp_timers, igmp_members, groups, membership, igmp, trace, 
-  mtrace, traceroute, timeout, callout, pkt, packets, interfaces, vif, kernel, 
-  cache, mfc, k_cache, k_mfc, rsrr, pim_detail, pim_hello, pim_neighbors, 
-  pim_register, registers, pim_join_prune, pim_j_p, pim_jp, pim_graft, 
-  pim_bootstrap, pim_bsr, bsr, bootstrap, pim_asserts, pim_routes, 
-  pim_routing, pim_mrt, pim_timers, pim_rpf, rpf, pim, routes, routing, mrt, 
-  routers, mrouters, neighbors, timers, asserts, all, 3
+  all, igmp, groups, igmp_proto, igmp_timers, igmp_members, interfaces, 
+  kernel, mfc, neighbors, pkt, rsrr, pim, asserts, bsr, detail, graft, hello, 
+  registers, routes, pim_routes, jp, pim_timers, rpf, timers, timeout, trace
 
 Bug report address: https://github.com/troglobit/pimd-dense/issues
+Project homepage: https://github.com/troglobit/pimd-dense/
 ```
 
 If you want to see all messages, use `pimdd -d all`.  When debugging

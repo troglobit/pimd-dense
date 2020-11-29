@@ -122,41 +122,39 @@ to enable all subsystems.
 Available subsystems are:
 .Pp
 .Bl -tag -width pim_routes -compact -offset indent
+.It Cm graft
+Grafting operations, or grafted routes
 .It Cm packet
 Debug inbound/outbout packets
 .It Cm prunes
 Pruning operations, or pruned routes
 .It Cm routes
 Routing messages
-.It Cm rtdetail
-Detailed routing information
-.It Cm peers
+.It Cm neighbors
 Neighbor gossip
-.It Cm cache
-Debug routing cache
+.It Cm mfc
+Debug multicast forwarding cache
 .It Cm timeout
 Debug timeouts
 .It Cm interface
 Show interface (VIF) debug messages
 .It Cm groups
 Debug group memberships
-.It Cm mtrace
+.It Cm trace
 Multicast traceroute information
 .It Cm igmp
 Debug IGMP messages
-.It Cm icmp
-Debug ICMP messages
 .It Cm rsrr
 Debug RSRR messages
 .It Cm pim
 All PIM messages
-.It Cm pim_routes
+.It Cm mrt
 PIM routing messages
-.It Cm pim_bsr
+.It Cm bsr
 PIM bootstrap router messages
-.It Cm pim_detail
+.It Cm detail
 Detailed PIM debug
-.It Cm pim_hello
+.It Cm hello
 Debug hello messages to/from neighbors
 .El
 .It Fl n

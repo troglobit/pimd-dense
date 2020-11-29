@@ -90,58 +90,81 @@ static struct debugname {
     int	    level;
     size_t  nchars;
 } debugnames[] = {
+    {   "all",              DEBUG_ALL,            2         },
+    {   "3",	            0xffffffff,           1	    },   /* compat. */
+
+    {   "igmp",	            DEBUG_IGMP, 	  1	    },
+    {   "groups",	    DEBUG_MEMBER,         1	    },
+    {   "membership",       DEBUG_MEMBER,         2	    },
     {   "igmp_proto",	    DEBUG_IGMP_PROTO,     6	    },
     {   "igmp_timers",	    DEBUG_IGMP_TIMER,     6	    },
     {   "igmp_members",	    DEBUG_IGMP_MEMBER,    6	    },
-    {   "groups",	    DEBUG_MEMBER,         1	    },
-    {   "membership",       DEBUG_MEMBER,         2	    },
-    {   "igmp",	            DEBUG_IGMP, 	  1	    },
-    {   "trace",	    DEBUG_TRACE,          2	    },
-    {   "mtrace",	    DEBUG_TRACE,          2	    },
-    {   "traceroute",       DEBUG_TRACE,          2	    },
-    {   "timeout",	    DEBUG_TIMEOUT,        2	    },
-    {   "callout",	    DEBUG_TIMEOUT,        3	    },
-    {   "pkt",	            DEBUG_PKT,  	  2	    },
-    {   "packets",	    DEBUG_PKT,  	  2	    },
+
     {   "interfaces",       DEBUG_IF,   	  2	    },
     {   "vif",	            DEBUG_IF,   	  1	    },
+
     {   "kernel",           DEBUG_KERN,           2	    },
-    {   "cache",            DEBUG_MFC,   	  1	    },
     {   "mfc",              DEBUG_MFC,  	  2	    },
+    {   "cache",            DEBUG_MFC,   	  1	    },
     {   "k_cache",          DEBUG_MFC,  	  2	    },
     {   "k_mfc",            DEBUG_MFC,  	  2	    },
+
+    {   "neighbors",        DEBUG_NEIGHBORS,      1	    },
+    {   "routers",          DEBUG_NEIGHBORS,      6	    },
+    {   "mrouters",         DEBUG_NEIGHBORS,      7	    },
+
+    {   "pkt",	            DEBUG_PKT,  	  2	    },
+    {   "packets",	    DEBUG_PKT,  	  2	    },
+
     {   "rsrr",	            DEBUG_RSRR, 	  2	    },
-    {   "pim_detail",       DEBUG_PIM_DETAIL,     5	    },
-    {   "pim_hello",        DEBUG_PIM_HELLO,      5	    },
-    {   "pim_neighbors",    DEBUG_PIM_HELLO,      5	    },
-    {   "pim_register",     DEBUG_PIM_REGISTER,   5	    },
-    {   "registers",        DEBUG_PIM_REGISTER,   2	    },
-    {   "pim_join_prune",   DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_j_p",          DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_jp",           DEBUG_PIM_JOIN_PRUNE, 5	    },
-    {   "pim_graft",        DEBUG_PIM_GRAFT,      5         },
-    {   "pim_bootstrap",    DEBUG_PIM_BOOTSTRAP,  5	    },
-    {   "pim_bsr",          DEBUG_PIM_BOOTSTRAP,  5	    },
+
+    {   "pim",              DEBUG_PIM,  	  1	    },
+
+    {   "asserts",          DEBUG_ASSERT,         1	    },
+    {   "pim_asserts",      DEBUG_PIM_ASSERT,     5	    },
     {   "bsr",	            DEBUG_PIM_BOOTSTRAP,  1	    },
     {   "bootstrap",        DEBUG_PIM_BOOTSTRAP,  1	    },
-    {   "pim_asserts",      DEBUG_PIM_ASSERT,     5	    },
-    {   "pim_routes",       DEBUG_PIM_MRT,        6	    },
-    {   "pim_routing",      DEBUG_PIM_MRT,        6	    },
-    {   "pim_mrt",          DEBUG_PIM_MRT,        5	    },
-    {   "pim_timers",       DEBUG_PIM_TIMER,      5	    },
-    {   "pim_rpf",          DEBUG_PIM_RPF,        6	    },
-    {   "rpf",              DEBUG_RPF,            3	    },
-    {   "pim",              DEBUG_PIM,  	  1	    },
+    {   "pim_bootstrap",    DEBUG_PIM_BOOTSTRAP,  5	    },
+    {   "pim_bsr",          DEBUG_PIM_BOOTSTRAP,  5	    },
+    {   "detail",           DEBUG_PIM_DETAIL,     5	    },
+    {   "pim_detail",       DEBUG_PIM_DETAIL,     5	    },
+
+    {   "graft",            DEBUG_PIM_GRAFT,      5         },
+    {   "pim_graft",        DEBUG_PIM_GRAFT,      5         },
+
+    {   "hello",            DEBUG_PIM_HELLO,      5	    },
+    {   "pim_hello",        DEBUG_PIM_HELLO,      5	    },
+    {   "pim_neighbors",    DEBUG_PIM_HELLO,      5	    },
+
+
+    {   "registers",        DEBUG_PIM_REGISTER,   2	    },
+    {   "pim_register",     DEBUG_PIM_REGISTER,   5	    },
+
     {   "routes",	    DEBUG_MRT,            1	    },
     {   "routing",	    DEBUG_MRT,            1	    },
     {   "mrt",  	    DEBUG_MRT,            1	    },
-    {   "routers",          DEBUG_NEIGHBORS,      6	    },
-    {   "mrouters",         DEBUG_NEIGHBORS,      7	    },
-    {   "neighbors",        DEBUG_NEIGHBORS,      1	    },
+
+    {   "pim_routes",       DEBUG_PIM_MRT,        6	    },
+    {   "pim_routing",      DEBUG_PIM_MRT,        6	    },
+    {   "pim_mrt",          DEBUG_PIM_MRT,        5	    },
+
+    {   "jp",               DEBUG_PIM_JOIN_PRUNE, 5	    },
+    {   "join-prune",       DEBUG_PIM_JOIN_PRUNE, 5	    },
+    {   "pim_join_prune",   DEBUG_PIM_JOIN_PRUNE, 5	    },
+    {   "pim_j_p",          DEBUG_PIM_JOIN_PRUNE, 5	    },
+    {   "pim_jp",           DEBUG_PIM_JOIN_PRUNE, 5	    },
+
+    {   "pim_timers",       DEBUG_PIM_TIMER,      5	    },
+    {   "rpf",              DEBUG_RPF,            3	    },
+    {   "pim_rpf",          DEBUG_PIM_RPF,        6	    },
+
     {   "timers",           DEBUG_TIMER,          1	    },
-    {   "asserts",          DEBUG_ASSERT,         1	    },
-    {   "all",              DEBUG_ALL,            2         },
-    {   "3",	            0xffffffff,           1	    }    /* compat. */
+    {   "timeout",	    DEBUG_TIMEOUT,        2	    },
+    {   "callout",	    DEBUG_TIMEOUT,        3	    },
+    {   "trace",	    DEBUG_TRACE,          2	    },
+    {   "mtrace",	    DEBUG_TRACE,          2	    },
+    {   "traceroute",       DEBUG_TRACE,          2	    },
+
 };
 
 int log_level  = LOG_NOTICE;
@@ -306,6 +329,7 @@ debug_list(mask, buf, len)
     size_t len;
 {
     struct debugname *d;
+    int last = 0;
     size_t i;
 
     memset(buf, 0, len);
@@ -313,13 +337,16 @@ debug_list(mask, buf, len)
 	if (!(mask & d->level))
 	    continue;
 
+	if (last == d->level)
+	    continue;
+	last = d->level;
+
 	if (mask != (int)DEBUG_ALL)
 	    mask &= ~d->level;
 
-	strlcat(buf, d->name, len);
-
-	if (mask && i + 1 < NELEMS(debugnames))
+	if (*buf)
 	    strlcat(buf, ", ", len);
+	strlcat(buf, d->name, len);
     }
 
     return 0;
