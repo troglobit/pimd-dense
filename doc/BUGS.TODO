@@ -4,6 +4,20 @@ THIS LIST IS FAR AWAY FROM BEING COMPLETE, so these are the few things
 that came up at the right moment to be written down.
 
 -------
+JOACHIM
+
+Before release:
+  * Use yacc-based parser from pim6sd project
+  * Startup query handling fomr pim6sd project
+  * Fix "pim status" output, what's relevant?
+  * Add "mrt" and "mfc" concepts to pimctl/ipc commands
+  * Test in non-trivial setup with CORE
+
+Bonus, or later release:
+  * Issue #2: Support for (prune) state refresh
+  * Investigate migrating to linked lists from BSD queue.h
+
+-------
 KURT:
 
   * FIXED ? DR does not go to highest IP when new neighbor appears!!!
