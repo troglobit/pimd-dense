@@ -350,6 +350,14 @@ parse_phyint(s)
 	    else if (EQUAL(w, "enable")) {
 		v->uv_flags &= ~VIFF_DISABLED;
 	    }
+	    else if (EQUAL(w, "igmpv2")) {
+		v->uv_flags &= ~VIFF_IGMPV1;
+		v->uv_flags |=  VIFF_IGMPV2;
+	    }
+	    else if (EQUAL(w, "igmpv3")) {
+		v->uv_flags &= ~VIFF_IGMPV1;
+		v->uv_flags &= ~VIFF_IGMPV2;
+	    }
 	    else if(EQUAL(w, "distance")) {
                 if(EQUAL((w = next_word(&s)), "")) 
                     logit(LOG_WARNING, 0,

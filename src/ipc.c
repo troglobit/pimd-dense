@@ -545,9 +545,9 @@ static int show_igmp_iface(FILE *fp)
 
 		if (uv->uv_flags & VIFF_IGMPV1)
 			version = 1;
-/*		else if (uv->uv_flags & VIFF_IGMPV2) TODO: Add IGMPv3 support!
+		else if (uv->uv_flags & VIFF_IGMPV2)
 			version = 2;
-*/		else
+		else
 			version = 3;
 
 		fprintf(fp, "%-16s  %-8s  %-15s  %7s %7d  %6zd\n", uv->uv_name,

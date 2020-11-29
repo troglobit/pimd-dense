@@ -247,6 +247,9 @@ start_vif(vifi)
      * on the multicast router.
      */
     k_join(igmp_socket, allrouters_group, src);
+
+    /* Join INADDR_ALLRPTS_GROUP to support IGMPv3 membership reports */
+    k_join(igmp_socket, allreports_group, src);
 	
     /*
      * Until neighbors are discovered, assume responsibility for sending
@@ -283,6 +286,8 @@ stop_vif(vifi)
     v = &uvifs[vifi];
     k_leave(igmp_socket, allpimrouters_group, v->uv_lcl_addr);
     k_leave(igmp_socket, allrouters_group, v->uv_lcl_addr);
+    k_leave(igmp_socket, allreports_group, v->uv_lcl_addr);
+
     /*
      * Discard all group addresses.  (No need to tell kernel;
      * the k_del_vif() call will clean up kernel state.)

@@ -173,19 +173,21 @@ typedef void (*ihfunc_t) (int, fd_set *);
  * The IGMPv2 <netinet/in.h> defines INADDR_ALLRTRS_GROUP, but earlier
  * ones don't, so we define it conditionally here.
  */
-#ifndef INADDR_ALLRTRS_GROUP
-					/* address for multicast mtrace msg */
-#define INADDR_ALLRTRS_GROUP	(u_int32)0xe0000002	/* 224.0.0.2 */
+#ifndef INADDR_ALLRTRS_GROUP 	/* address for multicast mtrace msg */
+#define INADDR_ALLRTRS_GROUP	(in_addr_t)0xe0000002	/* 224.0.0.2 */
+#endif
+
+#ifndef INADDR_ALLRPTS_GROUP
+#define INADDR_ALLRPTS_GROUP    (in_addr_t)0xe0000016	/* 224.0.0.22, IGMPv3 */
 #endif
 
 #ifndef INADDR_MAX_LOCAL_GROUP
-define INADDR_MAX_LOCAL_GROUP        (u_int32)0xe00000ff     /* 224.0.0.255 */
+#define INADDR_MAX_LOCAL_GROUP  (in_addr_t)0xe00000ff	/* 224.0.0.255 */
 #endif
 
-#define INADDR_ANY_N            (u_int32)0x00000000     /* INADDR_ANY in
-							 * network order */
-#define CLASSD_PREFIX           (u_int32)0xe0000000     /* 224.0.0.0 */
-#define ALL_MCAST_GROUPS_ADDR   (u_int32)0xe0000000     /* 224.0.0.0 */
+#define INADDR_ANY_N            (in_addr_t)0x00000000	/* INADDR_ANY in network order */
+#define CLASSD_PREFIX           (in_addr_t)0xe0000000	/* 224.0.0.0 */
+#define ALL_MCAST_GROUPS_ADDR   (in_addr_t)0xe0000000	/* 224.0.0.0 */
 #define ALL_MCAST_GROUPS_LENGTH 4
 
 /* Used by DVMRP */
@@ -225,9 +227,10 @@ extern char		*pim_recv_buf;
 extern char		*pim_send_buf;
 extern int		igmp_socket;
 extern int		pim_socket;
-extern u_int32		allhosts_group;
-extern u_int32		allrouters_group;
-extern u_int32 		allpimrouters_group;
+extern in_addr_t	allhosts_group;
+extern in_addr_t	allrouters_group;
+extern in_addr_t	allreports_group;
+extern in_addr_t	allpimrouters_group;
 extern vifbitmap_t      nbr_vifs;
 
 #ifdef RSRR

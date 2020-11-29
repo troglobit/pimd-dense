@@ -48,6 +48,7 @@ typedef struct {
     vifi_t  vifi;
     struct listaddr *g;
     int    q_time;
+    int    q_len;
 } cbk_t;
 
 
@@ -55,10 +56,11 @@ typedef struct {
  * Forward declarations.
  */
 static void DelVif        (void *arg);
+static int  SetVerTimer   (vifi_t vifi, struct listaddr *g);
 static int  SetTimer      (int vifi, struct listaddr *g);
 static int  DeleteTimer   (int id);
 static void SendQuery     (void *arg);
-static int  SetQueryTimer (struct listaddr *g, vifi_t vifi, int to_expire, int q_time);
+static int  SetQueryTimer (struct listaddr *g, vifi_t vifi, int to_expire, int q_time, int q_len);
 
 
 /*
@@ -71,11 +73,44 @@ query_groups(v)
     struct listaddr *g;
     
     v->uv_gq_timer = IGMP_QUERY_INTERVAL;
-    if (v->uv_flags & VIFF_QUERIER)
+    if (v->uv_flags & VIFF_QUERIER) {
+	int datalen;
+	int code;
+
+	/* IGMPv2 and v3 */
+	code = IGMP_MAX_HOST_REPORT_DELAY * IGMP_TIMER_SCALE;
+
+	/*
+	 * IGMP version to use depends on the compatibility mode of the
+	 * interface, which may channge at runtime depending on version
+	 * of the end devices on a segment.
+	 */
+	if (v->uv_flags & VIFF_IGMPV1) {
+	    /*
+	     * RFC 3376: When in IGMPv1 mode, routers MUST send Periodic
+	     *           Queries with a Max Response Time of 0
+	     */
+	    datalen = 0;
+	    code = 0;
+	} else if (v->uv_flags & VIFF_IGMPV2) {
+	    /*
+	     * RFC 3376: When in IGMPv2 mode, routers MUST send Periodic
+	     *           Queries truncated at the Group Address field
+	     *           (i.e., 8 bytes long)
+	     */
+	    datalen = 0;
+	} else {
+	    datalen = 4;
+	}
+
+	IF_DEBUG(DEBUG_IGMP)
+	    logit(LOG_DEBUG, 0, "%s(): Sending IGMP v%s query on %s",
+		  __func__, datalen == 4 ? "3" : "2", v->uv_name);
+
 	send_igmp(igmp_send_buf, v->uv_lcl_addr, allhosts_group,
-		  IGMP_MEMBERSHIP_QUERY, 
-		  (v->uv_flags & VIFF_IGMPV1) ? 0 :
-		  IGMP_MAX_HOST_REPORT_DELAY * IGMP_TIMER_SCALE, 0, 0);
+		  IGMP_MEMBERSHIP_QUERY, code, 0, datalen);
+    }
+
     /*
      * Decrement the old-hosts-present timer for each
      * active group on that vif.
@@ -246,9 +281,27 @@ accept_group_report(src, dst, group, igmp_report_type)
      */
     for (g = v->uv_groups; g != NULL; g = g->al_next) {
         if (group == g->al_addr) {
-            if (igmp_report_type == IGMP_V1_MEMBERSHIP_REPORT)
+	    int old_report = 0;
+
+            if (igmp_report_type == IGMP_V1_MEMBERSHIP_REPORT) {
                 g->al_old = DVMRP_OLD_AGE_THRESHOLD;
-	    
+		old_report = 1;
+
+		if (g->al_pv > 1) {
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Change IGMP compatibility mode to v1 for group %s", s3);
+		    g->al_pv = 1;
+		}
+	    } else if (igmp_report_type == IGMP_V2_MEMBERSHIP_REPORT) {
+		old_report = 1;
+
+		if (g->al_pv > 2) {
+		    IF_DEBUG(DEBUG_IGMP)
+			logit(LOG_DEBUG, 0, "Change IGMP compatibility mode to v2 for group %s", s3);
+		    g->al_pv = 2;
+		}
+	    }
+
             g->al_reporter = src;
 	    
             /** delete old timers, set a timer for expiration **/
@@ -258,6 +311,15 @@ accept_group_report(src, dst, group, igmp_report_type)
             if (g->al_timerid)
                 g->al_timerid = DeleteTimer(g->al_timerid);
             g->al_timerid = SetTimer(vifi, g);
+
+	    /* Reset timer for switching version back every time an older version report is received */
+	    if (g->al_pv < 3 && old_report) {
+		if (g->al_versiontimer)
+			g->al_versiontimer = DeleteTimer(g->al_versiontimer);
+
+		g->al_versiontimer = SetVerTimer(vifi, g);
+	    }
+
 	    add_leaf(vifi, INADDR_ANY_N, group);
             break;
         }
@@ -272,16 +334,29 @@ accept_group_report(src, dst, group, igmp_report_type)
 	    logit(LOG_ERR, 0, "%s(): out of memory", __func__);
 
         g->al_addr   = group;
-        if (igmp_report_type == IGMP_V1_MEMBERSHIP_REPORT)
+        if (igmp_report_type == IGMP_V1_MEMBERSHIP_REPORT) {
             g->al_old = DVMRP_OLD_AGE_THRESHOLD;
-        else
-            g->al_old = 0;
+	    IF_DEBUG(DEBUG_IGMP)
+		logit(LOG_DEBUG, 0, "Change IGMP compatibility mode to v1 for group %s", s3);
+	    g->al_pv = 1;
+	} else if (igmp_report_type == IGMP_V2_MEMBERSHIP_REPORT) {
+	    IF_DEBUG(DEBUG_IGMP)
+		logit(LOG_DEBUG, 0, "Change IGMP compatibility mode to v2 for group %s", s3);
+	    g->al_pv = 2;
+	} else {
+	    g->al_pv = 3;
+	}
 	
         /** set a timer for expiration **/
         g->al_query     = 0;
         g->al_timer     = IGMP_GROUP_MEMBERSHIP_INTERVAL;
         g->al_reporter  = src;
         g->al_timerid   = SetTimer(vifi, g);
+
+	/* Set timer for swithing version back if an older version report is received */
+	if (g->al_pv < 3)
+	    g->al_versiontimer = SetVerTimer(vifi, g);
+
         g->al_next      = v->uv_groups;
         v->uv_groups    = g;
         time(&g->al_ctime);
@@ -324,6 +399,9 @@ accept_leave_message(src, dst, group)
      * query.
      */
     for (g = v->uv_groups; g != NULL; g = g->al_next) {
+	int datalen;
+	int code;
+
         if (group == g->al_addr) {
             IF_DEBUG(DEBUG_IGMP)
 		logit(LOG_DEBUG, 0, "[vif.c, _accept_leave_message] %d %lu",
@@ -347,17 +425,32 @@ This code needs to be updated to keep a counter of the number
 of queries remaining.
 */
 #endif
+
+	    /* IGMPv2 and v3 */
+	    code = IGMP_LAST_MEMBER_QUERY_INTERVAL * IGMP_TIMER_SCALE;
+
+	    /* Use lowest IGMP version */
+	    if (v->uv_flags & VIFF_IGMPV2 || g->al_pv <= 2) {
+		datalen = 0;
+	    } else if (v->uv_flags & VIFF_IGMPV1 || g->al_pv == 1) {
+		datalen = 0;
+		code = 0;
+	    } else {
+		datalen = 4;
+	    }
+
 	    /** send a group specific querry **/
-	    g->al_timer = IGMP_LAST_MEMBER_QUERY_INTERVAL *
-		(IGMP_LAST_MEMBER_QUERY_COUNT + 1);
-	    if (v->uv_flags & VIFF_QUERIER)
+	    if (v->uv_flags & VIFF_QUERIER) {
+		IF_DEBUG(DEBUG_IGMP)
+		    logit(LOG_DEBUG, 0, "%s(): Sending IGMP v%s query (al_pv=%d)",
+			  __func__, datalen == 4 ? "3" : "2", g->al_pv);
+
 		send_igmp(igmp_send_buf, v->uv_lcl_addr, g->al_addr,
-			  IGMP_MEMBERSHIP_QUERY, 
-			  IGMP_LAST_MEMBER_QUERY_INTERVAL * IGMP_TIMER_SCALE,
-			  g->al_addr, 0);
-	    g->al_query = SetQueryTimer(g, vifi,
-					IGMP_LAST_MEMBER_QUERY_INTERVAL,
-					IGMP_LAST_MEMBER_QUERY_INTERVAL * IGMP_TIMER_SCALE);
+			  IGMP_MEMBERSHIP_QUERY, code, g->al_addr, datalen);
+	    }
+
+	    g->al_timer = IGMP_LAST_MEMBER_QUERY_INTERVAL * (IGMP_LAST_MEMBER_QUERY_COUNT + 1);
+	    g->al_query = SetQueryTimer(g, vifi, IGMP_LAST_MEMBER_QUERY_INTERVAL, code, datalen);
 	    g->al_timerid = SetTimer(vifi, g);
             break;
         }
@@ -449,45 +542,13 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 
 	switch (rec_type) {
 	    case IGMP_MODE_IS_EXCLUDE:
-		if (rec_num_sources == 0) {
-		    /* RFC 5790: EXCLUDE (*,G) join can be
-		     *           interpreted by the router as a
-		     *           request to include all sources.
-		     */
-		    accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
-		} else {
-		    /* RFC 5790: LW-IGMPv3 does not use EXCLUDE filter-mode with a non-null source address list.*/
-		    logit(LOG_INFO, 0, "Record type MODE_IS_EXCLUDE with non-null source list is currently unsupported.");
-		}
-		break;
-
 	    case IGMP_CHANGE_TO_EXCLUDE_MODE:
-		if (rec_num_sources == 0) {
-		    /* RFC 5790: EXCLUDE (*,G) join can be
-		     *           interpreted by the router as a
-		     *           request to include all sources.
-		     */
-		    accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
-		} else {
-		    /* RFC 5790: LW-IGMPv3 does not use EXCLUDE filter-mode with a non-null source address list.*/
-		    logit(LOG_DEBUG, 0, "Record type MODE_TO_EXCLUDE with non-null source list is currently unsupported.");
-		}
+		accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
 		break;
 
 	    case IGMP_MODE_IS_INCLUDE:
-		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
-		    IF_DEBUG(DEBUG_IGMP)
-			logit(LOG_DEBUG, 0, "Accept sources failed.");
-		    return;
-		}
-		break;
-
 	    case IGMP_CHANGE_TO_INCLUDE_MODE:
-		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
-		    IF_DEBUG(DEBUG_IGMP)
-			logit(LOG_DEBUG, 0, "Accept sources failed.");
-		    return;
-		}
+		accept_leave_message(src, dst, rec_group.s_addr);
 		break;
 
 	    case IGMP_ALLOW_NEW_SOURCES:
@@ -561,6 +622,45 @@ DelVif(arg)
 
 
 /*
+ * Time out old version compatibility mode
+ */
+static void SwitchVersion(void *arg)
+{
+    cbk_t *cbk = (cbk_t *)arg;
+
+    if (cbk->g->al_pv < 3)
+	cbk->g->al_pv += 1;
+
+    logit(LOG_INFO, 0, "Switch IGMP compatibility mode back to v%d for group %s",
+	  cbk->g->al_pv, inet_fmt(cbk->g->al_addr, s1));
+
+    free(cbk);
+}
+
+
+/*
+ * Set a timer to switch version back on a vif.
+ */
+static int SetVerTimer(vifi_t vifi, struct listaddr *g)
+{
+    uint32_t timeout;
+    cbk_t *cbk;
+
+    cbk = calloc(1, sizeof(cbk_t));
+    if (!cbk) {
+	logit(LOG_ERR, 0, "Failed calloc() in SetVerTimer()\n");
+	return -1;
+    }
+
+    timeout = IGMP_ROBUSTNESS_VARIABLE * IGMP_QUERY_INTERVAL + IGMP_QUERY_RESPONSE_INTERVAL;
+    cbk->vifi = vifi;
+    cbk->g = g;
+
+    return timer_setTimer(timeout, SwitchVersion, cbk);
+}
+
+
+/*
  * Set a timer to delete the record of a group membership on a vif.
  */
 static int
@@ -603,12 +703,20 @@ SendQuery(arg)
     void *arg;
 {
     cbk_t *cbk = (cbk_t *)arg;
-    struct uvif *v = &uvifs[cbk->vifi];
+    struct uvif *v;
 
-    if (v->uv_flags & VIFF_QUERIER)
-	send_igmp(igmp_send_buf, v->uv_lcl_addr, cbk->g->al_addr,
-		  IGMP_MEMBERSHIP_QUERY,
-		  cbk->q_time, cbk->g->al_addr, 0);
+    v = &uvifs[cbk->vifi];
+
+    if (v->uv_flags & VIFF_QUERIER) {
+	uint32_t group = cbk->g->al_addr;
+
+	IF_DEBUG(DEBUG_IGMP)
+	    logit(LOG_DEBUG, 0, "SendQuery: Send IGMP v%s query", cbk->q_len == 4 ? "3" : "2");
+
+	send_igmp(igmp_send_buf, v->uv_lcl_addr, group, IGMP_MEMBERSHIP_QUERY,
+		  cbk->q_time, group != allhosts_group ? group : 0, cbk->q_len);
+    }
+
     cbk->g->al_query = 0;
     free(cbk);
 }
@@ -618,11 +726,12 @@ SendQuery(arg)
  * Set a timer to send a group-specific query.
  */
 static int
-SetQueryTimer(g, vifi, to_expire, q_time)
+SetQueryTimer(g, vifi, to_expire, q_time, q_len)
     struct listaddr *g;
     vifi_t vifi;
     int to_expire;
     int q_time;
+    int q_len;
 {
     cbk_t *cbk;
 
@@ -634,6 +743,7 @@ SetQueryTimer(g, vifi, to_expire, q_time)
 
     cbk->g = g;
     cbk->q_time = q_time;
+    cbk->q_len = q_len;
     cbk->vifi = vifi;
 
     return timer_setTimer(to_expire, SendQuery, cbk);

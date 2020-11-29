@@ -51,11 +51,12 @@
 /*
  * Exported variables.
  */
-char    *igmp_recv_buf;		/* input packet buffer               */
-char    *igmp_send_buf;  	/* output packet buffer              */
-int     igmp_socket;	      	/* socket for all network I/O        */
-u_int32 allhosts_group;	      	/* allhosts  addr in net order       */
-u_int32 allrouters_group;	/* All-Routers addr in net order     */
+char     *igmp_recv_buf;	/* input packet buffer               */
+char     *igmp_send_buf;  	/* output packet buffer              */
+int       igmp_socket;	      	/* socket for all network I/O        */
+in_addr_t allhosts_group;	/* allhosts  addr in net order       */
+in_addr_t allrouters_group;	/* All-Routers addr in net order     */
+in_addr_t allreports_group;	/* All IGMP routers in net order     */
 
 /*
  * Local functions definitions.
@@ -102,6 +103,7 @@ init_igmp()
     /* Everywhere in the daemon we use network-byte-order */    
     allhosts_group = htonl(INADDR_ALLHOSTS_GROUP);
     allrouters_group = htonl(INADDR_ALLRTRS_GROUP);
+    allreports_group = htonl(INADDR_ALLRPTS_GROUP);
     
     if (register_input_handler(igmp_socket, igmp_read) < 0)
 	logit(LOG_ERR, 0, "Couldn't register igmp_read as an input handler");

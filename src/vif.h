@@ -188,6 +188,7 @@ struct uvif {
 #define VIFF_POINT_TO_POINT     0x100000       /* point-to-point link       */
 #define VIFF_PIM_NBR            0x200000       /* PIM neighbor              */
 #define VIFF_DVMRP_NBR          0x400000       /* DVMRP neighbor            */
+#define VIFF_IGMPV2             0x800000       /* Act as an IGMPv2 Router   */
 
 struct phaddr {
     struct phaddr   *pa_next;
@@ -236,6 +237,7 @@ struct listaddr {
     u_long	     al_timerid;        /* timer for group membership	    */
     u_long	     al_query;		/* timer for repeated leave query   */
     u_int16	     al_flags;		/* flags related to this neighbor   */
+    u_long	     al_versiontimer;	/* timer for version switch    */
 };
 #define	al_genid	al_alu.alu_genid
 #define	al_reporter	al_alu.alu_reporter
