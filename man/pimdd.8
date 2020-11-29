@@ -217,6 +217,7 @@ setting can be used to control this behavior.
 .Bl -item -offset indent
 .Op Cm disable
 .Op Cm distance Ar <1-255>
+.Op Cm igmpv2 | igmpv3
 .Op Cm metric Ar <1-1024>
 .El
 .El
@@ -275,6 +276,10 @@ Use this to override the
 (101) on this
 .Nm phyint
 in PIM Assert elections.
+.It
+.Cm igmpv2 | igmpv3 :
+Force interface in specific IGMP version.  Default:
+.Cm igmpv3 .
 .It
 .Cm metric Ar <1-1024> :
 The cost of sending data through this interface.  Defaults to
