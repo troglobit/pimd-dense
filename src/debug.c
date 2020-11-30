@@ -518,7 +518,7 @@ void dump_vifs(FILE *fp, int detail)
     int i;
 
     if (detail)
-	fprintf(fp, "\nVirtual Interface Table\n");
+	fprintf(fp, "Virtual Interface Table_\n");
     fprintf(fp, "VIF  Local Address    Subnet              Thresh  Flags      Neighbors=\n");
 
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
@@ -658,15 +658,15 @@ dump_pim_mrt(fp, detail)
     char incoming_iif[(sizeof(vifbitmap_t)<<3)+1];
 
     if (detail)
-	    fprintf(fp, "\nMulticast Routing Table\n");
-    fprintf(fp, " Source          Group           Flags=\n");
+	    fprintf(fp, "Multicast Routing Table_\n");
 
     /* TODO: remove the dummy 0.0.0.0 group (first in the chain) */
     for (g = grplist->next; g != (grpentry_t *)NULL; g = g->next) {
 	number_of_groups++;
+
 	/* Print all (S,G) routing info */
 	for (r = g->mrtlink; r != (mrtentry_t *)NULL; r = r->grpnext) {
-	    fprintf(fp, "---------------------------(S,G)----------------------------\n");
+	    fprintf(fp, " Source          Group           Flags=\n");
 	    /* Print the routing info */
 	    fprintf(fp, " %-15s", inet_fmt(r->source->address, s1));
 	    fprintf(fp, " %-15s", inet_fmt(g->group, s2));
@@ -705,19 +705,18 @@ dump_pim_mrt(fp, detail)
 	    fprintf(fp, "Outgoing oifs: %-20s\n", oifs);
 	    fprintf(fp, "Incoming     : %-20s\n", incoming_iif);
 
-	    fprintf(fp, "Upstream nbr: %s\n", 
+	    fprintf(fp, "Upstream nbr : %s\n", 
 		    r->upstream ? inet_fmt(r->upstream->address, s1) : "NONE");
 	    fprintf(fp, "\nTIMERS:  Entry   Prune VIFS:");
 	    for (vifi = 0; vifi < numvifs; vifi++)
 		fprintf(fp, "  %2d", vifi);
-	    fprintf(fp, "\n           %3d              ",
-		    r->timer);
+	    fprintf(fp, "\n           %3d              ", r->timer);
 	    for (vifi = 0; vifi < numvifs; vifi++)
 		fprintf(fp, " %3d", r->prune_timers[vifi]);
 	    fprintf(fp, "\n");
 	}
     }/* for all groups */
 
-    fprintf(fp, "Number of Groups: %u\n\n", number_of_groups);
+    fprintf(fp, "\nNumber of Groups: %u\n", number_of_groups);
 }
 
