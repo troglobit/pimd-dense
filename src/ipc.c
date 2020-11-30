@@ -59,6 +59,7 @@ enum {
 	IPC_DEBUG,
 	IPC_LOGLEVEL,
 	IPC_KILL,
+	IPC_IGMP,
 	IPC_IGMP_GRP,
 	IPC_IGMP_IFACE,
 	IPC_PIM_IFACE,
@@ -75,17 +76,18 @@ struct ipcmd {
 } cmds[] = {
 	{ IPC_DEBUG,      "debug", "[? | none | SYS]", "Debug subystem(s), separate multiple with comma"},
 	{ IPC_HELP,       "help", NULL, "This help text" },
-	{ IPC_KILL,       "kill", NULL, "Kill running pimd-dense daemon, like SIGTERM"},
-	{ IPC_LOGLEVEL,   "log", "[? | none | LEVEL]" , "Set pimd-dense log level: none, err, notice*, info, debug"},
-	{ IPC_RESTART,    "restart", NULL, "Restart pimd and reload the .conf file, like SIGHUP"},
-	{ IPC_VERSION,    "version", NULL, "Show pimd-dense version" },
-	{ IPC_STATUS,     "show status", NULL, "Show pimd-dense status, default" },
-	{ IPC_IGMP_GRP,   "show igmp groups", NULL, "Show IGMP group memberships" },
-	{ IPC_IGMP_IFACE, "show igmp interface", NULL, "Show IGMP interface status" },
-	{ IPC_PIM_IFACE,  "show pim interface", NULL, "Show PIM interface table" },
-	{ IPC_PIM_NEIGH,  "show pim neighbor", NULL, "Show PIM neighbor table" },
-	{ IPC_PIM_ROUTE,  "show pim routes", "[detail]", "Show PIM routing table" },
-	{ IPC_PIM_DUMP,   "show pim compat", "[detail]", "Show PIM status, compat mode" },
+	{ IPC_KILL,       "kill", NULL, "Kill running daemon, like SIGTERM"},
+	{ IPC_LOGLEVEL,   "log", "[? | none | LEVEL]" , "Set daemon log level: none, err, notice*, info, debug"},
+	{ IPC_RESTART,    "restart", NULL, "Restart daemon and reload the .conf file, like SIGHUP"},
+	{ IPC_VERSION,    "version", NULL, "Show daemon version" },
+	{ IPC_STATUS,     "show status", NULL, "Show daemon status, default" },
+//	{ IPC_IGMP_GRP,   "show igmp groups", NULL, "Show IGMP group memberships" },
+//	{ IPC_IGMP_IFACE, "show igmp interface", NULL, "Show IGMP interface status" },
+	{ IPC_IGMP,       "show igmp", NULL, "Show interfaces and group memberships"},
+	{ IPC_PIM_ROUTE,  "show mrt", "[detail]", "Show multicast routing table" },
+	{ IPC_PIM_NEIGH,  "show neighbor", NULL, "Show router neighbor table" },
+	{ IPC_PIM_IFACE,  "show interface", NULL, "Show router interface table" },
+	{ IPC_PIM_DUMP,   "show compat", "[detail]", "Show router status, compat mode" },
 	{ IPC_PIM_DUMP,   "show", NULL, NULL }, /* hidden default */
 };
 
@@ -557,6 +559,17 @@ static int show_igmp_iface(FILE *fp)
 	return 0;
 }
 
+static int show_igmp(FILE *fp)
+{
+	int rc = 0;
+
+	rc += show_igmp_iface(fp);
+	fprintf(fp, "\n");
+	rc += show_igmp_groups(fp);
+
+	return rc;
+}
+
 static int show_dump(FILE *fp)
 {
 	dump_vifs(fp, detail);
@@ -699,6 +712,10 @@ static void ipc_handle(int sd, fd_set *rfd)
 
 	case IPC_IGMP_IFACE:
 		ipc_show(client, show_igmp_iface, cmd, sizeof(cmd));
+		break;
+
+	case IPC_IGMP:
+		ipc_show(client, show_igmp, cmd, sizeof(cmd));
 		break;
 
 	case IPC_PIM_IFACE:
