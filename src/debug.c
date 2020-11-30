@@ -656,9 +656,10 @@ dump_pim_mrt(fp, detail)
     char pruned_oifs[(sizeof(vifbitmap_t)<<3)+1];
     char leaves_oifs[(sizeof(vifbitmap_t)<<3)+1];
     char incoming_iif[(sizeof(vifbitmap_t)<<3)+1];
-    
-    fprintf(fp, "Multicast Routing Table\n%s", 
-	    " Source          Group           Flags\n");
+
+    if (detail)
+	    fprintf(fp, "\nMulticast Routing Table\n");
+    fprintf(fp, " Source          Group           Flags=\n");
 
     /* TODO: remove the dummy 0.0.0.0 group (first in the chain) */
     for (g = grplist->next; g != (grpentry_t *)NULL; g = g->next) {
