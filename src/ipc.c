@@ -88,7 +88,7 @@ struct ipcmd {
 	{ IPC_PIM_NEIGH,  "show neighbor", NULL, "Show router neighbor table" },
 	{ IPC_PIM_IFACE,  "show interface", NULL, "Show router interface table" },
 	{ IPC_PIM_DUMP,   "show compat", "[detail]", "Show router status, compat mode" },
-	{ IPC_PIM_DUMP,   "show", NULL, NULL }, /* hidden default */
+	{ IPC_STATUS,     "show", NULL, NULL }, /* hidden default */
 };
 
 static char *timetostr(time_t t, char *buf, size_t len)
@@ -451,42 +451,12 @@ static int show_pim_mrt(FILE *fp)
 
 static int show_status(FILE *fp)
 {
-	char buf[10];
-	int len;
-
-/* TODO: What's relevant daemon status for pimd-dense?
-	snprintf(buf, sizeof(buf), "%d", curr_bsr_priority);
-	MASK_TO_MASKLEN(curr_bsr_hash_mask, len);
-
-	fprintf(fp, "Elected BSR\n");
-	fprintf(fp, "    Address          : %s\n", inet_fmt(curr_bsr_address, s1));
-	fprintf(fp, "    Expiry Time      : %s\n", !pim_bootstrap_timer ? "N/A" : timetostr(pim_bootstrap_timer, NULL, 0));
-	fprintf(fp, "    Priority         : %s\n", !curr_bsr_priority ? "N/A" : buf);
-	fprintf(fp, "    Hash Mask Length : %d\n", len);
-
-	snprintf(buf, sizeof(buf), "%d", my_bsr_priority);
-	MASK_TO_MASKLEN(my_bsr_hash_mask, len);
-
-	fprintf(fp, "Candidate BSR\n");
-	fprintf(fp, "    State            : %s\n", ENABLED(cand_bsr_flag));
-	fprintf(fp, "    Address          : %s\n", inet_fmt(my_bsr_address, s1));
-	fprintf(fp, "    Priority         : %s\n", !my_bsr_priority ? "N/A" : buf);
-
-	fprintf(fp, "Candidate RP\n");
-	fprintf(fp, "    State            : %s\n", ENABLED(cand_rp_flag));
-	fprintf(fp, "    Address          : %s\n", inet_fmt(my_cand_rp_address, s1));
-	fprintf(fp, "    Priority         : %d\n", my_cand_rp_priority);
-	fprintf(fp, "    Holdtime         : %d sec\n", my_cand_rp_holdtime);
-
-	fprintf(fp, "Join/Prune Interval  : %d sec\n", PIM_JOIN_PRUNE_PERIOD);
-	fprintf(fp, "Hello Interval       : %d sec\n", pim_timer_hello_interval);
-	fprintf(fp, "Hello Holdtime       : %d sec\n", pim_timer_hello_holdtime);
-	fprintf(fp, "IGMP query interval  : %d sec\n", igmp_query_interval);
-	fprintf(fp, "IGMP querier timeout : %d sec\n", igmp_querier_timeout);
-	fprintf(fp, "SPT Threshold        : %s\n", spt_threshold.mode == SPT_INF ? "Disabled" : "Enabled");
-	if (spt_threshold.mode != SPT_INF)
-		fprintf(fp, "SPT Interval         : %d sec\n", spt_threshold.interval);
-*/
+	fprintf(fp, "Daemon PID           : %d\n", getpid());
+	fprintf(fp, "Graft Interval       : %d sec\n", PIM_GRAFT_RETRANS_PERIOD);
+	fprintf(fp, "Hello Interval       : %d sec\n", PIM_TIMER_HELLO_PERIOD);
+	fprintf(fp, "Hello Holdtime       : %.1f sec\n", PIM_TIMER_HELLO_HOLDTIME);
+	fprintf(fp, "IGMP Query Interval  : %d sec\n", IGMP_QUERY_INTERVAL);
+	fprintf(fp, "IGMP Querier Timeout : %d sec\n", IGMP_OTHER_QUERIER_PRESENT_INTERVAL);
 
 	return 0;
 }
