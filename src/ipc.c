@@ -65,6 +65,7 @@ enum {
 	IPC_PIM_IFACE,
 	IPC_PIM_NEIGH,
 	IPC_PIM_ROUTE,
+	IPC_PIM,
 	IPC_PIM_DUMP
 };
 
@@ -87,6 +88,7 @@ struct ipcmd {
 	{ IPC_PIM_ROUTE,  "show mrt", "[detail]", "Show multicast routing table" },
 	{ IPC_PIM_NEIGH,  "show neighbor", NULL, "Show router neighbor table" },
 	{ IPC_PIM_IFACE,  "show interface", NULL, "Show router interface table" },
+	{ IPC_PIM,        "show pim", "[detail]", "Show interfaces, neighbors and routes"},
 	{ IPC_PIM_DUMP,   "show compat", "[detail]", "Show router status, compat mode" },
 	{ IPC_STATUS,     "show", NULL, NULL }, /* hidden default */
 };
@@ -456,6 +458,13 @@ static int show_pim_mrt(FILE *fp)
 	return 0;
 }
 
+static int show_pim(FILE *fp)
+{
+	return  show_interfaces (fp) ||
+		show_neighbors  (fp) ||
+		show_pim_mrt    (fp);
+}
+
 static int show_status(FILE *fp)
 {
 	fprintf(fp, "PIM Daemon Status=\n");
@@ -708,6 +717,10 @@ static void ipc_handle(int sd, fd_set *rfd)
 
 	case IPC_PIM_ROUTE:
 		ipc_show(client, show_pim_mrt, cmd, sizeof(cmd));
+		break;
+
+	case IPC_PIM:
+		ipc_show(client, show_pim, cmd, sizeof(cmd));
 		break;
 
 	case IPC_STATUS:
