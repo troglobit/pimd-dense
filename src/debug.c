@@ -517,8 +517,7 @@ void dump_vifs(FILE *fp, int detail)
     int width;
     int i;
 
-    if (detail)
-	fprintf(fp, "Virtual Interface Table_\n");
+    fprintf(fp, "Virtual Interface Table_\n");
     fprintf(fp, "VIF  Local Address    Subnet              Thresh  Flags      Neighbors=\n");
 
     for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
@@ -657,8 +656,7 @@ dump_pim_mrt(fp, detail)
     char leaves_oifs[(sizeof(vifbitmap_t)<<3)+1];
     char incoming_iif[(sizeof(vifbitmap_t)<<3)+1];
 
-    if (detail)
-	    fprintf(fp, "Multicast Routing Table_\n");
+    fprintf(fp, "Multicast Routing Table_\n");
 
     /* TODO: remove the dummy 0.0.0.0 group (first in the chain) */
     for (g = grplist->next; g != (grpentry_t *)NULL; g = g->next) {
