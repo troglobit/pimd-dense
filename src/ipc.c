@@ -426,7 +426,7 @@ static int show_pim_mrt(FILE *fp)
 	mrtentry_t *r;
 
 	if (!detail)
-		fprintf(fp, "Source           Group             Flags =\n");
+		fprintf(fp, "Source           Group            Upstream Neighbor  Flags =\n");
 
 	/* TODO: remove the dummy 0.0.0.0 group (first in the chain) */
 	for (g = grplist->next; g; g = g->next) {
@@ -435,16 +435,17 @@ static int show_pim_mrt(FILE *fp)
 		/* Print all (S,G) routing info */
 		for (r = g->mrtlink; r; r = r->grpnext) {
 			if (detail)
-				fprintf(fp, "\nSource           Group             Flags =\n");
-			fprintf(fp, "%-15s  %-15s  ",
+				fprintf(fp, "Source           Group            Upstream Neighbor  Flags =\n");
+			fprintf(fp, "%-15s  %-15s  %-15s   ",
 				inet_fmt(r->source->address, s1),
-				inet_fmt(g->group, s2));
+				inet_fmt(g->group, s2),
+				r->upstream ? inet_fmt(r->upstream->address, s1) : "None");
 
 			dump_route(fp, r);
 		}
 	}
 
-	fprintf(fp, "\nNumber of Groups        : %u\n", number_of_groups);
+	fprintf(fp, "\nTotal: %u groups\n", number_of_groups);
 
 	return 0;
 }
