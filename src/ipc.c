@@ -309,6 +309,8 @@ static int show_neighbors(FILE *fp)
 	vifi_t vifi;
 	int first = 1;
 
+	fprintf(fp, "PIM Neighbor Table_\n");
+
 	for (vifi = 0; vifi < numvifs; vifi++) {
 		uv = &uvifs[vifi];
 
@@ -354,6 +356,8 @@ static void show_interface(FILE *fp, struct uvif *uv)
 static int show_interfaces(FILE *fp)
 {
 	vifi_t vifi;
+
+	fprintf(fp, "PIM Interface Table_\n");
 
 	if (numvifs)
 		fprintf(fp, "Interface         State     Address          Nbr  Hello  Prio  DR Address =\n");
@@ -425,6 +429,8 @@ static int show_pim_mrt(FILE *fp)
 	grpentry_t *g;
 	mrtentry_t *r;
 
+	fprintf(fp, "Multicast Routing Table_\n");
+
 	if (!detail)
 		fprintf(fp, "Source           Group            Upstream Neighbor  Flags =\n");
 
@@ -452,6 +458,8 @@ static int show_pim_mrt(FILE *fp)
 
 static int show_status(FILE *fp)
 {
+	fprintf(fp, "PIM Daemon Status=\n");
+
 	fprintf(fp, "Daemon PID           : %d\n", getpid());
 	fprintf(fp, "Graft Interval       : %d sec\n", PIM_GRAFT_RETRANS_PERIOD);
 	fprintf(fp, "Hello Interval       : %d sec\n", PIM_TIMER_HELLO_PERIOD);
@@ -468,6 +476,7 @@ static int show_igmp_groups(FILE *fp)
 	struct uvif *uv;
 	vifi_t vifi;
 
+	fprintf(fp, "IGMP Group Table_\n");
 	fprintf(fp, "Interface         Group            Source           Last Reported    Timeout=\n");
 	for (vifi = 0, uv = uvifs; vifi < numvifs; vifi++, uv++) {
 		for (group = uv->uv_groups; group; group = group->al_next) {
@@ -494,6 +503,7 @@ static int show_igmp_iface(FILE *fp)
 	struct uvif *uv;
 	vifi_t vifi;
 
+	fprintf(fp, "IGMP Interface Table_\n");
 	fprintf(fp, "Interface         State     Querier          Timeout Version  Groups=\n");
 
 	for (vifi = 0, uv = uvifs; vifi < numvifs; vifi++, uv++) {
@@ -535,7 +545,6 @@ static int show_igmp(FILE *fp)
 	int rc = 0;
 
 	rc += show_igmp_iface(fp);
-	fprintf(fp, "\n");
 	rc += show_igmp_groups(fp);
 
 	return rc;
