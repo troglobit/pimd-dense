@@ -411,8 +411,8 @@ static void dump_route(FILE *fp, mrtentry_t *r)
 
 	fprintf(fp, "\nTIMERS       :  Entry    Prune VIFS:");
 	for (vifi = 0; vifi < numvifs; vifi++)
-		fprintf(fp, "  %d", vifi);
-	fprintf(fp, "\n                %5d                 ", r->timer);
+		fprintf(fp, "  %2d", vifi);
+	fprintf(fp, "\n                %3d                 ", r->timer);
 	for (vifi = 0; vifi < numvifs; vifi++)
 		fprintf(fp, " %3d", r->prune_timers[vifi]);
 	fprintf(fp, "\n");
