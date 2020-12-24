@@ -57,7 +57,9 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/ioctl.h>
-#include <fcntl.h>
+#ifdef HAVE_FCNTL_H
+# include <fcntl.h>
+#endif
 #if ((defined(SYSV)) || (defined(BSDI)) || ((defined SunOS) && (SunOS < 50)))
 #include <sys/sockio.h>
 #endif /* SYSV || BSDI || SunOS 4.x */
