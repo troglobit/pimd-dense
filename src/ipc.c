@@ -75,20 +75,20 @@ struct ipcmd {
 	char *arg;
 	char *help;
 } cmds[] = {
-	{ IPC_DEBUG,      "debug", "[? | none | SYS]", "Debug subystem(s), separate multiple with comma"},
+	{ IPC_DEBUG,      "debug", "[? | none | SYS]", "Debug subystem(s), separate with comma"},
 	{ IPC_HELP,       "help", NULL, "This help text" },
 	{ IPC_KILL,       "kill", NULL, "Kill running daemon, like SIGTERM"},
-	{ IPC_LOGLEVEL,   "log", "[? | none | LEVEL]" , "Set daemon log level: none, err, notice*, info, debug"},
-	{ IPC_RESTART,    "restart", NULL, "Restart daemon and reload the .conf file, like SIGHUP"},
+	{ IPC_LOGLEVEL,   "log", "[? | none | LEVEL]" , "Set log level: none, err, notice*, info, debug"},
+	{ IPC_RESTART,    "restart", NULL, "Restart and reload .conf file, like SIGHUP"},
 	{ IPC_VERSION,    "version", NULL, "Show daemon version" },
-	{ IPC_STATUS,     "show status", NULL, "Show daemon status, default" },
+	{ IPC_STATUS,     "show status", NULL, "Show router status" },
 //	{ IPC_IGMP_GRP,   "show igmp groups", NULL, "Show IGMP group memberships" },
 //	{ IPC_IGMP_IFACE, "show igmp interface", NULL, "Show IGMP interface status" },
-	{ IPC_IGMP,       "show igmp", NULL, "Show interfaces and group memberships"},
+	{ IPC_IGMP,       "show igmp", NULL, "Show interfaces and group memberships" },
+	{ IPC_PIM_IFACE,  "show interface", NULL, "Show router interface table" },
 	{ IPC_PIM_ROUTE,  "show mrt", "[detail]", "Show multicast routing table" },
 	{ IPC_PIM_NEIGH,  "show neighbor", NULL, "Show router neighbor table" },
-	{ IPC_PIM_IFACE,  "show interface", NULL, "Show router interface table" },
-	{ IPC_PIM,        "show pim", "[detail]", "Show interfaces, neighbors and routes"},
+	{ IPC_PIM,        "show pim", "[detail]", "Show interfaces, neighbors and routes (default)"},
 	{ IPC_PIM_DUMP,   "show compat", "[detail]", "Show router status, compat mode" },
 	{ IPC_PIM,        "show", NULL, NULL }, /* hidden default */
 };
