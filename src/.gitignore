@@ -2,3 +2,4 @@
 .deps/
 pimdd
 pimctl
+cfparse.c

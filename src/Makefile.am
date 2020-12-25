@@ -5,9 +5,9 @@ AM_CPPFLAGS      = -I$(top_srcdir)/include
 AM_CPPFLAGS     += -DSYSCONFDIR=\"@sysconfdir@\" -DRUNSTATEDIR=\"@runstatedir@\"
 
 sbin_PROGRAMS    = pimdd pimctl
-pimdd_SOURCES    = callout.c config.c debug.c debug.h defs.h dvmrp.h	\
-		   dvmrp_proto.c igmpv2.h igmp.c igmp_proto.c inet.c	\
-		   ipc.c kern.c main.c mrt.c mrt.h pathnames.h		\
+pimdd_SOURCES    = callout.c cfparse.y config.c debug.c debug.h defs.h	\
+		   dvmrp.h dvmrp_proto.c igmpv2.h igmp.c igmp_proto.c	\
+		   inet.c ipc.c kern.c main.c mrt.c mrt.h pathnames.h	\
 		   pimdd.h pim.c pim_proto.c queue.h route.c		\
 		   timer.c trace.c trace.h vif.c vif.h
 pimdd_CFLAGS     = -W -Wall -Wextra -Wno-unused

@@ -351,8 +351,13 @@ extern void     timer_clearTimer  (int);
 extern int      timer_leftTimer   (int);
 
 /* config.c */
-extern void config_vifs_from_kernel ();
-extern void config_vifs_from_file   ();
+extern void     config_set_ifflag       (uint32_t flag);
+struct uvif    *config_find_ifname      (char *nm);
+struct uvif    *config_find_ifaddr      (in_addr_t addr);
+extern void     config_vifs_from_kernel ();
+
+/* cfparse.y */
+extern void     config_vifs_from_file   ();
 
 /* debug.c */
 extern char     dumpfilename[];

@@ -12,6 +12,7 @@ AC_CONFIG_FILES([Makefile src/Makefile include/Makefile man/Makefile pimdd.servi
 # Check for standard programs, headers, and functions
 AC_PROG_CC
 AC_PROG_INSTALL
+AC_PROG_YACC
 
 # Check build host, differnt for each operating system
 AC_CANONICAL_HOST
