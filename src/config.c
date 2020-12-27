@@ -292,3 +292,9 @@ config_vifs_from_kernel()
     if (ifc.ifc_buf)
 	free(ifc.ifc_buf);
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

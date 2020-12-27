@@ -506,3 +506,9 @@ max_local_address()
 
     return max_address;
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

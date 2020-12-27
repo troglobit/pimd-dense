@@ -389,3 +389,8 @@ send_pim_unicast(buf, src, dst, type, datalen)
     }
 }
 
+ /**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

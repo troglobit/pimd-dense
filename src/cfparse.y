@@ -226,32 +226,33 @@ static char *next_word(void)
     char *q;
 
     while (1) {
-        if (!p || !*p) {
-            lineno++;
-            if (fgets(buf, sizeof(buf), fp) == NULL)
-                return NULL;
-            p = buf;
-        }
+	if (!p || !*p) {
+	    lineno++;
+	    if (fgets(buf, sizeof(buf), fp) == NULL)
+		return NULL;
+	    p = buf;
+	}
 
-        while (*p && (*p == ' ' || *p == '\t'))	/* skip whitespace */
-            p++;
+	/* skip whitespace */
+	while (*p && (*p == ' ' || *p == '\t'))
+	    p++;
 
-        if (*p == '#') {
-            p = NULL;		/* skip comments */
-            continue;
-        }
+	if (*p == '#') {
+	    p = NULL;		/* skip comments */
+	    continue;
+	}
 
-        q = p;
-        while (*p && *p != ' ' && *p != '\t' && *p != '\n')
-            p++;		/* find next whitespace */
-        *p++ = '\0';	/* null-terminate string */
+	q = p;
+	while (*p && *p != ' ' && *p != '\t' && *p != '\n')
+	    p++;		/* find next whitespace */
+	*p++ = '\0';		/* null-terminate string */
 
-        if (!*q) {
-            p = NULL;
-            continue;	/* if 0-length string, read another line */
-        }
+	if (!*q) {
+	    p = NULL;
+	    continue;		/* if 0-length string, read another line */
+	}
 
-        return q;
+	return q;
     }
 }
 
@@ -262,21 +263,21 @@ static char *next_word(void)
  * the first "phyint" or "tunnel" keyword).
  */
 static struct keyword {
-	char	*word;
-	int	 val;
+    char  *word;
+    int    val;
 } words[] = {
-	{ "no",		NO },
-	{ "phyint",	PHYINT },
-	{ "disable",	DISABLE },
-	{ "enable",	ENABLE },
-	{ "distance",	DISTANCE },
-	{ "metric",	METRIC },
-	{ "threshold",	THRESHOLD },
-	{ "netmask",	NETMASK },
-	{ "igmpv1",	IGMPV1 },
-	{ "igmpv2",	IGMPV2 },
-	{ "igmpv2",	IGMPV3 },
-	{ NULL,		0 }
+    { "no",        NO },
+    { "phyint",    PHYINT },
+    { "disable",   DISABLE },
+    { "enable",    ENABLE },
+    { "distance",  DISTANCE },
+    { "metric",    METRIC },
+    { "threshold", THRESHOLD },
+    { "netmask",   NETMASK },
+    { "igmpv1",    IGMPV1 },
+    { "igmpv2",    IGMPV2 },
+    { "igmpv2",    IGMPV3 },
+    { NULL,        0 }
 };
 
 
@@ -288,55 +289,55 @@ static int yylex(void)
 
     q = next_word();
     if (!q)
-        return 0;
+	return 0;
 
     for (w = words; w->word; w++) {
-        if (!strcmp(q, w->word))
-            return w->val;
+	if (!strcmp(q, w->word))
+	    return w->val;
     }
 
     if (!strcmp(q,"on") || !strcmp(q,"yes")) {
-        yylval.num = 1;
-        return BOOLEAN;
+	yylval.num = 1;
+	return BOOLEAN;
     }
 
     if (!strcmp(q,"off") || !strcmp(q,"no")) {
-        yylval.num = 0;
-        return BOOLEAN;
+	yylval.num = 0;
+	return BOOLEAN;
     }
 
     if (!strcmp(q,"default")) {
-        yylval.addrmask.mask = 0;
-        yylval.addrmask.addr = 0;
-        return ADDRMASK;
+	yylval.addrmask.mask = 0;
+	yylval.addrmask.addr = 0;
+	return ADDRMASK;
     }
 
     if (sscanf(q,"%[.0-9]/%u%c",s1,&n,s2) == 2) {
 	addr = inet_parse(s1,1);
-        if (addr != 0xffffffff) {
-            yylval.addrmask.mask = n;
-            yylval.addrmask.addr = addr;
-            return ADDRMASK;
-        }
-        /* fall through to returning STRING */
+	if (addr != 0xffffffff) {
+	    yylval.addrmask.mask = n;
+	    yylval.addrmask.addr = addr;
+	    return ADDRMASK;
+	}
+	/* fall through to returning STRING */
     }
 
     if (sscanf(q,"%[.0-9]%c",s1,s2) == 1) {
 	addr = inet_parse(s1,4);
-        if (addr != 0xffffffff && inet_valid_host(addr)) {
-            yylval.addr = addr;
-            return ADDR;
-        }
+	if (addr != 0xffffffff && inet_valid_host(addr)) {
+	    yylval.addr = addr;
+	    return ADDR;
+	}
     }
 
     if (sscanf(q,"0x%8x%c", &n, s1) == 1) {
-        yylval.addr = n;
-        return ADDR;
+	yylval.addr = n;
+	return ADDR;
     }
 
     if (sscanf(q,"%u%c",&n,s1) == 1) {
-        yylval.num = n;
-        return NUMBER;
+	yylval.num = n;
+	return NUMBER;
     }
 
     yylval.ptr = q;
@@ -350,9 +351,9 @@ void config_vifs_from_file(void)
 
     fp = fopen(config_file, "r");
     if (!fp) {
-        if (errno != ENOENT)
-            logit(LOG_ERR, errno, "Cannot open %s", config_file);
-        return;
+	if (errno != ENOENT)
+	    logit(LOG_ERR, errno, "Cannot open %s", config_file);
+	return;
     }
 
     yyparse();
@@ -362,8 +363,6 @@ void config_vifs_from_file(void)
 
 /**
  * Local Variables:
- *  indent-tabs-mode: t
- *  c-file-style: "ellemtel"
- *  c-basic-offset: 4
+ *  c-file-style: "cc-mode"
  * End:
  */
