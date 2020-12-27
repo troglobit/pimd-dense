@@ -354,7 +354,8 @@ extern int      timer_leftTimer   (int);
 extern void     config_set_ifflag       (uint32_t flag);
 struct uvif    *config_find_ifname      (char *nm);
 struct uvif    *config_find_ifaddr      (in_addr_t addr);
-extern void     config_vifs_from_kernel ();
+extern void	config_vifs_correlate	(void);
+extern void     config_vifs_from_kernel (void);
 
 /* cfparse.y */
 extern void     config_vifs_from_file   ();

@@ -133,10 +133,14 @@ init_vifs()
 #endif
     }
 
-    logit(LOG_INFO, 0, "Getting vifs from kernel");
+    logit(LOG_INFO, 0, "Getting vifs from kernel ...");
     config_vifs_from_kernel();
-    logit(LOG_INFO, 0, "Getting vifs from %s", config_file);
+
+    logit(LOG_INFO, 0, "Getting vifs from %s ...", config_file);
     config_vifs_from_file();
+
+    logit(LOG_INFO, 0, "Correlating interfaces and configuration ...");
+    config_vifs_correlate();
 
     /*
      * Quit if there are fewer than two enabled vifs.
@@ -182,6 +186,11 @@ start_all_vifs()
 
 	    continue;
 	}
+
+	logit(LOG_INFO, 0, "installing %s (%s on subnet %s) as vif #%u, rate %d",
+	      v->uv_name, inet_fmt(v->uv_lcl_addr, s1),
+	      netname(v->uv_subnet, v->uv_subnetmask),
+	      numvifs, v->uv_rate_limit);
 
 	start_vif(vifi);
     }
