@@ -64,18 +64,21 @@ find_pim_nbr(source)
     u_int32 next_hop_router_addr;
 
     if (local_address(source) != NO_VIF)
-	return (pim_nbr_entry_t *)NULL;
+	return NULL;
+
     k_req_incoming(source, &rpfc);
     if ((rpfc.rpfneighbor.s_addr == INADDR_ANY_N)
 	|| (rpfc.iif == NO_VIF))
-	return (pim_nbr_entry_t *)NULL;
+	return NULL;
+
     next_hop_router_addr = rpfc.rpfneighbor.s_addr;
     for (pim_nbr = uvifs[rpfc.iif].uv_pim_neighbors;
-	 pim_nbr != (pim_nbr_entry_t *)NULL;
+	 pim_nbr != NULL;
 	 pim_nbr = pim_nbr->next)
 	if (pim_nbr->address == next_hop_router_addr)
 	    return(pim_nbr);
-    return (pim_nbr_entry_t *)NULL;
+
+    return NULL;
 }
 
 
@@ -115,7 +118,7 @@ set_incoming(srcentry_ptr, srctype)
     if ((srcentry_ptr->incoming = local_address(source)) != NO_VIF) {
 	/* The source is a local address */
 	/* TODO: set the upstream to myself? */
-	srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL;
+	srcentry_ptr->upstream = NULL;
 	return TRUE;
     }
 
@@ -137,7 +140,7 @@ set_incoming(srcentry_ptr, srctype)
     else {
 	/* The source is directly connected. 
 	 */
-	srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL;
+	srcentry_ptr->upstream = NULL;
 	return TRUE;
     }
 
@@ -174,7 +177,7 @@ set_incoming(srcentry_ptr, srctype)
 	"For src %s, iif is %d, next hop router is %s: NOT A PIM ROUTER",
 	inet_fmt(source, s1), srcentry_ptr->incoming,
 	inet_fmt(neighbor_addr, s2));
-    srcentry_ptr->upstream = (pim_nbr_entry_t *)NULL; 
+    srcentry_ptr->upstream = NULL; 
 
     return FALSE;
 }
@@ -212,12 +215,12 @@ add_leaf(vifi, source, group)
     int state_change;
 
     grpentry_ptr = find_group(group);
-    if (grpentry_ptr == (grpentry_t *)NULL)
+    if (grpentry_ptr == NULL)
 	return;
 
     /* walk the source list for the group and add vif to oiflist */
     for (mrtentry_srcs = grpentry_ptr->mrtlink;
-	 mrtentry_srcs != (mrtentry_t *)NULL;
+	 mrtentry_srcs != NULL;
 	 mrtentry_srcs = mrtentry_srcs->grpnext) {
 
 	/* if applicable, add the vif to the leaves */
@@ -271,12 +274,12 @@ delete_leaf(vifi, source, group)
      */
 
     grpentry_ptr = find_group(group);
-    if (grpentry_ptr == (grpentry_t *)NULL)
+    if (grpentry_ptr == NULL)
 	return;
 
     /* walk the source list for the group and delete vif to leaves */
     for (mrtentry_srcs = grpentry_ptr->mrtlink;
-	 mrtentry_srcs != (mrtentry_t *)NULL;
+	 mrtentry_srcs != NULL;
 	 mrtentry_srcs = mrtentry_srcs->grpnext) {
 
 	/* if applicable, delete the vif from the leaves */
@@ -322,7 +325,7 @@ calc_oifs(mrtentry_ptr, oifs_ptr)
      * The incoming interface is always deleted from the oifs
      */
 
-    if (mrtentry_ptr == (mrtentry_t *)NULL) {
+    if (mrtentry_ptr == NULL) {
         VIFM_CLRALL(*oifs_ptr);
         return;
     }
@@ -361,7 +364,7 @@ change_interfaces(mrtentry_ptr, new_iif, new_pruned_oifs,
     vifi_t      old_iif;
     int return_value;
     
-    if (mrtentry_ptr == (mrtentry_t *)NULL)
+    if (mrtentry_ptr == NULL)
 	return (0);
 
     VIFM_COPY(new_leaves_, new_leaves);
@@ -494,7 +497,7 @@ process_cache_miss(igmpctl)
     
     /* Create the (S,G) entry */
     mrtentry_ptr = find_route(source, group, MRTF_SG, CREATE);
-    if (mrtentry_ptr == (mrtentry_t *)NULL)
+    if (mrtentry_ptr == NULL)
 	return;
     mrtentry_ptr->flags &= ~MRTF_NEW;
     
