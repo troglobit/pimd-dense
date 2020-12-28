@@ -50,19 +50,6 @@ static void   process_wrong_iif   (struct igmpmsg *igmpctl);
 u_int32         default_route_distance = DEFAULT_LOCAL_PREF;
 u_int32         default_route_metric   = DEFAULT_LOCAL_METRIC;
 
-/* Return the iif for given address */
-vifi_t
-get_iif(address)
-    u_int32 address;
-{
-    struct rpfctl rpfc;
-
-    k_req_incoming(address, &rpfc);
-    if (rpfc.rpfneighbor.s_addr == INADDR_ANY_N)
-	return (NO_VIF);
-    return (rpfc.iif);
-}
-
 /* Return the PIM neighbor toward a source */
 /* If route not found or if a local source or if a directly connected source,
  * but is not PIM router, or if the first hop router is not a PIM router,

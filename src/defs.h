@@ -465,7 +465,6 @@ extern int send_pim_graft            (mrtentry_t *mrtentry_ptr);
 
 /* route.c */
 extern int    set_incoming           (srcentry_t *srcentry_ptr, int srctype);
-extern vifi_t get_iif                (u_int32 source);
 extern pim_nbr_entry_t *find_pim_nbr (u_int32 source);
 extern int    add_sg_oif             (mrtentry_t *mrtentry_ptr, vifi_t vifi, u_int16 holdtime, int update_holdtime);
 extern void   add_leaf               (vifi_t vifi, u_int32 source, u_int32 group);
