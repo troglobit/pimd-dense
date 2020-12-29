@@ -217,12 +217,14 @@ setting can be used to control this behavior.
 .Cm default-route-metric
 .Ar <1-1024>
 .It
+.Cm no phyint
+.It
 .Cm phyint
-.Cm <address>
+.Cm < Ar address | Ar ifname >
 .Bl -item -offset indent
-.Op Cm disable
-.Op Cm distance Ar <1-255>
+.Op Cm enable | disable
 .Op Cm igmpv2 | igmpv3
+.Op Cm distance Ar <1-255>
 .Op Cm metric Ar <1-1024>
 .El
 .El
@@ -249,7 +251,7 @@ consulted.  However, default routing metrics may also be set using the
 .Cm default-route-metric
 option.  (Again, this has nothing to do with the system default route.)
 This item sets the cost for sending data through this router.  You want
-only PIM-SM data to go to this daemon; so once again, a high value is
+only PIM-DM data to go to this daemon; so once again, a high value is
 recommended to prevent accidental usage.  The preferred default value is
 1024.  Both defaults can be overridden per phyint, so learned routes, or
 PIM Asserts use the phyint's values.
@@ -266,14 +268,23 @@ and
 .Cm default-route-distance
 settings in the configuration file.  Select the interface by its IP
 .Ar address
-If you just want to activate this interface with default values, you
-don't need to put anything else on the line.  However, there are some
-additional settings:
+or name.  If you just want to activate this interface with default
+values, you don't need to put anything else on the line.  However, there
+are some additional settings:
 .Bl -bullet -offset indent -width 1n -compact
 .It
-.Nm disable :
+.Cm enable :
+Enable an interface for PIM.  Used after the
+.Cm no phyint
+directive.
+.It
+.Cm disable :
 Do not use this interface in
 .Nm .
+.It
+.Cm igmpv2 | igmpv3 :
+Force interface in specific IGMP version.  Default:
+.Cm igmpv3 .
 .It
 .Cm distance Ar <1-255> :
 Use this to override the
@@ -281,10 +292,6 @@ Use this to override the
 (101) on this
 .Nm phyint
 in PIM Assert elections.
-.It
-.Cm igmpv2 | igmpv3 :
-Force interface in specific IGMP version.  Default:
-.Cm igmpv3 .
 .It
 .Cm metric Ar <1-1024> :
 The cost of sending data through this interface.  Defaults to
