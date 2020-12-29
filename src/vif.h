@@ -267,4 +267,11 @@ struct rpfctl {
     struct in_addr source; /* the source for which we want iif and rpfnbr */
     struct in_addr rpfneighbor;/* next hop towards the source */
     vifi_t iif; /* the incoming interface to reach the next hop */
+    int metric;	/* the cost for this route */
 };
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

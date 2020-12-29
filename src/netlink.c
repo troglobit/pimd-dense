@@ -127,6 +127,7 @@ int k_req_incoming(uint32_t source, struct rpfctl *rpf)
     
     memset(r, 0, sizeof(*r));
     r->rtm_family = AF_INET;
+    r->rtm_flags = RTM_F_FIB_MATCH;       /* FIB lookup match with route metric */
     r->rtm_dst_len = 32;
     addattr32(n, sizeof(buf), RTA_DST, rpf->source.s_addr);
 #ifdef CONFIG_RTNL_OLD_IFINFO
@@ -228,6 +229,9 @@ static int getmsg(struct rtmsg *rtm, int msglen, struct rpfctl *rpf)
     /* Found inbound interface in vifi */
     rpf->iif = vifi;
 
+    /* Default to use phyint metric from .conf file */
+    rpf->metric = -1;
+
     IF_DEBUG(DEBUG_RPF)
 	logit(LOG_DEBUG, 0, "NETLINK: vif %d, ifindex=%d", vifi, ifindex);
 
@@ -236,10 +240,26 @@ static int getmsg(struct rtmsg *rtm, int msglen, struct rpfctl *rpf)
 
 	IF_DEBUG(DEBUG_RPF)
 	    logit(LOG_DEBUG, 0, "NETLINK: gateway is %s", inet_fmt(gw, s1));
+
 	rpf->rpfneighbor.s_addr = gw;
     } else {
 	rpf->rpfneighbor.s_addr = rpf->source.s_addr;
     }
 
+    if (rta[RTA_PRIORITY]) {
+	int metric = *(int *)RTA_DATA(rta[RTA_PRIORITY]);
+
+	IF_DEBUG(DEBUG_RPF)
+	    logit(LOG_DEBUG, 0, "NETLINK: metric %d", metric);
+
+	rpf->metric = metric;
+    }
+
     return TRUE;
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

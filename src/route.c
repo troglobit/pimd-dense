@@ -110,6 +110,7 @@ set_incoming(srcentry_ptr, srctype)
     u_int32 neighbor_addr;
     struct uvif *v;
     pim_nbr_entry_t *n;
+    int metric = -1;
 
     /* Preference will be 0 if directly connected */
     srcentry_ptr->preference = 0; 
@@ -136,10 +137,10 @@ set_incoming(srcentry_ptr, srctype)
 	}
 	srcentry_ptr->incoming = rpfc.iif;
 	neighbor_addr = rpfc.rpfneighbor.s_addr;
+	metric = rpfc.metric;
     }
     else {
-	/* The source is directly connected. 
-	 */
+	/* The source is directly connected. */
 	srcentry_ptr->upstream = NULL;
 	return TRUE;
     }
@@ -147,7 +148,10 @@ set_incoming(srcentry_ptr, srctype)
     /* set the preference for sources that aren't directly connected. */
     v = &uvifs[srcentry_ptr->incoming];
     srcentry_ptr->preference = v->uv_local_pref;
-    srcentry_ptr->metric = v->uv_local_metric;
+    if (metric == -1)
+	    srcentry_ptr->metric = v->uv_local_metric;
+    else
+	    srcentry_ptr->metric = metric;
 
     /*
      * The upstream router must be a (PIM router) neighbor, otherwise we
