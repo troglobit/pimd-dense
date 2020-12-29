@@ -41,6 +41,7 @@ struct addrmask {
 	uint32_t         addr;
 };
 
+%token DEFAULT_ROUTE_PREF DEFAULT_ROUTE_METRIC
 %token NO
 %token PHYINT
 %token DISABLE ENABLE IGMPV1 IGMPV2 IGMPV3
@@ -65,6 +66,18 @@ stmts	: /* Empty */
 	;
 
 stmt	: error
+	| DEFAULT_ROUTE_PREF NUMBER
+	{
+	    if ($2 < 1 || $2 > 255)
+		fatal("Invalid default-route-distance (1-255)");
+	    default_route_distance = $2;
+	}
+	| DEFAULT_ROUTE_METRIC NUMBER
+	{
+	    if ($2 < 1 || $2 > 1024)
+		fatal("Invalid default-route-metric (1-1024)");
+	    default_route_metric = $2;
+	}
 	| NO PHYINT		{ config_set_ifflag(VIFF_DISABLED); }
 	| PHYINT interface
 	{
@@ -266,18 +279,20 @@ static struct keyword {
     char  *word;
     int    val;
 } words[] = {
-    { "no",        NO },
-    { "phyint",    PHYINT },
-    { "disable",   DISABLE },
-    { "enable",    ENABLE },
-    { "distance",  DISTANCE },
-    { "metric",    METRIC },
-    { "threshold", THRESHOLD },
-    { "netmask",   NETMASK },
-    { "igmpv1",    IGMPV1 },
-    { "igmpv2",    IGMPV2 },
-    { "igmpv2",    IGMPV3 },
-    { NULL,        0 }
+    { "default-route-distance", DEFAULT_ROUTE_PREF   },
+    { "default-route-metric",   DEFAULT_ROUTE_METRIC },
+    { "no",                     NO },
+    { "phyint",                 PHYINT },
+    { "disable",                DISABLE },
+    { "enable",                 ENABLE },
+    { "distance",               DISTANCE },
+    { "metric",                 METRIC },
+    { "threshold",              THRESHOLD },
+    { "netmask",                NETMASK },
+    { "igmpv1",                 IGMPV1 },
+    { "igmpv2",                 IGMPV2 },
+    { "igmpv2",                 IGMPV3 },
+    { NULL,                     0 }
 };
 
 
