@@ -211,6 +211,9 @@ setting can be used to control this behavior.
 .Pp
 .Bl -item -offset indent
 .It
+.Cm assert-timeout
+.Ar <5-210>
+.It
 .Cm default-route-distance
 .Ar <1-255>
 .It
@@ -228,6 +231,18 @@ setting can be used to control this behavior.
 .Op Cm metric Ar <1-1024>
 .El
 .El
+.Pp
+The PIM assert mechanism arbitrates the forwarder of multicast when
+there are more than one router with the same (S,G) pair for a given
+destination LAN.  The winner of an assert is the router with either
+the best (unicast) protocol distance (called metric preference in
+the RFC), or the best metric if the distance is the same, or, as a
+tiebreaker, the highest IP address.  The loser of an asser election
+prunes its outbound interface from forwarding and starts an assert
+timer, in case the active forwarder is lost.  The
+.Cm assert-timeout
+can be used to tune the PIM assert timer to a value between 5 to 210
+seconds, default: 180 sec.
 .Pp
 The
 .Cm default-route-distance

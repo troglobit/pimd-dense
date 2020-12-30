@@ -41,6 +41,7 @@ struct addrmask {
 	uint32_t         addr;
 };
 
+%token ASSERT_TIMEOUT
 %token DEFAULT_ROUTE_PREF DEFAULT_ROUTE_METRIC
 %token NO
 %token PHYINT
@@ -66,6 +67,12 @@ stmts	: /* Empty */
 	;
 
 stmt	: error
+	| ASSERT_TIMEOUT NUMBER
+	{
+	    if ($2 < 5 || $2 > 210)
+		fatal("Invalid PIM assert-timeout (5-210)");
+	    assert_timeout = $2;
+	}
 	| DEFAULT_ROUTE_PREF NUMBER
 	{
 	    if ($2 < 1 || $2 > 255)
@@ -279,6 +286,7 @@ static struct keyword {
     char  *word;
     int    val;
 } words[] = {
+    { "assert-timeout",         ASSERT_TIMEOUT },
     { "default-route-distance", DEFAULT_ROUTE_PREF   },
     { "default-route-metric",   DEFAULT_ROUTE_METRIC },
     { "no",                     NO },

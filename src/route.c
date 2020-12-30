@@ -338,6 +338,7 @@ calc_oifs(mrtentry_ptr, oifs_ptr)
     VIFM_CLR_MASK(oifs, mrtentry_ptr->pruned_oifs);
     VIFM_MERGE(oifs, mrtentry_ptr->leaves, oifs);
     VIFM_CLR(mrtentry_ptr->incoming, oifs);
+    VIFM_CLR_MASK(oifs, mrtentry_ptr->asserted_oifs);
     VIFM_COPY(oifs, *oifs_ptr);
 }
 
@@ -629,3 +630,9 @@ void trigger_join_alert(mrtentry_ptr)
     /* Send graft */
     send_pim_graft(mrtentry_ptr);
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

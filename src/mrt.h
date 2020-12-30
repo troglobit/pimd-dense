@@ -153,6 +153,7 @@ struct mrtentry {
     vifi_t              incoming;       /* the iif (either toward S or RP)  */
     vifbitmap_t         oifs;           /* The current result oifs          */
     vifbitmap_t         pruned_oifs;    /* The pruned oifs (Prune received) */
+    vifbitmap_t         asserted_oifs;  /* The asserted oifs (lost Assert)  */
     vifbitmap_t	        leaves;		/* Has directly connected members   */
     struct pim_nbr_entry *upstream;	/* upstream router, needed because
 					 * of the asserts it may be different
@@ -186,3 +187,8 @@ struct vif_count {
     u_long obytes;        /* Output byte count on vif             */ 
 };
 
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

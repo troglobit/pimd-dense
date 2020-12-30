@@ -229,6 +229,7 @@ extern char		*pim_recv_buf;
 extern char		*pim_send_buf;
 extern int		igmp_socket;
 extern int		pim_socket;
+extern u_int		assert_timeout;
 extern in_addr_t	allhosts_group;
 extern in_addr_t	allrouters_group;
 extern in_addr_t	allreports_group;
@@ -530,3 +531,9 @@ extern size_t  strlcat		     (char *dst, const char *src, size_t siz);
 #ifndef tempfile
 extern FILE   *tempfile		     (void);
 #endif
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

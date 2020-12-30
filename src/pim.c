@@ -48,6 +48,8 @@ char	*pim_send_buf;		/* output packet buffer  */
 u_int32	allpimrouters_group;	/* ALL_PIM_ROUTERS group (net order) */
 int	pim_socket;		/* socket for PIM control msgs */
 
+u_int   assert_timeout;		/* 5-210, default: 180 */
+
 /*
  * Local function definitions.
  */
@@ -60,6 +62,8 @@ init_pim()
 {
     struct ip *ip;
     
+    assert_timeout = PIM_ASSERT_TIMEOUT;
+
     if ((pim_socket = socket(AF_INET, SOCK_RAW, IPPROTO_PIM)) < 0) 
 	logit(LOG_ERR, errno, "PIM socket");
 

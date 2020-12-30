@@ -66,7 +66,7 @@
 #define PIM_RANDOM_DELAY_JOIN_TIMEOUT     3
 #define PIM_GRAFT_RETRANS_PERIOD          3
 #define PIM_TIMER_HELLO_HOLDTIME       (3.5 * PIM_TIMER_HELLO_PERIOD)
-#define PIM_ASSERT_TIMEOUT              210
+#define PIM_ASSERT_TIMEOUT              180
 
 
 /* Misc definitions */
@@ -430,3 +430,9 @@ struct igmpmsg {
     struct in_addr  im_src, im_dst;
 };
 #endif
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

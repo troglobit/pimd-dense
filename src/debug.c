@@ -654,6 +654,7 @@ dump_pim_mrt(fp, detail)
     char oifs[(sizeof(vifbitmap_t)<<3)+1];
     char pruned_oifs[(sizeof(vifbitmap_t)<<3)+1];
     char leaves_oifs[(sizeof(vifbitmap_t)<<3)+1];
+    char asserted_oifs[(sizeof(vifbitmap_t)<<3)+1];
     char incoming_iif[(sizeof(vifbitmap_t)<<3)+1];
 
     fprintf(fp, "Multicast Routing Table_\n");
@@ -676,11 +677,14 @@ dump_pim_mrt(fp, detail)
 		    VIFM_ISSET(vifi, r->pruned_oifs)   ? 'p' : '.';
 		leaves_oifs[vifi] =
 		    VIFM_ISSET(vifi, r->leaves)        ? 'l' : '.';
+		asserted_oifs[vifi] =
+		    VIFM_ISSET(vifi, r->asserted_oifs) ? 'a' : '.';
 		incoming_iif[vifi] = '.';
 	    }
 	    oifs[vifi]          = 0x0;  /* End of string */
 	    pruned_oifs[vifi]   = 0x0;
 	    leaves_oifs[vifi]   = 0x0;
+	    asserted_oifs[vifi] = 0x0;
 	    incoming_iif[vifi]  = 0x0;
 	    incoming_iif[r->incoming] = 'I';
 
@@ -700,6 +704,7 @@ dump_pim_mrt(fp, detail)
 	    
 	    fprintf(fp, "Pruned   oifs: %-20s\n", pruned_oifs);
 	    fprintf(fp, "Leaves   oifs: %-20s\n", leaves_oifs);
+	    fprintf(fp, "Asserted oifs: %-20s\n", asserted_oifs);
 	    fprintf(fp, "Outgoing oifs: %-20s\n", oifs);
 	    fprintf(fp, "Incoming     : %-20s\n", incoming_iif);
 
@@ -718,3 +723,8 @@ dump_pim_mrt(fp, detail)
     fprintf(fp, "\nNumber of Groups: %u\n", number_of_groups);
 }
 
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

@@ -189,6 +189,7 @@ age_routes()
 	    u_int16 min_prune_timeout;
 
 	    mrtentry_next = mrtentry_ptr->grpnext;
+	    change_flag = FALSE;
 
 	    /* Age the entry timer */
 	    /* TODO: XXX: TIMER implem. dependency! */
@@ -222,16 +223,23 @@ age_routes()
 	    }	    
 
 	    /* Time out asserts */
-	    if (mrtentry_ptr->flags & MRTF_ASSERTED) 
+	    if (mrtentry_ptr->flags & MRTF_ASSERTED) {
 		IF_TIMEOUT(mrtentry_ptr->assert_timer) {
 		    mrtentry_ptr->flags &= ~MRTF_ASSERTED;
 		    mrtentry_ptr->upstream = mrtentry_ptr->source->upstream;
 		    mrtentry_ptr->metric   = mrtentry_ptr->source->metric;
 		    mrtentry_ptr->preference = mrtentry_ptr->source->preference;
+		    for (vifi = 0; vifi < numvifs; vifi++) {
+			if (VIFM_ISSET(vifi, mrtentry_ptr->asserted_oifs)) {
+			    VIFM_CLR(vifi, mrtentry_ptr->asserted_oifs);
+			    change_flag = TRUE;
+			    mrtentry_is_timedout = FALSE;
+			}
+		    }
 	        }
+	    }
 
 	    /* Time out Pruned interfaces */
-	    change_flag = FALSE;
 	    min_prune_timeout = 0x7fff;
 	    for (vifi = 0; vifi < numvifs; vifi++) {
 		COPY_TIMER(mrtentry_ptr->prune_timers[vifi], prune_timeout);
@@ -308,3 +316,9 @@ age_routes()
 	}
     }
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */

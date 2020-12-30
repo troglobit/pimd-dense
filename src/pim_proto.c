@@ -974,7 +974,7 @@ receive_pim_assert(src, dst, pim_message, datalen)
 	    mrtentry_ptr->metric = assert_metric;
 	    mrtentry_ptr->upstream = find_pim_nbr(src);
 	}
-	SET_TIMER(mrtentry_ptr->assert_timer, PIM_ASSERT_TIMEOUT);
+	SET_TIMER(mrtentry_ptr->assert_timer, assert_timeout);
 	mrtentry_ptr->flags |= MRTF_ASSERTED;
 
 	/* Send a join for the S,G if oiflist is non-empty */
@@ -999,24 +999,21 @@ receive_pim_assert(src, dst, pim_message, datalen)
 				     assert_preference, assert_metric, src);
 
 	if (local_wins == FALSE) {
-
 	    /* Assert sender wins - prune the interface */
-
 	    IF_DEBUG(DEBUG_PIM_ASSERT)
-		logit(LOG_DEBUG, 0,
-		    "\tAssert sender %s wins - pruning...", inet_fmt(src, s1));
-	    
-	    VIFM_COPY(mrtentry_ptr->pruned_oifs, new_pruned_oifs);
-	    VIFM_SET(vifi, new_pruned_oifs);
-	    SET_TIMER(mrtentry_ptr->prune_timers[vifi], 
-		      PIM_JOIN_PRUNE_HOLDTIME);
+		logit(LOG_DEBUG, 0, "\tAssert sender %s wins - pruning, timeout %d sec...",
+		      inet_fmt(src, s1), assert_timeout);
+
+	    VIFM_SET(vifi, mrtentry_ptr->asserted_oifs);
+	    SET_TIMER(mrtentry_ptr->assert_timer, assert_timeout);
+	    mrtentry_ptr->flags |= MRTF_ASSERTED;
 
 	    state_change = 
 		change_interfaces(mrtentry_ptr,
 				  mrtentry_ptr->incoming,
-				  new_pruned_oifs,
+				  mrtentry_ptr->pruned_oifs,
 				  mrtentry_ptr->leaves);
-	    
+
 	    /* Handle transition to negative cache */
 	    if (state_change == -1)
 		trigger_prune_alert(mrtentry_ptr);
@@ -1380,3 +1377,9 @@ send_pim_graft(mrtentry_ptr)
 
     return TRUE;
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */
