@@ -77,6 +77,13 @@ query_groups(v)
 	int datalen;
 	int code;
 
+	if (v->uv_stquery_cnt)
+	    v->uv_stquery_cnt--;
+	if (v->uv_stquery_cnt)
+	    v->uv_gq_timer = IGMP_STARTUP_QUERY_INTERVAL;
+	else
+	    v->uv_gq_timer = IGMP_QUERY_INTERVAL;
+
 	/* IGMPv2 and v3 */
 	code = IGMP_MAX_HOST_REPORT_DELAY * IGMP_TIMER_SCALE;
 

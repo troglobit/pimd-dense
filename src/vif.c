@@ -266,6 +266,7 @@ start_vif(vifi)
      * query.
      */
     v->uv_flags |= VIFF_QUERIER;
+    v->uv_stquery_cnt = IGMP_STARTUP_QUERY_COUNT;
     query_groups(v);
 	
     /*
