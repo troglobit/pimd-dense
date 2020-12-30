@@ -127,7 +127,9 @@ int k_req_incoming(uint32_t source, struct rpfctl *rpf)
     
     memset(r, 0, sizeof(*r));
     r->rtm_family = AF_INET;
-    r->rtm_flags = RTM_F_FIB_MATCH;       /* FIB lookup match with route metric */
+#ifdef RTM_F_FIB_MATCH		          /* Introduced in Linux 4.13 */
+    r->rtm_flags = RTM_F_FIB_MATCH;       /* FIB lookup with route metric */
+#endif
     r->rtm_dst_len = 32;
     addattr32(n, sizeof(buf), RTA_DST, rpf->source.s_addr);
 #ifdef CONFIG_RTNL_OLD_IFINFO
