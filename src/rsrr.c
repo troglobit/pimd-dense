@@ -141,7 +141,7 @@ rsrr_accept(recvlen)
     
     if (recvlen < RSRR_HEADER_LEN) {
 	logit(LOG_WARNING, 0,
-	    "Received RSRR packet of %d bytes, which is less than min size",
+	    "Received RSRR packet of %zu bytes, which is less than min size",
 	    recvlen);
 	return;
     }
@@ -161,14 +161,14 @@ rsrr_accept(recvlen)
 	  case RSRR_INITIAL_QUERY:
 	    /* Send Initial Reply to client */
 	    IF_DEBUG(DEBUG_RSRR)
-		logit(LOG_DEBUG, 0, "Received Initial Query\n");
+		logit(LOG_DEBUG, 0, "Received Initial Query");
 	    rsrr_accept_iq();
 	    break;
 	  case RSRR_ROUTE_QUERY:
 	    /* Check size */
 	    if (recvlen < RSRR_RQ_LEN) {
 		logit(LOG_WARNING, 0,
-		    "Received Route Query of %d bytes, which is too small",
+		    "Received Route Query of %zu bytes, which is too small",
 		    recvlen);
 		break;
 	    }
@@ -222,8 +222,8 @@ rsrr_accept_iq()
      */
     if (numvifs > RSRR_MAX_VIFS) {
 	logit(LOG_WARNING, 0,
-	    "Can't send RSRR Route Reply because %d is too many vifs %d",
-	    numvifs);
+	      "Can't send RSRR Route Reply because %d is too many vifs (MAX: %d)",
+	      numvifs, RSRR_MAX_VIFS);
 	return;
     }
     
@@ -332,7 +332,7 @@ rsrr_accept_rq(route_query, flags, gt_notify)
     }
     
     IF_DEBUG(DEBUG_RSRR)
-	logit(LOG_DEBUG, 0, "%sSend RSRR Route Reply for src %s dst %s in vif %d out vifs 0x%x\n",
+	logit(LOG_DEBUG, 0, "%sSend RSRR Route Reply for src %s dst %s in vif %d out vifs 0x%x",
 	    gt_notify ? "Route Change: " : "",
 	    inet_fmt(route_reply->source_addr,s1),
 	    inet_fmt(route_reply->dest_addr,s2),
@@ -358,7 +358,7 @@ rsrr_send(sendlen)
 	logit(LOG_WARNING, errno, "Failed send on RSRR socket");
     } else if (error != sendlen) {
 	logit(LOG_WARNING, 0,
-	    "Sent only %d out of %d bytes on RSRR socket\n", error, sendlen);
+	    "Sent only %d out of %d bytes on RSRR socket", error, sendlen);
     }
     return error;
 }
@@ -397,8 +397,8 @@ rsrr_cache(gt, route_query)
 		rc->route_query.query_id = route_query->query_id;
 		IF_DEBUG(DEBUG_RSRR)
 		    logit(LOG_DEBUG, 0,
-			"Update cached query id %ld from client %s\n",
-			rc->route_query.query_id, rc->client_addr.sun_path);
+			  "Update cached query id %u from client %s",
+			  rc->route_query.query_id, rc->client_addr.sun_path);
 	    }
 	    return;
 	}
@@ -420,7 +420,7 @@ rsrr_cache(gt, route_query)
     rc->next = gt->rsrr_cache;
     gt->rsrr_cache = rc;
     IF_DEBUG(DEBUG_RSRR)
-	logit(LOG_DEBUG, 0, "Cached query id %ld from client %s\n",
+	logit(LOG_DEBUG, 0, "Cached query id %u from client %s",
 	    rc->route_query.query_id, rc->client_addr.sun_path);
 }
 
@@ -445,8 +445,8 @@ rsrr_cache_send(gt, notify)
 	if (rsrr_accept_rq(&rc->route_query, flags, gt) < 0) {
 	    IF_DEBUG(DEBUG_RSRR)
 		logit(LOG_DEBUG, 0,
-		    "Deleting cached query id %ld from client %s\n",
-		    rc->route_query.query_id, rc->client_addr.sun_path);
+		      "Deleting cached query id %u from client %s",
+		      rc->route_query.query_id, rc->client_addr.sun_path);
 	    /* Delete cache entry. */
 	    *rcnp = rc->next;
 	    free(rc);
