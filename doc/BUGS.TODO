@@ -7,11 +7,14 @@ that came up at the right moment to be written down.
 JOACHIM
 
 Before release:
-  * Use yacc-based parser from pim6sd project
-  * Startup query handling fomr pim6sd project
-  * Fix "pim status" output, what's relevant?
-  * Add "mrt" and "mfc" concepts to pimctl/ipc commands
-  * Test in non-trivial setup with CORE
+  * [DONE] Use yacc-based parser from pim6sd project
+  * [DONE] Startup query handling fomr pim6sd project
+  * [DONE] Handle IGMP querier timeout, not handled atm.
+  * [DONE] Send PIM Hello holdtime=0 on shutdown/reconf
+  * [DONE] When receiving holdtime=0, trigger Assert relection
+  * [DONE] Fix "pim status" output, what's relevant?
+  * [DONE] Add "mrt" and "mfc" concepts to pimctl/ipc commands
+  * Test in non-trivial (POD?) setup with CORE
 
 Bonus, or later release:
   * Issue #2: Support for (prune) state refresh

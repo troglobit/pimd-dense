@@ -200,12 +200,13 @@ delete_pim_nbr(nbr_delete)
 {
     srcentry_t *srcentry_ptr;
     srcentry_t *srcentry_ptr_next;
-    mrtentry_t *mrtentry_ptr;
+    mrtentry_t *mrtentry_ptr, *mrtentry_next;
+    grpentry_t *grpentry_ptr, *grpentry_next;
     struct uvif *v;
     int state_change;
 
     v = &uvifs[nbr_delete->vifi];
-    
+
     /* Delete the entry from the pim_nbrs chain */
     if (nbr_delete->prev)
 	nbr_delete->prev->next = nbr_delete->next;
@@ -229,7 +230,30 @@ delete_pim_nbr(nbr_delete)
 	    v->uv_flags |= VIFF_DR;
 	}
     }
-    
+
+    /* Delete neighbor from all asserted_oifs and trigger assert reelection */
+    for (grpentry_ptr = grplist; grpentry_ptr; grpentry_ptr = grpentry_next) {
+	grpentry_next = grpentry_ptr->next;
+
+	for (mrtentry_ptr = grpentry_ptr->mrtlink; mrtentry_ptr; mrtentry_ptr = mrtentry_next) {
+	    mrtentry_next = mrtentry_ptr->grpnext;
+
+	    if (mrtentry_ptr->flags & MRTF_ASSERTED) {
+		if (VIFM_ISSET(nbr_delete->vifi, mrtentry_ptr->asserted_oifs)) {
+		    VIFM_CLR(nbr_delete->vifi, mrtentry_ptr->asserted_oifs);
+
+		    state_change = change_interfaces(mrtentry_ptr, mrtentry_ptr->incoming,
+						     mrtentry_ptr->pruned_oifs,
+						     mrtentry_ptr->leaves);
+		    if (state_change == -1)
+			trigger_prune_alert(mrtentry_ptr);
+		    else if (state_change == 1)
+			trigger_join_alert(mrtentry_ptr);
+		}
+	    }
+	}
+    }
+
     /* Update the source entries:
      * If the deleted nbr was my upstream, then reset incoming and
      * update all (S,G) entries for sources reachable through it.
