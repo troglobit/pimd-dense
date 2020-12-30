@@ -528,7 +528,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 	int             rec_type;
 	int             rec_auxdatalen;
 	int             rec_num_sources;
-	int             j;
+	int             j, rc;
 	int record_size = 0;
 
 	rec_num_sources = ntohs(record->grec_nsrcs);
@@ -547,22 +547,47 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 	switch (rec_type) {
 	    case IGMP_MODE_IS_EXCLUDE:
 	    case IGMP_CHANGE_TO_EXCLUDE_MODE:
-		accept_group_report(src, 0 /*dst*/, rec_group.s_addr, report->type);
+		if (rec_num_sources == 0) {
+		    /* RFC 5790: TO_EX({}) can be interpreted as a (*,G)
+		     *           join, i.e., to include all sources.
+		     */
+		    accept_group_report(src, 0, rec_group.s_addr, report->type);
+		} else {
+		    /* RFC 5790: LW-IGMPv3 does not use TO_EX({x}),
+		     *           i.e., filter with non-null source.
+		     */
+		    logit(LOG_DEBUG, 0, "IS_EX/TO_EX({x}), not unsupported, RFC5790.");
+		}
 		break;
 
 	    case IGMP_MODE_IS_INCLUDE:
 	    case IGMP_CHANGE_TO_INCLUDE_MODE:
 		accept_leave_message(src, dst, rec_group.s_addr);
-		break;
-
-	    case IGMP_ALLOW_NEW_SOURCES:
-		if (!accept_sources(report->type, src, rec_group.s_addr, sources, report_pastend, rec_num_sources)) {
-		    logit(LOG_DEBUG, 0, "Accept sources failed.");
-		    return;
+		if (rec_num_sources == 0) {
+		    /* RFC5790: TO_IN({}) can be interpreted as an
+		     *          IGMPv2 (*,G) leave.
+		     */
+		    accept_leave_message(src, 0, rec_group.s_addr);
+		} else {
+		    /* RFC5790: TO_IN({x}), regular RFC3376 (S,G)
+		     *          join with >= 1 source, 'S'.
+		     */
+		    rc = accept_sources(report->type, src, rec_group.s_addr,
+					sources, report_pastend, rec_num_sources);
+		    if (rc)
+			return;
 		}
 		break;
 
+	    case IGMP_ALLOW_NEW_SOURCES:
+		/* RFC5790: Same as TO_IN({x}) */
+		if (!accept_sources(report->type, src, rec_group.s_addr,
+				    sources, report_pastend, rec_num_sources))
+		    return;
+		break;
+
 	    case IGMP_BLOCK_OLD_SOURCES:
+		/* RFC5790: Instead of TO_EX({x}) */
 		for (j = 0; j < rec_num_sources; j++) {
 		    uint8_t *gsrc = (uint8_t *)&record->grec_src[j];
 		    struct in_addr *ina = (struct in_addr *)gsrc;
@@ -573,7 +598,8 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 		    }
 
 		    IF_DEBUG(DEBUG_IGMP)
-			logit(LOG_DEBUG, 0, "Remove source[%d] (%s,%s)", j, inet_fmt(ina->s_addr, s2), inet_ntoa(rec_group));
+			logit(LOG_DEBUG, 0, "Remove source[%d] (%s,%s)", j,
+			      inet_fmt(ina->s_addr, s2), inet_ntoa(rec_group));
 		    accept_leave_message(src, ina->s_addr, rec_group.s_addr);
 		    IF_DEBUG(DEBUG_IGMP)
 			logit(LOG_DEBUG, 0, "Accepted");
@@ -772,3 +798,9 @@ int check_grp_membership(v, group)
 
     return FALSE;
 }
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */
