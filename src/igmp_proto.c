@@ -104,8 +104,8 @@ query_groups(v)
 	}
 
 	IF_DEBUG(DEBUG_IGMP)
-	    logit(LOG_DEBUG, 0, "%s(): Sending IGMP v%s query on %s",
-		  __func__, datalen == 4 ? "3" : "2", v->uv_name);
+	    logit(LOG_DEBUG, 0, "Sending IGMP v%s query on %s",
+		  datalen == 4 ? "3" : "2", v->uv_name);
 
 	send_igmp(igmp_send_buf, v->uv_lcl_addr, allhosts_group,
 		  IGMP_MEMBERSHIP_QUERY, code, 0, datalen);
@@ -262,21 +262,25 @@ accept_group_report(src, dst, group, igmp_report_type)
     struct uvif *v;
     struct listaddr *g;
 
+    inet_fmt(src, s1);
+    inet_fmt(dst, s2);
+    inet_fmt(group, s3);
+
     /* Do not filter LAN scoped groups */
-    if (ntohl(group) <= INADDR_MAX_LOCAL_GROUP) /* group <= 224.0.0.255? */
+    if (ntohl(group) <= INADDR_MAX_LOCAL_GROUP) { /* group <= 224.0.0.255? */
+	IF_DEBUG(DEBUG_IGMP)
+	    logit(LOG_DEBUG, 0, "    %-16s LAN scoped group, skipping.", s3);
 	return;
+    }
 
     if ((vifi = find_vif_direct_local(src)) == NO_VIF) {
 	IF_DEBUG(DEBUG_IGMP)
-	    logit(LOG_INFO, 0,
-		"ignoring group membership report from non-adjacent host %s",
-		inet_fmt(src, s1));
+	    logit(LOG_INFO, 0, "ignoring group membership report from non-adjacent host %s", s1);
 	return;
     }
     
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_INFO, 0, "accepting IGMP group membership report: src %s, dst %s, grp %s",
-	      inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
+	logit(LOG_INFO, 0, "accepting IGMP group membership report: src %s, dst %s, grp %s", s1, s2, s3);
     
     v = &uvifs[vifi];
     
@@ -379,18 +383,19 @@ accept_leave_message(src, dst, group)
     struct uvif *v;
     struct listaddr *g;
 
+    inet_fmt(src, s1);
+    inet_fmt(dst, s2);
+    inet_fmt(group, s3);
+
     /* TODO: modify for DVMRP ??? */    
     if ((vifi = find_vif_direct_local(src)) == NO_VIF) {
 	IF_DEBUG(DEBUG_IGMP)
-            logit(LOG_INFO, 0,
-                "ignoring group leave report from non-adjacent host %s",
-                inet_fmt(src, s1));
+            logit(LOG_INFO, 0, "ignoring group leave report from non-adjacent host %s", s1);
         return;
     }
     
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_INFO, 0, "accepting IGMP leave message: src %s, dst %s, grp %s",
-	      inet_fmt(src, s1), inet_fmt(dst, s2), inet_fmt(group, s3));
+	logit(LOG_INFO, 0, "accepting IGMP leave message: src %s, dst %s, grp %s", s1, s2, s3);
 
     v = &uvifs[vifi];
     
@@ -408,8 +413,7 @@ accept_leave_message(src, dst, group)
 
         if (group == g->al_addr) {
             IF_DEBUG(DEBUG_IGMP)
-		logit(LOG_DEBUG, 0, "[vif.c, _accept_leave_message] %d %lu",
-		      g->al_old, g->al_query);
+		logit(LOG_DEBUG, 0, "%s(): old=%d query=%lu", __func__, g->al_old, g->al_query);
 	    
             /* Ignore the leave message if there are old hosts present */
             if (g->al_old)
@@ -470,13 +474,13 @@ of queries remaining.
  *     igmp_src           Src address of IGMP message
  *     group              Multicast group
  *     sources            Pointer to the beginning of sources list in the IGMP message
- *     report_pastend     Pointer to the end of IGMP message
+ *     canary             Pointer to the end of IGMP message
  *
  * Returns:
  *     1 if succeeded, 0 if failed
  */
 int accept_sources(int igmp_report_type, uint32_t igmp_src, uint32_t group, uint8_t *sources,
-    uint8_t *report_pastend, int rec_num_sources)
+    uint8_t *canary, int rec_num_sources)
 {
     int j;
     uint8_t *src;
@@ -484,9 +488,9 @@ int accept_sources(int igmp_report_type, uint32_t igmp_src, uint32_t group, uint
     for (j = 0, src = sources; j < rec_num_sources; ++j, src += 4) {
 	struct in_addr *ina = (struct in_addr *)src;
 
-        if ((src + 4) > report_pastend) {
+        if ((src + 4) > canary) {
 	    IF_DEBUG(DEBUG_IGMP)
-		logit(LOG_DEBUG, 0, "src +4 > report_pastend");
+		logit(LOG_DEBUG, 0, "Invalid IGMPv3 report, too many sources, would overflow.");
             return 0;
         }
 
@@ -507,7 +511,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 {
     struct igmpv3_grec *record;
     int num_groups, i;
-    uint8_t *report_pastend = (uint8_t *)report + reportlen;
+    uint8_t *canary = (uint8_t *)report + reportlen;
 
     num_groups = ntohs(report->ngrec);
     if (num_groups < 0) {
@@ -517,8 +521,8 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
     }
 
     IF_DEBUG(DEBUG_IGMP)
-	logit(LOG_DEBUG, 0, "%s(): IGMP v3 report, %zd bytes, from %s to %s with %d group records.",
-	      __func__, reportlen, inet_fmt(src, s1), inet_fmt(dst, s2), num_groups);
+	logit(LOG_DEBUG, 0, "IGMP v3 report, %zd bytes, from %s to %s with %d group records.",
+	      reportlen, inet_fmt(src, s1), inet_fmt(dst, s2), num_groups);
 
     record = &report->grec[0];
 
@@ -534,9 +538,9 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 	rec_num_sources = ntohs(record->grec_nsrcs);
 	rec_auxdatalen = record->grec_auxwords;
 	record_size = sizeof(struct igmpv3_grec) + sizeof(uint32_t) * rec_num_sources + rec_auxdatalen;
-	if ((uint8_t *)record + record_size > report_pastend) {
+	if ((uint8_t *)record + record_size > canary) {
 	    logit(LOG_INFO, 0, "Invalid group report %p > %p",
-		  (uint8_t *)record + record_size, report_pastend);
+		  (uint8_t *)record + record_size, canary);
 	    return;
 	}
 
@@ -573,7 +577,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 		     *          join with >= 1 source, 'S'.
 		     */
 		    rc = accept_sources(report->type, src, rec_group.s_addr,
-					sources, report_pastend, rec_num_sources);
+					sources, canary, rec_num_sources);
 		    if (rc)
 			return;
 		}
@@ -582,7 +586,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 	    case IGMP_ALLOW_NEW_SOURCES:
 		/* RFC5790: Same as TO_IN({x}) */
 		if (!accept_sources(report->type, src, rec_group.s_addr,
-				    sources, report_pastend, rec_num_sources))
+				    sources, canary, rec_num_sources))
 		    return;
 		break;
 
@@ -592,7 +596,7 @@ void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *
 		    uint8_t *gsrc = (uint8_t *)&record->grec_src[j];
 		    struct in_addr *ina = (struct in_addr *)gsrc;
 
-		    if (gsrc > report_pastend) {
+		    if (gsrc > canary) {
 			logit(LOG_INFO, 0, "Invalid group record");
 			return;
 		    }
