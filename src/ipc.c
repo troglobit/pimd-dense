@@ -484,6 +484,7 @@ static int show_status(FILE *fp)
 	fprintf(fp, "PIM Daemon Status=\n");
 
 	fprintf(fp, "Daemon PID           : %d\n", getpid());
+	fprintf(fp, "Assert Holdtime      : %d\n", assert_timeout);
 	fprintf(fp, "Graft Interval       : %d sec\n", PIM_GRAFT_RETRANS_PERIOD);
 	fprintf(fp, "Hello Interval       : %d sec\n", PIM_TIMER_HELLO_PERIOD);
 	fprintf(fp, "Hello Holdtime       : %.1f sec\n", PIM_TIMER_HELLO_HOLDTIME);
