@@ -102,6 +102,15 @@ init_pim()
 void
 pim_clean(void)
 {
+    struct uvif *v;
+    vifi_t vifi;
+
+    /* inform all neighbors that I'm going to die */
+    for (vifi = 0, v = uvifs; vifi < numvifs; ++vifi, ++v) {
+	if ((v->uv_flags & VIFF_DISABLED) == 0)
+	    send_pim_hello(v, 0);
+    }
+
     if (pim_socket > 0)
 	close(pim_socket);
     if (pim_recv_buf)
