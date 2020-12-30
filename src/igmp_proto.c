@@ -134,9 +134,9 @@ query_groups(v)
  * Process an incoming host membership query
  */
 void
-accept_membership_query(src, dst, group, tmo)
+accept_membership_query(src, dst, group, tmo, ver)
     u_int32 src, dst, group;
-    int  tmo;
+    int     tmo, ver;
 {
     vifi_t vifi;
     struct uvif *v;
@@ -156,24 +156,27 @@ accept_membership_query(src, dst, group, tmo)
     
     v = &uvifs[vifi];
     
-    if ((tmo == 0 && !(v->uv_flags & VIFF_IGMPV1)) ||
-        (tmo != 0 &&  (v->uv_flags & VIFF_IGMPV1))) {
-        int i;
+    /* Do not accept messages of higher version than current
+     * compatibility mode as specified in RFC 3376 - 7.3.1
+     */
+    if (v->uv_querier) {
+	if ((ver == 3 && (v->uv_flags & VIFF_IGMPV2)) ||
+	    (ver == 2 && (v->uv_flags & VIFF_IGMPV1))) {
+	    int i;
 	
-        /*
-         * Exponentially back-off warning rate
-         */
-        i = ++v->uv_igmpv1_warn;
-        while (i && !(i & 1))
-            i >>= 1;
-        if (i == 1)
-            logit(LOG_WARNING, 0, "%s %s on vif %d, %s",
-                tmo == 0 ? "Received IGMPv1 report from"
-                         : "Received IGMPv2 report from",
-                inet_fmt(src, s1),
-                vifi,
-                tmo == 0 ? "please configure vif for IGMPv1"
-                         : "but I am configured for IGMPv1");
+	    /*
+	     * Exponentially back-off warning rate
+	     */
+	    i = ++v->uv_igmpv1_warn;
+	    while (i && !(i & 1))
+		i >>= 1;
+	    if (i == 1)
+		logit(LOG_WARNING, 0, "Received IGMP v%d query from %s on %s,"
+		      " but interface is in IGMP v%d compat mode",
+		      ver, inet_fmt(src, s1), v->uv_name,
+		      v->uv_flags & VIFF_IGMPV1 ? 1 : 2);
+	    return;
+	}
     }
     
     if (v->uv_querier == NULL || v->uv_querier->al_addr != src) {
@@ -185,14 +188,15 @@ accept_membership_query(src, dst, group, tmo)
          *   know who the querier is.
          * - A query from the current querier
          */
-        if (ntohl(src) < (v->uv_querier ? ntohl(v->uv_querier->al_addr)
-                                   : ntohl(v->uv_lcl_addr))) {
+        if (ntohl(src) < (v->uv_querier
+			  ? ntohl(v->uv_querier->al_addr)
+			  : ntohl(v->uv_lcl_addr))) {
             IF_DEBUG(DEBUG_IGMP)
-		logit(LOG_DEBUG, 0, "new querier %s (was %s) on vif %d",
+		logit(LOG_DEBUG, 0, "new querier %s (was %s) on %s",
 		    inet_fmt(src, s1),
 		    v->uv_querier ?
 		    inet_fmt(v->uv_querier->al_addr, s2) :
-		    "me", vifi);
+		    "me", v->uv_name);
             if (!v->uv_querier) {
                 v->uv_querier = calloc(1, sizeof(struct listaddr));
 		if (!v->uv_querier)

@@ -217,16 +217,16 @@ delete_pim_nbr(nbr_delete)
     if (!v->uv_pim_neighbors) {
 	/* This was our last neighbor. */
 	v->uv_flags &= ~VIFF_PIM_NBR;
-	v->uv_flags |= (VIFF_NONBRS | VIFF_DR | VIFF_QUERIER);
+	v->uv_flags |= (VIFF_NONBRS | VIFF_DR);
 	VIFM_CLR(nbr_delete->vifi, nbr_vifs);
     }
     else {
 	if (ntohl(v->uv_lcl_addr) > ntohl(v->uv_pim_neighbors->address)) {
-	    /* The first address is the new potential remote
+	    /*
+	     * The first address is the new potential remote
 	     * DR address, but the local address is the winner.
 	     */
 	    v->uv_flags |= VIFF_DR;
-	    v->uv_flags |= VIFF_QUERIER;
 	}
     }
     

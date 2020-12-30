@@ -156,10 +156,11 @@ static void
 accept_igmp(recvlen)
     ssize_t recvlen;
 {
-    u_int32 src, dst, group;
-    struct ip *ip;
-    struct igmp *igmp;
     int ipdatalen, iphdrlen, igmpdatalen;
+    u_int32 src, dst, group;
+    struct igmp *igmp;
+    struct ip *ip;
+    int ver = 3;
     
     if (recvlen < (ssize_t)sizeof(struct ip)) {
 	logit(LOG_WARNING, 0, "received packet too short (%zd bytes) for IP header", recvlen);
@@ -211,7 +212,19 @@ accept_igmp(recvlen)
     
     switch (igmp->igmp_type) {
     case IGMP_MEMBERSHIP_QUERY:
-	accept_membership_query(src, dst, group, igmp->igmp_code);
+	/* RFC 3376:7.1 */
+	if (ipdatalen == 8) {
+	    if (igmp->igmp_code == 0)
+		ver = 1;
+	    else
+		ver = 2;
+	} else if (ipdatalen >= 12) {
+	    ver = 3;
+	} else {
+	    logit(LOG_INFO, 0, "Received invalid IGMP query: Max Resp Code = %d, length = %d",
+		  igmp->igmp_code, ipdatalen);
+	}
+	accept_membership_query(src, dst, group, igmp->igmp_code, ver);
 	return;
 	
     case IGMP_V1_MEMBERSHIP_REPORT:

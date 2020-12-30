@@ -389,7 +389,7 @@ extern void     send_igmp     (char *buf, u_int32 src, u_int32 dst, int type, in
 
 /* igmp_proto.c */
 extern void     query_groups            (struct uvif *v);
-extern void     accept_membership_query (u_int32 src, u_int32 dst, u_int32 group, int tmo);
+extern void     accept_membership_query (u_int32 src, u_int32 dst, u_int32 group, int tmo, int ver);
 extern void     accept_group_report     (u_int32 src, u_int32 dst, u_int32 group, int r_type);
 extern void     accept_leave_message    (u_int32 src, u_int32 dst, u_int32 group);
 extern void     accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *report, ssize_t reportlen);
