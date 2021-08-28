@@ -174,7 +174,7 @@ accept_membership_query(src, dst, group, tmo, ver)
 		logit(LOG_WARNING, 0, "Received IGMP v%d query from %s on %s,"
 		      " but interface is in IGMP v%d compat mode",
 		      ver, inet_fmt(src, s1), v->uv_name,
-		      v->uv_flags & VIFF_IGMPV1 ? 1 : 2);
+		      (v->uv_flags & VIFF_IGMPV1) ? 1 : 2);
 	    return;
 	}
     }
