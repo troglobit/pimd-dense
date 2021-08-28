@@ -1,0 +1,166 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.Dd Aug 28, 2021
+.Dt PIMDD.CONF 5
+.Os
+.Sh NAME
+.Nm pimdd.conf
+.Nd pimdd configuration file
+.Sh SYNOPSIS
+.Nm /etc/pimdd.conf
+.Sh DESCRIPTION
+In many cases you do not need to configure
+.Nm pimdd .
+It configures itself automatically to forward multicast on all
+multicast-capable interfaces, i.e., interfaces that have the
+.Cm IFF_MULTICAST
+flag set.  It locates other PIM-DM capable routers directly reachable
+via those interfaces.
+.Pp
+.Nm pimdd
+will not start with less than two enabled virtual interfaces (VIFs).  A
+VIF is either a physical multicast-capable interface or a tunnel.  To
+override the default settings, for example to disable some interfaces
+from being used, configuration commands may be placed in
+.Pa /etc/pimdd.conf .
+.Pp
+The file format is relatively free-form: whitespace (including newlines)
+is not significant.  However, the order of some statements are
+important, more on this below.
+.Pp
+All
+.Ar <len>
+arguments to an IPv4 address, group or network can also be given in the
+alternative /CIDR format.  E.g.,
+.Ar <group>/<len> .
+.Pp
+By default,
+.Nm pimdd
+runs on all multicast capable interfaces.  The
+.Cm phyint
+setting can be used to control this behavior.
+.Pp
+.Bl -tag -offset indent -width 1n
+.It Cm 
+.It
+.Cm assert-timeout
+.Ar <5-210>
+.It
+.Cm default-route-distance
+.Ar <1-255>
+.It
+.Cm default-route-metric
+.Ar <1-1024>
+.It
+.Cm no phyint
+.It
+.Cm phyint
+.Cm < Ar address | Ar ifname >
+.Bl -item -offset indent
+.Op Cm enable | disable
+.Op Cm igmpv2 | igmpv3
+.Op Cm distance Ar <1-255>
+.Op Cm metric Ar <1-1024>
+.El
+.El
+.Pp
+The PIM assert mechanism arbitrates the forwarder of multicast when
+there are more than one router with the same (S,G) pair for a given
+destination LAN.  The winner of an assert is the router with either
+the best (unicast) protocol distance (called metric preference in
+the RFC), or the best metric if the distance is the same, or, as a
+tiebreaker, the highest IP address.  The loser of an asser election
+prunes its outbound interface from forwarding and starts an assert
+timer, in case the active forwarder is lost.  The
+.Cm assert-timeout
+can be used to tune the PIM assert timer to a value between 5 to 210
+seconds, default: 180 sec.
+.Pp
+The
+.Cm default-route-distance
+option has nothing to do with the system default route, it is rather the
+default value for the unicast routing protocol's administrative
+distance.  It is used in PIM Assert elections to determine upstream
+routers.  Currently
+.Nm
+cannot obtain the admin distance and metric from the unicast routing
+protocols, so a default routing protocol distance (the RFC confusingly
+refers to this as
+.Em metric prefererence )
+may be configured.  In a PIM Assert election, the router advertising the
+lowest assert preference will be selected as the forwarder and upstream
+router for the LAN.  Setting 101 should be sufficiently high so that
+asserts from Cisco or other routers preferred over
+.Nm .
+.Pp
+It is recommended that distances be set such that metrics are never
+consulted.  However, default routing metrics may also be set using the
+.Cm default-route-metric
+option.  (Again, this has nothing to do with the system default route.)
+This item sets the cost for sending data through this router.  You want
+only PIM-DM data to go to this daemon; so once again, a high value is
+recommended to prevent accidental usage.  The preferred default value is
+1024.  Both defaults can be overridden per phyint, so learned routes, or
+PIM Asserts use the phyint's values.
+.Pp
+Please also note that PIM Assert elections are not the same as the DR
+election.  The PIM Assert election determines the active multicast
+forwarder, whereas the DR election determines the active PIM router.
+.Pp
+The
+.Nm phyint
+setting refers to a physical interface and must come after the
+.Cm default-route-metric
+and
+.Cm default-route-distance
+settings in the configuration file.  Select the interface by its IP
+.Ar address
+or name.  If you just want to activate this interface with default
+values, you don't need to put anything else on the line.  However, there
+are some additional settings:
+.Bl -bullet -offset indent -width 1n -compact
+.It
+.Cm enable :
+Enable an interface for PIM.  Used after the
+.Cm no phyint
+directive.
+.It
+.Cm disable :
+Do not use this interface in
+.Nm .
+.It
+.Cm igmpv2 | igmpv3 :
+Force interface in specific IGMP version.  Default:
+.Cm igmpv3 .
+.It
+.Cm distance Ar <1-255> :
+Use this to override the
+.Nm default-route-distance
+(101) on this
+.Nm phyint
+in PIM Assert elections.
+.It
+.Cm metric Ar <1-1024> :
+The cost of sending data through this interface.  Defaults to
+.Nm default-route-metric
+(1024) if not assigned.
+.El
+.Pp
+Add one
+.Nm phyint
+line per interface on this router.  Otherwise
+.Nm
+will run on all interfaces using default settings.
+.Sh FILES
+.Bl -tag -width /etc/pimdd.conf -compact
+.It Pa /etc/pimdd.conf
+Main configuration file.
+.El
+.Sh SEE ALSO
+.Xr pimdd 8 ,
+.Xr pimctl 8
+.Sh AUTHORS
+This manual page was written by
+.An Joachim Wiberg Aq mailto:troglobit@gmail.com .
