@@ -9,7 +9,7 @@ Requires=network-online.target
 
 [Service]
 Type=simple
-ExecStart=@SBINDIR@/pimdd -n -s
+ExecStart=@SBINDIR@/pimdd -ns
 
 [Install]
 WantedBy=multi-user.target
