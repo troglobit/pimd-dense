@@ -1,6 +1,6 @@
 PIM-DM Multicast Routing for UNIX
 =================================
-[![Badge][]][License] [![CIstat][]][Travis] [![Cstat][]][Scan]
+[![Badge][]][License] [![CIstat][]][GitHub] [![Cstat][]][Scan]
 
 Introduction
 ------------
@@ -128,8 +128,8 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 [RFC3973]: https://tools.ietf.org/html/rfc3973
 [License]: https://en.wikipedia.org/wiki/BSD_licenses
 [Badge]:   https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
-[Travis]:  https://travis-ci.org/troglobit/pimd-dense
-[CIstat]:  https://travis-ci.org/troglobit/pimd-dense.png?branch=master
+[GitHub]:  https://github.com/troglobit/pimd-dense/actions/workflows/build.yml/
+[CIstat]:  https://github.com/troglobit/pimd-dense/actions/workflows/build.yml/badge.svg
 [build]:   https://autotools.io/
 [Scan]:    https://scan.coverity.com/projects/troglobit-pimd-dense
 [Cstat]:   https://scan.coverity.com/projects/21569/badge.svg
