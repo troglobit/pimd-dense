@@ -232,8 +232,7 @@ accept_membership_query(src, dst, group, tmo, ver)
      * we must set our membership timer to [Last Member Query Count] *
      * the [Max Response Time] in the packet.
      */
-    if (!(v->uv_flags & VIFF_IGMPV1) && group != 0 &&
-	src != v->uv_lcl_addr) {
+    if (!(v->uv_flags & VIFF_IGMPV1) && group != 0 && src != v->uv_lcl_addr) {
         struct listaddr *g;
 	
         IF_DEBUG(DEBUG_IGMP)
@@ -246,8 +245,7 @@ accept_membership_query(src, dst, group, tmo, ver)
                 /* setup a timeout to remove the group membership */
                 if (g->al_timerid)
                     g->al_timerid = DeleteTimer(g->al_timerid);
-                g->al_timer = IGMP_LAST_MEMBER_QUERY_COUNT *
-		                        tmo / IGMP_TIMER_SCALE;
+                g->al_timer = IGMP_LAST_MEMBER_QUERY_COUNT * tmo / IGMP_TIMER_SCALE;
                 /* use al_query to record our presence in last-member state */
                 g->al_query = -1;
                 g->al_timerid = SetTimer(vifi, g);
@@ -419,10 +417,10 @@ accept_leave_message(src, dst, group)
      * query.
      */
     for (g = v->uv_groups; g != NULL; g = g->al_next) {
-	int datalen;
-	int code;
-
         if (group == g->al_addr) {
+	    int datalen;
+	    int code;
+
             IF_DEBUG(DEBUG_IGMP)
 		logit(LOG_DEBUG, 0, "%s(): old=%d query=%lu", __func__, g->al_old, g->al_query);
 	    
@@ -493,10 +491,10 @@ of queries remaining.
 int accept_sources(int igmp_report_type, uint32_t igmp_src, uint32_t group, uint8_t *sources,
     uint8_t *canary, int rec_num_sources)
 {
-    int j;
     uint8_t *src;
+    int i;
 
-    for (j = 0, src = sources; j < rec_num_sources; ++j, src += 4) {
+    for (i = 0, src = sources; i < rec_num_sources; ++i, src += 4) {
 	struct in_addr *ina = (struct in_addr *)src;
 
         if ((src + 4) > canary) {
@@ -520,9 +518,9 @@ int accept_sources(int igmp_report_type, uint32_t igmp_src, uint32_t group, uint
  */
 void accept_membership_report(uint32_t src, uint32_t dst, struct igmpv3_report *report, ssize_t reportlen)
 {
+    uint8_t *canary = (uint8_t *)report + reportlen;
     struct igmpv3_grec *record;
     int num_groups, i;
-    uint8_t *canary = (uint8_t *)report + reportlen;
 
     num_groups = ntohs(report->ngrec);
     if (num_groups < 0) {
