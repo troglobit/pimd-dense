@@ -152,7 +152,7 @@ int usage(int code)
     compose_paths();
 
     printf("Usage:\n"
-	   "  %s [-hnsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]\n"
+	   "  %s [-hnsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-p FILE] [-w SEC]\n"
 	   "\n"
 	   "Options:\n"
 	   "  -d SYS    Enable debug of subsystem(s)\n"
@@ -161,6 +161,7 @@ int usage(int code)
 	   "  -i NAME   Identity for config + PID file, and syslog, default: %s\n"
 	   "  -l LVL    Set log level: none, err, notice (default), info, debug\n"
 	   "  -n        Run in foreground, do not detach from calling terminal\n"
+	   "  -p FILE   Override PID file, default is based on identity, -i\n"
 	   "  -s        Use syslog, default unless running in foreground, -n\n"
 	   "  -v        Show program version and support information\n"
 	   "  -w SEC    Initial startup delay before probing interfaces\n",
@@ -231,7 +232,7 @@ main(argc, argv)
     snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
 
     prognm = ident = progname(argv[0]);
-    while ((ch = getopt(argc, argv, "d:f:h?i:l:nsvw:")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?i:l:np:svw:")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -264,6 +265,10 @@ main(argc, argv)
 	    if (log_syslog > 0)
 		log_syslog--;
 	    break;
+
+	case 'p':
+		pid_file = strdup(optarg);
+		break;
 
 	case 's':
 	    if (log_syslog == 0)
