@@ -408,7 +408,7 @@ extern char    *netname           (u_int32 addr, u_int32 mask);
 extern u_int32  inet_parse        (char *s, int n);
 
 /* ipc.c */
-extern void	ipc_init	(void);
+extern void	ipc_init	(char *sockfile);
 extern void	ipc_exit	(void);
 
 /* kern.c */

@@ -49,6 +49,7 @@ char versionstring[100];
 char *ident       = PACKAGE_NAME;
 char *prognm      = NULL;
 char *pid_file    = NULL;
+char *sock_file   = NULL;
 char *config_file = NULL;
 
 int   foreground = 0;
@@ -152,7 +153,7 @@ int usage(int code)
     compose_paths();
 
     printf("Usage:\n"
-	   "  %s [-hnsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-p FILE] [-w SEC]\n"
+	   "  %s [-hnsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-p FILE] [-u FILE] [-w SEC]\n"
 	   "\n"
 	   "Options:\n"
 	   "  -d SYS    Enable debug of subsystem(s)\n"
@@ -163,6 +164,7 @@ int usage(int code)
 	   "  -n        Run in foreground, do not detach from calling terminal\n"
 	   "  -p FILE   Override PID file, default is based on identity, -i\n"
 	   "  -s        Use syslog, default unless running in foreground, -n\n"
+	   "  -u FILE   Override UNIX domain socket, default based on identity, -i\n"
 	   "  -v        Show program version and support information\n"
 	   "  -w SEC    Initial startup delay before probing interfaces\n",
 	   prognm, config_file, prognm);
@@ -232,7 +234,7 @@ main(argc, argv)
     snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
 
     prognm = ident = progname(argv[0]);
-    while ((ch = getopt(argc, argv, "d:f:h?i:l:np:svw:")) != EOF) {
+    while ((ch = getopt(argc, argv, "d:f:h?i:l:np:su:vw:")) != EOF) {
 	switch (ch) {
 	case 'd':
 	    rc = debug_parse(optarg);
@@ -274,6 +276,10 @@ main(argc, argv)
 	    if (log_syslog == 0)
 		log_syslog++;
 	    break;
+
+	case 'u':
+		sock_file = strdup(optarg);
+		break;
 
 	case 'v':
 	    printf("%s\n", versionstring);
@@ -362,7 +368,7 @@ main(argc, argv)
     init_routesock(); /* Both for Linux netlink and BSD routing socket */
     init_pim_mrt();
     init_timers();
-    ipc_init();
+    ipc_init(sock_file);
 
     if (startup_delay) {
 	logit(LOG_NOTICE, 0, "Delaying interface probe %d sec ...", startup_delay);
@@ -633,7 +639,7 @@ restart(i)
     init_routesock();
     init_pim_mrt();
     init_vifs();
-    ipc_init();
+    ipc_init(sock_file);
 
 #ifdef RSRR
     rsrr_init();
