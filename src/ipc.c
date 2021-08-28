@@ -289,13 +289,11 @@ static int ipc_wrap(int sd, int (*cb)(char *, size_t), char *buf, size_t len)
 
 static void show_neighbor(FILE *fp, struct uvif *uv, pim_nbr_entry_t *n)
 {
-	char tmp[20], buf[42];
+	char tmp[20] = { 0 }, buf[42];
 
 	snprintf(buf, sizeof(buf), "%s", timetostr(n->timer, NULL, 0));
 
-	if (uv->uv_flags & VIFF_DR) {
-		memset(tmp, 0, sizeof(tmp));
-	} else {
+	if ((uv->uv_flags & VIFF_DR) == 0) {
 		if (uv->uv_pim_neighbors == n)
 			snprintf(tmp, sizeof(tmp), "DR");
 	}
