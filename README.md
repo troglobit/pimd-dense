@@ -44,9 +44,12 @@ Usage: pimdd [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]
  -d SYS    Enable debug of subsystem(s)
  -f FILE   Configuration file, default: /etc/pimdd.conf
  -h        This help text
+ -i NAME   Identity for config + PID file, and syslog, default: pimdd
  -l LVL    Set log level: none, err, notice (default), info, debug
  -n        Run in foreground, do not detach from calling terminal
+ -p FILE   Override PID file, default is based on identity, -i
  -s        Use syslog, default unless running in foreground, -n
+ -u FILE   Override UNIX domain socket, default based on identity, -i
  -v        Show program version
  -w SEC    Initial startup delay before probing interfaces
 
@@ -54,9 +57,6 @@ Available subystems for debug:
   all, igmp, groups, igmp_proto, igmp_timers, igmp_members, interfaces, 
   kernel, mfc, neighbors, pkt, rsrr, pim, asserts, bsr, detail, graft, hello, 
   registers, routes, pim_routes, jp, pim_timers, rpf, timers, timeout, trace
-
-Bug report address: https://github.com/troglobit/pimd-dense/issues
-Project homepage: https://github.com/troglobit/pimd-dense/
 ```
 
 If you want to see all messages, use `pimdd -d all`.  When debugging
