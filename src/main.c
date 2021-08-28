@@ -151,17 +151,21 @@ int usage(int code)
 
     compose_paths();
 
-    printf("Usage: %s [-hnpqrsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]\n\n", prognm);
-    printf(" -d SYS    Enable debug of subsystem(s)\n");
-    printf(" -f FILE   Configuration file, default: %s\n", config_file);
-    printf(" -h        This help text\n");
-    printf(" -i NAME   Identity for config + PID file, and syslog, default: %s\n", prognm);
-    printf(" -l LVL    Set log level: none, err, notice (default), info, debug\n");
-    printf(" -n        Run in foreground, do not detach from calling terminal\n");
-    printf(" -s        Use syslog, default unless running in foreground, -n\n");
-    printf(" -v        Show program version\n");
-    printf(" -w SEC    Initial startup delay before probing interfaces\n");
-    
+    printf("Usage:\n"
+	   "  %s [-hnsv] [-d SYS[,SYS]] [-f FILE] [-l LVL] [-w SEC]\n"
+	   "\n"
+	   "Options:\n"
+	   "  -d SYS    Enable debug of subsystem(s)\n"
+	   "  -f FILE   Configuration file, default: %s\n"
+	   "  -h        This help text\n"
+	   "  -i NAME   Identity for config + PID file, and syslog, default: %s\n"
+	   "  -l LVL    Set log level: none, err, notice (default), info, debug\n"
+	   "  -n        Run in foreground, do not detach from calling terminal\n"
+	   "  -s        Use syslog, default unless running in foreground, -n\n"
+	   "  -v        Show program version\n"
+	   "  -w SEC    Initial startup delay before probing interfaces\n",
+	   prognm, config_file, prognm);
+
     fprintf(stderr, "\nAvailable subystems for debug:\n");
     if (!debug_list(DEBUG_ALL, buf, sizeof(buf))) {
 	char line[82] = "  ";
@@ -170,7 +174,6 @@ int usage(int code)
 	ptr = strtok(buf, " ");
 	while (ptr) {
 	    char *sys = ptr;
-	    char buf[20];
 
 	    ptr = strtok(NULL, " ");
 
