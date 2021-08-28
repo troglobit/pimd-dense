@@ -162,7 +162,7 @@ int usage(int code)
 	   "  -l LVL    Set log level: none, err, notice (default), info, debug\n"
 	   "  -n        Run in foreground, do not detach from calling terminal\n"
 	   "  -s        Use syslog, default unless running in foreground, -n\n"
-	   "  -v        Show program version\n"
+	   "  -v        Show program version and support information\n"
 	   "  -w SEC    Initial startup delay before probing interfaces\n",
 	   prognm, config_file, prognm);
 
@@ -193,11 +193,6 @@ int usage(int code)
 
 	puts(line);
     }
-
-    printf("\nBug report address: %-40s\n", PACKAGE_BUGREPORT);
-#ifdef PACKAGE_URL
-    printf("Project homepage: %s\n", PACKAGE_URL);
-#endif
 
     free(config_file);
 
@@ -277,6 +272,11 @@ main(argc, argv)
 
 	case 'v':
 	    printf("%s\n", versionstring);
+	    printf("\n"
+		   "Bug report address: %s\n", PACKAGE_BUGREPORT);
+#ifdef PACKAGE_URL
+	    printf("Project homepage:   %s\n", PACKAGE_URL);
+#endif
 	    return 0;
 
 	case 'w':
