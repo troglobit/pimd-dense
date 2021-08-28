@@ -18,6 +18,7 @@ Before release:
   * Add custom IPC socket file, -S FILE, from SMCRoute
   * Add basic automatic test, use framework from SMCRoute
   * Test in non-trivial (POD?) setup with CORE
+  * Split man page in two -> pimdd.conf.5
   * Add ChangeLog.md
 
 Bonus, or later release:
