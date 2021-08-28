@@ -47,8 +47,9 @@ jobs:
           size ~/tmp/sbin/pimdd
           ldd ~/tmp/sbin/pimctl
           size ~/tmp/sbin/pimctl
-          sudo ~/tmp/sbin/pimdd
+          sudo ~/tmp/sbin/pimdd -p ~/tmp/foo.pid -u ~/tmp/foo.sock
           sleep 1
           ~/tmp/sbin/pimdd -h
-          ~/tmp/sbin/pimctl -h
-          sudo killall pimdd
+          ~/tmp/sbin/pimctl -u ~/tmp/foo.sock -h
+          ~/tmp/sbin/pimctl -u ~/tmp/foo.sock
+          ~/tmp/sbin/pimctl -u ~/tmp/foo.sock kill
