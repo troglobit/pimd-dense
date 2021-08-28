@@ -111,11 +111,6 @@ Any other than the upstream interface for that group.
 This program follows the usual UNIX command line syntax.  The options
 are as follows:
 .Bl -tag -width Ds
-.It Fl h
-Print a help message and exit.
-.It Fl f Ar FILE
-Specify an alternative configuration file, default:
-.Pa /etc/pimdd.conf .
 .It Fl d Ar SYS[,SYS...]
 This option controls extended subsystem debugging, use
 .Cm all
@@ -159,15 +154,11 @@ Detailed PIM debug
 .It Cm hello
 Debug hello messages to/from neighbors
 .El
-.It Fl n
-Run in the foreground, do not detach from calling terminal and do not
-fork to background.  Useful not only when debugging (above) but also
-when running under a process monitor like daemontools, runit, finit, or
-systemd.  Remember to also use
-.Fl s ,
-to send all logs to the syslog daemon, unless you want to debug
-.Nm
-and run in the foreground.
+.It Fl f Ar FILE
+Specify an alternative configuration file, default:
+.Pa /etc/pimdd.conf .
+.It Fl h
+Print a help message and exit.
 .It Fl l Ar LEVEL
 Set log level to one of the following, default
 .Nm notice :
@@ -186,11 +177,23 @@ Informational
 .It Cm debug
 Debug-level messages
 .El
+.It Fl n
+Run in the foreground, do not detach from calling terminal and do not
+fork to background.  Useful not only when debugging (above) but also
+when running under a process monitor like daemontools, runit, finit, or
+systemd.  Remember to also use
+.Fl s ,
+to send all logs to the syslog daemon, unless you want to debug
+.Nm
+and run in the foreground.
 .It Fl p Ar FILE
 Overide PID filename, the default name is based on the identity,
 .Fl i Ar NAME .
 On most systems this is
 .Pa /var/run/pimdd.pid .
+.It Fl s
+Use syslog, default unless running in foreground,
+.Fl n .
 .It Fl v
 Show program version and support information.
 .It Fl w Ar SEC
