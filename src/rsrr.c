@@ -503,3 +503,9 @@ rsrr_clean()
 }
 
 #endif /* RSRR */
+
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */
