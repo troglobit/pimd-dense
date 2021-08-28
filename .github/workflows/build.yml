@@ -47,8 +47,8 @@ jobs:
           size ~/tmp/sbin/pimdd
           ldd ~/tmp/sbin/pimctl
           size ~/tmp/sbin/pimctl
-          ~/tmp/sbin/pimdd
+          sudo ~/tmp/sbin/pimdd
           sleep 1
           ~/tmp/sbin/pimdd -h
           ~/tmp/sbin/pimctl -h
-          killall pimdd
+          sudo killall pimdd
