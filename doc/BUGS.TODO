@@ -14,12 +14,12 @@ Before release:
   * [DONE] When receiving holdtime=0, trigger Assert relection
   * [DONE] Fix "pim status" output, what's relevant?
   * [DONE] Add "mrt" and "mfc" concepts to pimctl/ipc commands
-  * Add ident, -i NAME, support from pimd
-  * Add custom IPC socket file, -S FILE, from SMCRoute
+  * [DONE] Add ident, -i NAME, support from pimd
+  * [DONE] Add custom IPC socket file, -u FILE, from SMCRoute
   * Add basic automatic test, use framework from SMCRoute
   * Test in non-trivial (POD?) setup with CORE
-  * Split man page in two -> pimdd.conf.5
-  * Add ChangeLog.md
+  * [DONE] Split man page in two -> pimdd.conf.5
+  * [DONE] Add ChangeLog.md
 
 Bonus, or later release:
   * Issue #2: Support for (prune) state refresh
