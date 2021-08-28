@@ -114,18 +114,20 @@ rsrr_read(f, rfd)
 	int f;
 	fd_set *rfd;
 {
-    ssize_t rsrr_recvlen;
+    ssize_t len;
     
-    bzero((char *) &client_addr, sizeof(client_addr));
-    rsrr_recvlen = recvfrom(rsrr_socket, rsrr_recv_buf, sizeof(rsrr_recv_buf),
-			    0, (struct sockaddr *)&client_addr,
-			    &client_length);
-    if (rsrr_recvlen < 0) {	
-	if (errno != EINTR)
-	    logit(LOG_ERR, errno, "RSRR recvfrom");
+    memset(&client_addr, 0, sizeof(client_addr));
+    while ((len = recvfrom(rsrr_socket, rsrr_recv_buf, RSRR_MAX_LEN, 0,
+		(struct sockaddr *)&client_addr, &client_length)) < 0) {
+
+	if (errno == EINTR)
+	    continue;
+
+	logit(LOG_ERR, errno, "RSRR recvfrom");
 	return;
     }
-    rsrr_accept(rsrr_recvlen);
+
+    rsrr_accept(len);
 }
 
 /*
