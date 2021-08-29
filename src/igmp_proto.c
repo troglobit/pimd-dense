@@ -192,11 +192,8 @@ accept_membership_query(src, dst, group, tmo, ver)
 			  ? ntohl(v->uv_querier->al_addr)
 			  : ntohl(v->uv_lcl_addr))) {
             IF_DEBUG(DEBUG_IGMP)
-		logit(LOG_DEBUG, 0, "new querier %s (was %s) on %s",
-		    inet_fmt(src, s1),
-		    v->uv_querier ?
-		    inet_fmt(v->uv_querier->al_addr, s2) :
-		    "me", v->uv_name);
+		logit(LOG_DEBUG, 0, "new querier %s (was %s) on %s", inet_fmt(src, s1),
+		    v->uv_querier ? inet_fmt(v->uv_querier->al_addr, s2) : "me", v->uv_name);
             if (!v->uv_querier) {
                 v->uv_querier = calloc(1, sizeof(struct listaddr));
 		if (!v->uv_querier)
