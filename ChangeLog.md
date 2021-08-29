@@ -47,6 +47,9 @@ All notable changes to the project are documented in this file.
 - Fix PIM Assert handling, with new `assert-timeout` .conf option
 - Fix `k_del_vif()`, does not work properly in Linux
 - Fix 100% CPU usage, refactor linked list handling to use `queue.h`
+- Fix IGMP querier election bug, lost querier "flag" on interface when
+  PIM DR election was lost.  Thar draft spec PimDM is built around says
+  largest IP wins DR election, but smallest wins IGMP, follow IGMP RFC
 - Only stop active/enabled VIFs, prevent bogus error messages
 - Fix RSRR (optional) build errors
 - Fix various memory leaks identified by Valgrind

@@ -157,13 +157,11 @@ receive_pim_hello(src, dst, pim_message, datalen)
     VIFM_SET(vifi, nbr_vifs);
 
     /* Elect a new DR */
-    if (ntohl(v->uv_lcl_addr) <
-	ntohl(v->uv_pim_neighbors->address)) {
+    if (ntohl(v->uv_lcl_addr) < ntohl(v->uv_pim_neighbors->address)) {
 	/* The first address is the new potential remote
 	 * DR address and it wins (is >) over the local address.
 	 */
 	v->uv_flags &= ~VIFF_DR;
-	v->uv_flags &= ~VIFF_QUERIER;
     }
 
     /* Since a new neighbour has come up, let it know your existence */
