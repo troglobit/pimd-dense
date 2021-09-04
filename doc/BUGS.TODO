@@ -17,7 +17,7 @@ Before release:
   * [DONE] Add ident, -i NAME, support from pimd
   * [DONE] Add custom IPC socket file, -u FILE, from SMCRoute
   * Add basic automatic test, use framework from SMCRoute
-  * Test in non-trivial (POD?) setup with CORE
+  * [DONE] Test in non-trivial (POD?) setup with CORE
   * [DONE] Split man page in two -> pimdd.conf.5
   * [DONE] Add ChangeLog.md
 
