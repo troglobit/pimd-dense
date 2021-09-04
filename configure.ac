@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT([pimdd], [0.2.1.0-beta1], [https://github.com/troglobit/pimd-dense/issues],
+AC_INIT([pimdd], [2.1.0-rc1], [https://github.com/troglobit/pimd-dense/issues],
 	[pimd-dense], [https://github.com/troglobit/pimd-dense/])
 AC_CONFIG_AUX_DIR(aux)
 AM_INIT_AUTOMAKE([1.11 foreign])

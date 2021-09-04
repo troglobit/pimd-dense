@@ -29,6 +29,7 @@ All notable changes to the project are documented in this file.
 - Add support for `pimctl`, from pimd.  The tool can be shared with
   pimd and used interchangeably between the two daemons
 - Add support for PIM Generation ID (genid) in PIM Hello
+- Add IP Router Alert option to IGMP and PIM messages, as per RFC2113
 - Inform PIM neighbors when we go down/reconfigure, PIM Hello holdtime=0
 - Trigger PIM Assert reelection when PIM neighbor goes down
 - Add support for querying RPF metric from Linux kernel
@@ -51,6 +52,7 @@ All notable changes to the project are documented in this file.
   PIM DR election was lost.  Thar draft spec PimDM is built around says
   largest IP wins DR election, but smallest wins IGMP, follow IGMP RFC
 - Only stop active/enabled VIFs, prevent bogus error messages
+- Fix unset DSCP value in PIM messages, Internet Control (DS6)
 - Fix RSRR (optional) build errors
 - Fix various memory leaks identified by Valgrind
 - Fix various scary bug identified by Coverity Scan
