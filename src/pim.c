@@ -86,7 +86,7 @@ init_pim()
     ip           = (struct ip *)pim_send_buf;
     ip->ip_v     = IPVERSION;
     ip->ip_hl    = (sizeof(struct ip) >> 2);
-    ip->ip_tos   = 0;    /* TODO: setup?? */
+    ip->ip_tos   = 0xc0;                  /* Internet Control   */
     ip->ip_id    = 0;                     /* let kernel fill in */
     ip->ip_off   = 0;
     ip->ip_p     = IPPROTO_PIM;
