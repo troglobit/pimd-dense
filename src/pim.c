@@ -60,6 +60,7 @@ static void accept_pim (ssize_t recvlen);
 void
 init_pim()
 {
+    u_char *ip_opt;
     struct ip *ip;
     
     assert_timeout = PIM_ASSERT_TIMEOUT;
@@ -85,12 +86,22 @@ init_pim()
     /* One time setup in the buffers */
     ip           = (struct ip *)pim_send_buf;
     ip->ip_v     = IPVERSION;
-    ip->ip_hl    = (sizeof(struct ip) >> 2);
+    ip->ip_hl    = (IP_HEADER_RAOPT_LEN >> 2);
     ip->ip_tos   = 0xc0;                  /* Internet Control   */
     ip->ip_id    = 0;                     /* let kernel fill in */
     ip->ip_off   = 0;
     ip->ip_p     = IPPROTO_PIM;
     ip->ip_sum   = 0;                     /* let kernel fill in */
+
+    /*
+     * RFC2113 IP Router Alert.  Per spec this is required to
+     * force certain routers/switches to inspect this frame.
+     */
+    ip_opt    = (u_char *)(pim_send_buf + IP_HEADER_RAOPT_LEN);
+    ip_opt[0] = IPOPT_RA;
+    ip_opt[1] = 4;
+    ip_opt[2] = 0;
+    ip_opt[3] = 0;
 
     if (register_input_handler(pim_socket, pim_read) < 0)
 	logit(LOG_ERR, 0,  "cannot register pim_read() as an input handler");
@@ -162,7 +173,7 @@ accept_pim(recvlen)
     pim_header_t *pim;
     ssize_t iphdrlen, pimlen;
     
-    if (recvlen < (ssize_t)sizeof(struct ip)) {
+    if (recvlen < MIN_IP_HEADER_LEN) {
 	logit(LOG_WARNING, 0, "packet too short (%zd bytes) for IP header", recvlen);
 	return;
     }
@@ -261,7 +272,7 @@ send_pim(buf, src, dst, type, datalen)
 
     /* Prepare the IP header */
     ip                 = (struct ip *)buf;
-    ip->ip_len	       = sizeof(struct ip) + sizeof(pim_header_t) + datalen;
+    ip->ip_len	       = IP_HEADER_RAOPT_LEN + sizeof(pim_header_t) + datalen;
     ip->ip_id          = 0;                 /* let kernel fill in */
     ip->ip_off         = 0;
     ip->ip_src.s_addr  = src;
@@ -273,7 +284,7 @@ send_pim(buf, src, dst, type, datalen)
 #endif
     
     /* Prepare the PIM packet */
-    pim		       = (pim_header_t *)(buf + sizeof(struct ip));
+    pim		       = (pim_header_t *)(buf + IP_HEADER_RAOPT_LEN);
     pim->pim_type      = type;
     pim->pim_vers      = PIM_PROTOCOL_VERSION;
     pim->pim_reserved  = 0;
@@ -354,7 +365,7 @@ send_pim_unicast(buf, src, dst, type, datalen)
     
     /* Prepare the IP header */
     ip                 = (struct ip *)buf;
-    ip->ip_len         = sizeof(struct ip) + sizeof(pim_header_t) + datalen;
+    ip->ip_len         = IP_HEADER_RAOPT_LEN + sizeof(pim_header_t) + datalen;
     ip->ip_src.s_addr  = src;
     ip->ip_dst.s_addr  = dst;
     sendlen            = ip->ip_len;
@@ -365,7 +376,7 @@ send_pim_unicast(buf, src, dst, type, datalen)
 #endif /* RAW_OUTPUT_IS_RAW */
     
     /* Prepare the PIM packet */
-    pim		           = (pim_header_t *)(buf + sizeof(struct ip));
+    pim		           = (pim_header_t *)(buf + IP_HEADER_RAOPT_LEN);
     pim->pim_vers           = PIM_PROTOCOL_VERSION;
     pim->pim_type          = type;
     pim->pim_cksum	   = 0;

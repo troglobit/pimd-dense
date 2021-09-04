@@ -72,6 +72,7 @@ static void accept_igmp      (ssize_t recvlen);
 void 
 init_igmp()
 {
+    u_char *ip_opt;
     struct ip *ip;
     
     igmp_recv_buf = calloc(1, RECV_BUF_SIZE);
@@ -89,16 +90,27 @@ init_igmp()
 		 SO_RECV_BUF_SIZE_MIN); /* lots of input buffering        */
     k_set_ttl(igmp_socket, MINTTL);	/* restrict multicasts to one hop */
     k_set_loop(igmp_socket, FALSE);	/* disable multicast loopback     */
-    
+
+    /* One time setup in the buffers */
     ip         = (struct ip *)igmp_send_buf;
     ip->ip_v   = IPVERSION;
-    ip->ip_hl  = (sizeof(struct ip) >> 2);
+    ip->ip_hl  = (IP_HEADER_RAOPT_LEN >> 2);
     ip->ip_tos = 0xc0;                  /* Internet Control   */
     ip->ip_id  = 0;                     /* let kernel fill in */
     ip->ip_off = 0;
     ip->ip_ttl = MAXTTL;		/* applies to unicasts only */
     ip->ip_p   = IPPROTO_IGMP;
     ip->ip_sum = 0;                     /* let kernel fill in               */
+
+    /*
+     * RFC2113 IP Router Alert.  Per spec this is required to
+     * force certain routers/switches to inspect this frame.
+     */
+    ip_opt    = (u_char *)(igmp_send_buf + sizeof(struct ip));
+    ip_opt[0] = IPOPT_RA;
+    ip_opt[1] = 4;
+    ip_opt[2] = 0;
+    ip_opt[3] = 0;
 
     /* Everywhere in the daemon we use network-byte-order */    
     allhosts_group = htonl(INADDR_ALLHOSTS_GROUP);
@@ -162,7 +174,7 @@ accept_igmp(recvlen)
     struct ip *ip;
     int ver = 3;
     
-    if (recvlen < (ssize_t)sizeof(struct ip)) {
+    if (recvlen < MIN_IP_HEADER_LEN) {
 	logit(LOG_WARNING, 0, "received packet too short (%zd bytes) for IP header", recvlen);
 	return;
     }
@@ -344,7 +356,7 @@ send_igmp(buf, src, dst, type, code, group, datalen)
 
     /* Prepare the IP header */
     ip 			    = (struct ip *)buf;
-    ip->ip_len              = sizeof(struct ip) + IGMP_MINLEN + datalen;
+    ip->ip_len              = IP_HEADER_RAOPT_LEN + IGMP_MINLEN + datalen;
     ip->ip_src.s_addr       = src; 
     ip->ip_dst.s_addr       = dst;
     sendlen                 = ip->ip_len;
@@ -352,7 +364,7 @@ send_igmp(buf, src, dst, type, code, group, datalen)
     ip->ip_len              = htons(ip->ip_len);
 #endif /* RAW_OUTPUT_IS_RAW */
 
-    igmp                    = (struct igmp *)(buf + sizeof(struct ip));
+    igmp                    = (struct igmp *)(buf + IP_HEADER_RAOPT_LEN);
     igmp->igmp_type         = type;
     igmp->igmp_code         = code;
     igmp->igmp_group.s_addr = group;

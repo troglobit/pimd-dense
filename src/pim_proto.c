@@ -369,7 +369,7 @@ send_pim_hello(v, holdtime)
     u_int8 *data_ptr;
     ssize_t datalen;
 
-    buf = pim_send_buf + sizeof(struct ip) + sizeof(pim_header_t);
+    buf = pim_send_buf + IP_HEADER_RAOPT_LEN + sizeof(pim_header_t);
     data_ptr = (u_int8 *)buf;
     PUT_HOSTSHORT(PIM_HELLO_HOLDTIME, data_ptr);
     PUT_HOSTSHORT(PIM_HELLO_HOLDTIME_LENGTH, data_ptr);
@@ -802,7 +802,7 @@ send_pim_jp(mrtentry_ptr, action, vifi, target_addr, holdtime)
     	/* No upstream neighbor - don't send */
     	return FALSE;
     
-    data_ptr = (u_int8 *)(pim_send_buf + sizeof(struct ip) + sizeof(pim_header_t));
+    data_ptr = (u_int8 *)(pim_send_buf + IP_HEADER_RAOPT_LEN + sizeof(pim_header_t));
     data_start_ptr = data_ptr;
 
     IF_DEBUG(DEBUG_PIM_JOIN_PRUNE)
@@ -1082,8 +1082,7 @@ send_pim_assert(source, group, vifi, local_preference, local_metric)
     u_int8 *data_ptr;
     u_int8 *data_start_ptr;
 
-    data_ptr = (u_int8 *)(pim_send_buf + sizeof(struct ip)
-                          + sizeof(pim_header_t));
+    data_ptr = (u_int8 *)(pim_send_buf + IP_HEADER_RAOPT_LEN + sizeof(pim_header_t));
     data_start_ptr = data_ptr;
     PUT_EGADDR(group, SINGLE_GRP_MSKLEN, 0, data_ptr);
     PUT_EUADDR(source, data_ptr);
@@ -1169,7 +1168,7 @@ int retransmit_pim_graft(mrtentry_ptr)
 {
     u_int8 *data_ptr, *data_start_ptr;
 	
-    data_ptr = (u_int8 *)(pim_send_buf + sizeof(struct ip) + sizeof(pim_header_t));
+    data_ptr = (u_int8 *)(pim_send_buf + IP_HEADER_RAOPT_LEN + sizeof(pim_header_t));
     data_start_ptr = data_ptr;
 
     if (!mrtentry_ptr->upstream) {
@@ -1351,7 +1350,7 @@ receive_pim_graft(src, dst, pim_message, datalen, pimtype)
 	IF_DEBUG(DEBUG_PIM_GRAFT)
 	    logit(LOG_DEBUG, 0, "Sending GRAFT-ACK: vif %s, dst %s",
 		inet_fmt(uvifs[vifi].uv_lcl_addr, s1), inet_fmt(src, s2));
-	bcopy(pim_message, pim_send_buf + sizeof(struct ip), datalen);
+	bcopy(pim_message, pim_send_buf + IP_HEADER_RAOPT_LEN, datalen);
 	send_pim(pim_send_buf, uvifs[vifi].uv_lcl_addr, 
 		 src, PIM_GRAFT_ACK, datalen - sizeof(pim_header_t));
     }

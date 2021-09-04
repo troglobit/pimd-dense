@@ -169,7 +169,12 @@ typedef void (*ihfunc_t) (int, fd_set *);
 #define MAX_IP_PACKET_LEN       576
 #define MIN_IP_HEADER_LEN       20
 #define MAX_IP_HEADER_LEN       60
+#define IP_HEADER_RAOPT_LEN	24
 
+/* NetBSD 6.1, for instance, does not have IPOPT_RA defined. */
+#ifndef IPOPT_RA
+#define IPOPT_RA		148
+#endif
 
 /*
  * The IGMPv2 <netinet/in.h> defines INADDR_ALLRTRS_GROUP, but earlier
