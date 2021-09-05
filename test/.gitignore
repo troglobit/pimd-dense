@@ -1,3 +1,5 @@
 .deps/*
+*.log
 *.o
+*.trs
 mping
