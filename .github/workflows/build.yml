@@ -27,15 +27,26 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get -y update
-          sudo apt-get -y install pkg-config libsystemd-dev tree
+          sudo apt-get -y install pkg-config libsystemd-dev tshark tree
       - uses: actions/checkout@v2
       - name: Configure
         # Build in a sub-directory so we can safely set a+w on all
         # directories.  Needed for `make check` since it runs with
         # root dropped and wants to write .trs and .log files.
         run: |
+          set -x
           ./autogen.sh
-          ./configure --prefix= --enable-rsrr
+          ./configure --prefix= --enable-rsrr --enable-test
+          make dist && archive=$(ls *.tar.gz)
+          if [ -n "$archive" -a -f "$archive" ]; then
+            tar xf "$archive"
+            dir=$(echo "$archive" |rev |cut -f3- -d. |rev)
+            cd "$dir"
+          fi
+          mkdir -p .build/dir
+          cd .build/dir
+          ../../configure --prefix= --enable-rsrr --enable-test
+          chmod -R a+w .
       - name: Build
         run: |
           make V=1
@@ -53,3 +64,11 @@ jobs:
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock -h
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock kill
+      - name: Test
+        run: |
+          make check || (cat test/test-suite.log; false)
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: pimd-dense-test-${{ matrix.compiler }}
+          path: test/*
