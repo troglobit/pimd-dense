@@ -7,6 +7,11 @@
 # shellcheck source=/dev/null
 . "$(dirname "$0")/lib.sh"
 
+# Requires ethtool to disable UDP checksum offloading
+print "Check deps ..."
+check_dep ethtool
+check_dep tshark
+
 print "Creating world ..."
 left="/tmp/$NM/a1"
 right="/tmp/$NM/a2"
@@ -78,6 +83,7 @@ sleep 1
 
 if ! nsenter --net="$left"  -- ./mping -s -d -i eth0 -t 3 -c 10 -w 15 225.1.2.3; then
     show_mroute
+    ../src/pimctl -u "/tmp/$NM/sock"
     echo "Failed routing, expected at least 10 multicast ping replies"
     FAIL
 fi

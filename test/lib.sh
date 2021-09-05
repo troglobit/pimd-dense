@@ -31,6 +31,7 @@ OK()
     exit 0
 }
 
+# shellcheck disable=SC2068
 check_dep()
 {
     if [ -n "$2" ]; then
@@ -49,7 +50,6 @@ show_mroute()
     echo "-----------------------------------------------------------------------------------"
     ip mroute
     echo "-----------------------------------------------------------------------------------"
-    ../src/pimctl -u "/tmp/$NM/sock"
 }
 
 emitter()
@@ -411,6 +411,6 @@ topo()
 }
 
 # Runs once when including lib.sh
-mkdir "/tmp/$NM"
+mkdir -p "/tmp/$NM"
 touch "/tmp/$NM/PIDs"
 trapit signal INT TERM QUIT EXIT
