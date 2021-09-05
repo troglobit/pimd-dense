@@ -185,8 +185,8 @@ static int ipc_read(int sd, char *cmd, ssize_t len)
 
 	for (size_t i = 0; i < NELEMS(cmds); i++) {
 		struct ipcmd *c = &cmds[i];
-		size_t len = strlen(c->cmd);
 
+		len = strlen(c->cmd);
 		if (!strncasecmp(cmd, c->cmd, len)) {
 			check_detail(cmd, len);
 			return c->op;
