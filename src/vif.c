@@ -190,7 +190,7 @@ start_all_vifs()
 	logit(LOG_INFO, 0, "installing %s (%s on subnet %s) as vif #%u, rate %d",
 	      v->uv_name, inet_fmt(v->uv_lcl_addr, s1),
 	      netname(v->uv_subnet, v->uv_subnetmask),
-	      numvifs, v->uv_rate_limit);
+	      vifi, v->uv_rate_limit);
 
 	start_vif(vifi);
     }
