@@ -30,54 +30,117 @@ echo "$NS3" >> "/tmp/$NM/mounts"
 echo "$NS4" >> "/tmp/$NM/mounts"
 echo "$NS5" >> "/tmp/$NM/mounts"
 
-ip link add eth0 type veth peer eth1
-ip link add eth2 type veth peer eth3
-ip link add eth4 type veth peer eth5
-ip link add eth6 type veth peer eth7
-
-# Disabling UDP checksum offloading, frames are leaving kernel space
-# on these VETH pairs.  (Silence noisy ethtool output)
-for iface in eth0 eth1 eth2 eth3 eth4 eth5 eth6 eth7; do
-    ethtool --offload "$iface" tx off >/dev/null
-    ethtool --offload "$iface" rx off >/dev/null
-done
-
 unshare --net="$NS1" -- ip link set lo up
 unshare --net="$NS2" -- ip link set lo up
 unshare --net="$NS3" -- ip link set lo up
 unshare --net="$NS4" -- ip link set lo up
 unshare --net="$NS5" -- ip link set lo up
 
-nsmove "$NS1" eth0
-nsmove "$NS2" eth1 eth2
-nsmove "$NS3" eth3 eth4
-nsmove "$NS4" eth5 eth6
-nsmove "$NS5" eth7
+# Creates a VETH pair, one end named eth0 and the other is eth7:
+#
+#     created /tmp/foo eth0 eth7 1.2.3.4/24 1.2.3.1
+#
+# Disabling UDP checksum offloading with ethtool, frames are leaving
+# kernel space on these VETH pairs.  (Silence noisy ethtool output)
+created()
+{
+    in=$2
+    if echo "$3" | grep -q '@'; then
+	ut=$(echo "$3" | cut -f1 -d@)
+	id=$(echo "$3" | cut -f2 -d@)
+    else
+	ut=$3
+    fi
 
-nsrename "$NS5" eth7 eth0
+    echo "Creating device interfaces $in and $ut ..."
+    nsenter --net="$1" -- ip link add "$in" type veth peer "$ut"
+    nsenter --net="$1" -- ip link set "$in" up
 
-nsenter --net="$NS1" -- ip link set eth0 up
-nsenter --net="$NS1" -- ip addr add 10.0.0.10/24 broadcast + dev eth0
-nsenter --net="$NS1" -- ip route add default via 10.0.0.1
+    nsenter --net="$1" -- ip addr add "$4" broadcast + dev "$2"
+    nsenter --net="$1" -- ip route add default via "$5"
 
-nsenter --net="$NS2" -- ip link set eth1 up
-nsenter --net="$NS2" -- ip addr add 10.0.0.1/24 broadcast + dev eth1
-nsenter --net="$NS2" -- ip link set eth2 up
-nsenter --net="$NS2" -- ip addr add 10.0.1.1/24 broadcast + dev eth2
+    for iface in "$in" "$ut"; do
+	nsenter --net="$1" -- ethtool --offload "$iface" tx off >/dev/null
+	nsenter --net="$1" -- ethtool --offload "$iface" rx off >/dev/null
+    done
 
-nsenter --net="$NS3" -- ip link set eth3 up
-nsenter --net="$NS3" -- ip addr add 10.0.1.2/24 broadcast + dev eth3
-nsenter --net="$NS3" -- ip link set eth4 up
-nsenter --net="$NS3" -- ip addr add 10.0.2.1/24 broadcast + dev eth4
+    if [ -n "$id" ]; then
+	echo "$1 moving $ut to netns PID $id"
+	nsenter --net="$1" -- ip link set "$ut" netns "$id"
+    fi
 
-nsenter --net="$NS4" -- ip link set eth5 up
-nsenter --net="$NS4" -- ip addr add 10.0.2.2/24 broadcast + dev eth5
-nsenter --net="$NS4" -- ip link set eth6 up
-nsenter --net="$NS4" -- ip addr add 10.0.3.1/24 broadcast + dev eth6
+    return $!
+}
 
-nsenter --net="$NS5" -- ip link set eth0 up
-nsenter --net="$NS5" -- ip addr add 10.0.3.10/24 broadcast + dev eth0
-nsenter --net="$NS5" -- ip route add default via 10.0.3.1
+creater()
+{
+    if echo "$2" |grep -q ':'; then
+	x=$(echo "$2" | cut -f1 -d:)
+	b=$(echo "$2" | cut -f2 -d:)
+	echo "1) Found x=$x and b=$b ..."
+	a=$(echo "$x" | cut -f1 -d@)
+	p=$(echo "$x" | cut -f2 -d@)
+	echo "1) Found a=$a and p=$p ..."
+	echo "Creating router interfaces $a and $b ..."
+	nsenter --net="$1" -- ip link add "$a" type veth peer "$b"
+	for iface in "$a" "$b"; do
+	    nsenter --net="$1" -- ethtool --offload "$iface" tx off >/dev/null
+	    nsenter --net="$1" -- ethtool --offload "$iface" rx off >/dev/null
+	done
+	echo "$1 moving $a to netns PID $p"
+	nsenter --net="$1" -- ip link set "$a" netns "$p"
+    else
+	b=$2
+    fi
+
+    echo "Bringing up $a with addr $4"
+    nsenter --net="$1" -- ip link set "$b" up
+    nsenter --net="$1" -- ip addr add "$4" broadcast + dev "$b"
+
+    if echo "$3" |grep -q ':'; then
+	a=$(echo "$3" | cut -f1 -d:)
+	x=$(echo "$3" | cut -f2 -d:)
+	echo "2) Found x=$x and b=$b ..."
+	b=$(echo "$x" | cut -f1 -d@)
+	p=$(echo "$x" | cut -f2 -d@)
+	echo "2) Found a=$a and p=$p ..."
+	echo "Creating router interfaces $a and $b ..."
+	nsenter --net="$1" -- ip link add "$a" type veth peer "$b"
+	for iface in "$a" "$b"; do
+	    nsenter --net="$1" -- ethtool --offload "$iface" tx off >/dev/null
+	    nsenter --net="$1" -- ethtool --offload "$iface" rx off >/dev/null
+	done
+	echo "$1 moving $b to netns PID $p"
+	nsenter --net="$1" -- ip link set "$b" netns "$p"
+    else
+	a=$3
+    fi
+
+    echo "Bringing up $a with addr $5"
+    nsenter --net="$1" -- ip link set "$a" up
+    nsenter --net="$1" -- ip addr add "$5" broadcast + dev "$a"
+}
+
+dprint "Creating $NS2 router ..."
+unshare --net="$NS2" -- ip link set lo up
+nsenter --net="$NS2" -- sleep 5 &
+pid2=$!
+dprint "Creating $NS4 router ..."
+unshare --net="$NS4" -- ip link set lo up
+nsenter --net="$NS4" -- sleep 5 &
+pid4=$!
+
+dprint "Creating NS1 ED with eth1 in PID $pid2"
+created "$NS1" eth0 eth1@"$pid2" 10.0.0.10/24 10.0.0.1
+
+dprint "Creating NS3 router with eth3 in PID $pid2 and eth5 in PID $pid4"
+creater "$NS3" eth2@"$pid2":eth3 eth4:eth5@"$pid4" 10.0.1.2/24 10.0.2.1/24
+
+dprint "Creating NS5 ED with eth6 in PID $pid4"
+created "$NS5" eth0 eth6@"$pid4" 10.0.3.10/24 10.0.3.1
+
+creater "$NS2" eth1 eth2 10.0.0.1/24 10.0.1.1/24
+creater "$NS4" eth5 eth6 10.0.2.2/24 10.0.3.1/24
 
 dprint "$NS1"
 nsenter --net="$NS1" -- ip -br l
@@ -100,26 +163,26 @@ cat <<EOF > "/tmp/$NM/bird.conf"
 protocol device {
 }
 protocol direct {
-        ipv4;
+	ipv4;
 }
 protocol kernel {
 	ipv4 {
-        	export all;
+		export all;
 	};
-        learn;
+	learn;
 }
 protocol ospf {
 	ipv4 {
-	        import all;
+		import all;
 	};
-        area 0 {
-                interface "eth*" {
-                        type broadcast;
+	area 0 {
+		interface "eth*" {
+			type broadcast;
 			hello 1;
 			wait  3;
 			dead  5;
-                };
-        };
+		};
+	};
 }
 EOF
 cat "/tmp/$NM/bird.conf"
