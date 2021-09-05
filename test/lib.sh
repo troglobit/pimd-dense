@@ -10,6 +10,11 @@ print()
     printf "\e[7m>> %-80s\e[0m\n" "$1"
 }
 
+dprint()
+{
+    printf "\e[2m%-80s\e[0m\n" "$1"
+}
+
 SKIP()
 {
     print "TEST: SKIP"
@@ -43,6 +48,19 @@ check_dep()
     fi
 }
 
+# shellcheck disable=SC2068
+tenacious()
+{
+    timeout=15
+
+    while [ $timeout -gt 0 ]; do
+	$@ && return
+	timeout=$((timeout - 1))
+    done
+
+    FAIL "Timeed out $*"
+}
+
 show_mroute()
 {
     # Show active routes (and counters)
@@ -67,6 +85,25 @@ collect()
     tshark -w "/tmp/$NM/pcap" -lni "$@" 2>/dev/null &
     echo $! >> "/tmp/$NM/PIDs"
     sleep 2
+}
+
+# Move interface(s) from pid 1 netns to another netns
+# shellcheck disable=SC2048
+nsmove()
+{
+    nsenter --net="$1" -- sleep 3 &
+    pid=$!
+    shift
+
+    for iface in $*; do
+	ip link set "$iface" netns "$pid"
+    done
+}
+
+# Rename an interface in another netns
+nsrename()
+{
+    nsenter --net="$1" -- ip link set "$2" name "$3"
 }
 
 # Set up a basic bridge topology, two VETH pairs with one end in the
