@@ -7,7 +7,7 @@ AM_SILENT_RULES([yes])
 
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADER([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile include/Makefile man/Makefile pimdd.service])
+AC_CONFIG_FILES([Makefile include/Makefile man/Makefile src/Makefile test/Makefile pimdd.service])
 
 # Check for standard programs, headers, and functions
 AC_PROG_CC
@@ -72,6 +72,11 @@ AC_ARG_ENABLE(rsrr,
 			http://tools.ietf.org/html/draft-ietf-rsvp-routing-02]),,
 	enable_rsrr=no)
 
+AC_ARG_ENABLE(test,
+        [AS_HELP_STRING([--enable-test], [enable tests, requries unshare, tshark, etc.])],
+        [enable_test="$enableval"],
+	[enable_test="no"])
+
 AC_ARG_WITH([systemd],
      [AS_HELP_STRING([--with-systemd=DIR], [Directory for systemd service files])],,
      [with_systemd=auto])
@@ -90,10 +95,11 @@ AS_IF([test "x$with_systemd" = "xyes" -o "x$with_systemd" = "xauto"], [
 AS_IF([test "x$with_systemd" != "xno"],
      [AC_SUBST([systemddir], [$with_systemd])])
 
-AM_CONDITIONAL(BSD,     [test "x$ac_cv_header_net_if_dl_h"     = "xyes"])
-AM_CONDITIONAL(LINUX,   [test "x$ac_cv_header_linux_netlink_h" = "xyes"])
-AM_CONDITIONAL(RSRR,    [test "x$enable_rsrr"                  = "xyes"])
-AM_CONDITIONAL(SYSTEMD, [test "x$with_systemd"                != "xno"])
+AM_CONDITIONAL(BSD,         [test "x$ac_cv_header_net_if_dl_h"     = "xyes"])
+AM_CONDITIONAL(LINUX,       [test "x$ac_cv_header_linux_netlink_h" = "xyes"])
+AM_CONDITIONAL(RSRR,        [test "x$enable_rsrr"                  = "xyes"])
+AM_CONDITIONAL(SYSTEMD,     [test "x$with_systemd"                != "xno"])
+AM_CONDITIONAL(ENABLE_TEST, [test "x$enable_test"                 != "xno"])
 
 # Expand $sbindir early, into $SBINDIR, for systemd unit file
 # NOTE: This does *not* take prefix/exec_prefix override at "make
@@ -130,6 +136,7 @@ cat <<EOF
 Optional features:
   RSRR (experimental)...: $enable_rsrr
   systemd...............: $with_systemd
+  Unit tests............: $enable_test
 
 ------------- Compiler version --------------
 $($CC --version || true)

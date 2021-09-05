@@ -3,6 +3,10 @@ EXTRA_DIST       = README.md ChangeLog.md LICENSE doc/LICENSE.pimd doc/LICENSE.m
 DISTCLEANFILES   = *~ GPATH GRTAGS GTAGS ID *.gdb *.elf core core.*
 SUBDIRS          = src include man
 
+if ENABLE_TEST
+SUBDIRS         += test
+endif
+
 if SYSTEMD
 systemd_DATA     = pimdd.service
 endif
