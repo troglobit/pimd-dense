@@ -82,6 +82,8 @@ if ! nsenter --net="$left"  -- ./mping -s -d -i eth0 -t 3 -c 10 -w 15 225.1.2.3;
     FAIL
 fi
 
+../src/pimctl -u "/tmp/$NM/sock" show compat detail
+
 kill_pids
 sleep 1
 
