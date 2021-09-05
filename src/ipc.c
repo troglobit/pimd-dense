@@ -151,7 +151,6 @@ static void strip(char *cmd, size_t len)
 static void check_detail(char *cmd, size_t len)
 {
 	const char *det = "detail";
-	char *ptr;
 
 	strip(cmd, len);
 
