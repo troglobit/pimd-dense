@@ -72,11 +72,11 @@ print "Starting pimd-dense ..."
 sleep 1
 
 print "Starting emitter ..."
-nsenter --net="$right" -- mping -qr -d -i eth0 -t 3 -W 30 225.1.2.3 &
+nsenter --net="$right" -- ./mping -qr -d -i eth0 -t 3 -W 30 225.1.2.3 &
 echo $! >> "/tmp/$NM/PIDs"
 sleep 1
 
-if ! nsenter --net="$left"  -- mping -s -d -i eth0 -t 3 -c 10 -w 15 225.1.2.3; then
+if ! nsenter --net="$left"  -- ./mping -s -d -i eth0 -t 3 -c 10 -w 15 225.1.2.3; then
     show_mroute
     echo "Failed routing, expected at least 10 multicast ping replies"
     FAIL
