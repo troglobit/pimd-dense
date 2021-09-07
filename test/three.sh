@@ -204,8 +204,8 @@ echo $! >> "/tmp/$NM/PIDs"
 sleep 1
 
 # Wait for routers to peer
-print "Waiting for OSPF routers to peer (10 sec) ..."
-tenacious nsenter --net="$NS1" -- ping -qc 1 -W 1 10.0.3.10 >/dev/null
+print "Waiting for OSPF routers to peer (30 sec) ..."
+tenacious 30 nsenter --net="$NS1" -- ping -qc 1 -W 1 10.0.3.10 >/dev/null
 dprint "OK"
 
 dprint "OSPF State & Routing Table $NS2:"

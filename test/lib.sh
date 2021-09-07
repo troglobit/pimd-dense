@@ -51,7 +51,8 @@ check_dep()
 # shellcheck disable=SC2068
 tenacious()
 {
-    timeout=15
+    timeout=$1
+    shift
 
     while [ $timeout -gt 0 ]; do
 	$@ && return
