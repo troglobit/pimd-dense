@@ -358,12 +358,26 @@ topo_teardown()
 	kill -9 "$PID"
     fi
 
+    kill_pids
+    sleep 1
+
+    for i in 1 2 3 4 5 6 7 8 9; do
+	ns=/tmp/three/NS$i
+	if [ -f $ns ]; then
+	    dprint "Deleting remaining interfaces in NS$i:"
+	    ifaces=$(nsenter --net=$ns -- ip -j -p link show |grep ifname |grep '"eth' | sed 's/.*: "\(eth[0-9]*\).*/\1/g')
+	    for ifname in $ifaces; do
+		printf "%s" "$ifname "
+		nsenter --net=$ns -- ip link del "$ifname"
+	    done
+	    echo
+	fi
+    done
+
     # shellcheck disable=SC2162
     if [ -f "/tmp/$NM/mounts" ]; then
         while read ln; do umount "$ln"; rm "$ln"; done < "/tmp/$NM/mounts"
     fi
-
-    kill_pids
 
     ip link del br0  2>/dev/null
     ip link del a1   2>/dev/null
