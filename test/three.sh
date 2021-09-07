@@ -122,11 +122,9 @@ creater()
 }
 
 dprint "Creating $NS2 router ..."
-unshare --net="$NS2" -- ip link set lo up
 nsenter --net="$NS2" -- sleep 5 &
 pid2=$!
 dprint "Creating $NS4 router ..."
-unshare --net="$NS4" -- ip link set lo up
 nsenter --net="$NS4" -- sleep 5 &
 pid4=$!
 
