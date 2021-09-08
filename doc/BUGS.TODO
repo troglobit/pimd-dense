@@ -20,6 +20,7 @@ Before release:
   * [DONE] Test in non-trivial (POD?) setup with CORE
   * [DONE] Split man page in two -> pimdd.conf.5
   * [DONE] Add ChangeLog.md
+  * Add RPF support for FreeBSD, import routing socket support from pimd
 
 Bonus, or later release:
   * Issue #2: Support for (prune) state refresh
