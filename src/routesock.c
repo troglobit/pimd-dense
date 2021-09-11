@@ -48,6 +48,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/time.h>
 
 /* All the BSDs have routing sockets (not Netlink), but only Linux seems
@@ -134,9 +135,9 @@ routesock_clean()
 
 /* get the rpf neighbor info */
 int
-k_req_incoming(source, rpfp)
+k_req_incoming(source, rpf)
     u_int32 source;
-    struct rpfctl *rpfp;
+    struct rpfctl *rpf;
 {
     int flags = RTF_STATIC; 
     sup su;
@@ -145,33 +146,35 @@ k_req_incoming(source, rpfp)
     char *cp = m_rtmsg.m_space;
     int l;
     struct rpfctl rpfinfo;
+    struct timeval wtime;
+    fd_set fdbits;
 	
 /* TODO: a hack!!!! */
 #ifdef HAVE_SA_LEN
 #define NEXTADDR(w, u)				\
     if (rtm_addrs & (w)) {			\
 	    l = ROUNDUP(u.sa.sa_len);		\
-	    memcopy(cp, &(u), l);		\
+	    memcpy(cp, &(u), l);		\
 	    cp += l;				\
     }
 #else
 #define NEXTADDR(w, u)				  \
     if (rtm_addrs & (w)) {			  \
 	    l = ROUNDUP(sizeof(struct sockaddr)); \
-	    memcopy(cp, &(u), l);		  \
+	    memcpy(cp, &(u), l);		  \
 	    cp += l;				  \
     }
 #endif /* HAVE_SA_LEN */
 
     /* initialize */
-    rpfp->rpfneighbor.s_addr = INADDR_ANY_N;
-    rpfp->source.s_addr = source;
+    rpf->rpfneighbor.s_addr = INADDR_ANY_N;
+    rpf->source.s_addr = source;
     
     /* check if local address or directly connected before calling the
      * routing socket
      */
-    if ((rpfp->iif = find_vif_direct_local(source)) != NO_VIF) {
-	rpfp->rpfneighbor.s_addr = source;
+    if ((rpf->iif = find_vif_direct_local(source)) != NO_VIF) {
+	rpf->rpfneighbor.s_addr = source;
 	return TRUE;
     }       
 
@@ -187,7 +190,7 @@ k_req_incoming(source, rpfp)
     if (inet_lnaof(su->sin.sin_addr) == INADDR_ANY) {
 	IF_DEBUG(DEBUG_RPF)
 	    logit(LOG_DEBUG, 0, "k_req_incoming: Invalid source %s",
-		inet_fmt(source,s1));
+		inet_fmt(source, s1));
 	return FALSE; 
     }
 
@@ -238,7 +241,7 @@ k_req_incoming(source, rpfp)
 	rlen = select(routing_socket + 1, &fdbits, 0, 0, &wtime);
 	if (rlen == 0) {
 	    logit(LOG_WARNING, 0, "Timeout waiting for reply from routing socket for %s",
-		  inet_fmt(source, s1, sizeof(s1)));
+		  inet_fmt(source, s1));
 	    return FALSE;
 	}
 
@@ -252,7 +255,7 @@ k_req_incoming(source, rpfp)
 		default:
 		    IF_DEBUG(DEBUG_RPF | DEBUG_KERN)
 			logit(LOG_DEBUG, errno, "Select error on routing socket for %s",
-			      inet_fmt(source, s1, sizeof(s1)));
+			      inet_fmt(source, s1));
 		    return FALSE;
 	    }
 	}
@@ -265,7 +268,7 @@ k_req_incoming(source, rpfp)
 
 		IF_DEBUG(DEBUG_RPF | DEBUG_KERN)
 		    logit(LOG_DEBUG, errno, "Read from routing socket failed for %s",
-			  inet_fmt(source, s1, sizeof(s1)));
+			  inet_fmt(source, s1));
 
 		return FALSE;
 	    }
@@ -283,8 +286,8 @@ k_req_incoming(source, rpfp)
     
     memset(&rpfinfo, 0, sizeof(rpfinfo));
     if (getmsg(&rtm, l, &rpfinfo)){
-	rpfp->rpfneighbor.s_addr = rpfinfo.rpfneighbor.s_addr;
-	rpfp->iif = rpfinfo.iif;
+	rpf->rpfneighbor.s_addr = rpfinfo.rpfneighbor.s_addr;
+	rpf->iif = rpfinfo.iif;
     }
 #undef rtm
 
@@ -336,16 +339,18 @@ static void find_sockaddrs(rtm, dst, gate, mask, ifp)
  * Returns TRUE on success, FALSE otherwise. rpfinfo contains the result.
  */
 int 
-getmsg(rtm, msglen, rpfinfop)
+getmsg(rtm, msglen, rpf)
     struct rt_msghdr *rtm;
     int msglen;
-    struct rpfctl *rpfinfop;
+    struct rpfctl *rpf;
 {
     struct sockaddr *dst = NULL, *gate = NULL, *mask = NULL;
     struct sockaddr_dl *ifp = NULL;
     struct in_addr in;
     struct uvif *v;
     vifi_t vifi;
+
+    (void)msglen;
 
     if (!rpf) {
 	logit(LOG_WARNING, 0, "Missing rpf pointer to routesock.c:getmsg()!");
@@ -357,13 +362,13 @@ getmsg(rtm, msglen, rpfinfop)
 
     in = ((struct sockaddr_in *)&so_dst)->sin_addr;
     IF_DEBUG(DEBUG_RPF)
-	logit(LOG_DEBUG, 0, "route to: %s", inet_fmt(in.s_addr, s1, sizeof(s1)));
+	logit(LOG_DEBUG, 0, "route to: %s", inet_fmt(in.s_addr, s1));
 
     find_sockaddrs(rtm, &dst, &gate, &mask, &ifp);
 
     if (!ifp) {			/* No incoming interface */
 	IF_DEBUG(DEBUG_RPF)
-	    logit(LOG_DEBUG, 0, "No incoming interface for destination %s", inet_fmt(in.s_addr, s1, sizeof(s1)));
+	    logit(LOG_DEBUG, 0, "No incoming interface for destination %s", inet_fmt(in.s_addr, s1));
 
 	return FALSE;
     }
@@ -374,13 +379,13 @@ getmsg(rtm, msglen, rpfinfop)
     if (dst) {
 	in = ((struct sockaddr_in *)dst)->sin_addr;
 	IF_DEBUG(DEBUG_RPF)
-	    logit(LOG_DEBUG, 0, " destination is: %s", inet_fmt(in.s_addr, s1, sizeof(s1)));
+	    logit(LOG_DEBUG, 0, " destination is: %s", inet_fmt(in.s_addr, s1));
     }
 
     if (gate && (rtm->rtm_flags & RTF_GATEWAY)) {
 	in = ((struct sockaddr_in *)gate)->sin_addr;
 	IF_DEBUG(DEBUG_RPF)
-	    logit(LOG_DEBUG, 0, " gateway is: %s", inet_fmt(in.s_addr, s1, sizeof(s1)));
+	    logit(LOG_DEBUG, 0, " gateway is: %s", inet_fmt(in.s_addr, s1));
 
 	rpf->rpfneighbor = in;
     }
@@ -400,8 +405,8 @@ getmsg(rtm, msglen, rpfinfop)
 
     if (vifi >= numvifs) {
 	IF_DEBUG(DEBUG_RPF)
-	    logit(LOG_DEBUG, 0, "Invalid incoming interface for destination %s, because of invalid virtual interface",
-		  inet_fmt(in.s_addr, s1, sizeof(s1)));
+	    logit(LOG_DEBUG, 0, "Invalid incoming interface for destination %s, "
+		  "because of invalid virtual interface", inet_fmt(in.s_addr, s1));
 
 	return FALSE;		/* invalid iif */
     }
@@ -449,3 +454,8 @@ k_req_incoming(source, rpf)
 }
 #endif	/* HAVE_ROUTING_SOCKETS */
 
+/**
+ * Local Variables:
+ *  c-file-style: "cc-mode"
+ * End:
+ */
