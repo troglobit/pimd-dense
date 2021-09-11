@@ -386,6 +386,7 @@ topo_teardown()
     ip link del b1   2>/dev/null
     ip link del b2   2>/dev/null
 
+    sleep 2
     rm -rf "/tmp/$NM"
 }
 
