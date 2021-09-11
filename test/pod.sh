@@ -22,7 +22,6 @@ print "Check deps ..."
 check_dep ethtool
 check_dep tshark
 check_dep bird
-#check_dep vrrpd
 check_dep keepalived
 
 print "Creating world ..."
@@ -203,14 +202,6 @@ nsenter --net="$ED2" -- ip link set eth5b master br0
 nsenter --net="$ED2" -- ip link set eth8b master br0
 
 print "$R1: starting up VRRP ..."
-#nsenter --net="$R1" -- ip link add vrrp1 link eth1 addrgenmode random type macvlan mode bridge
-#nsenter --net="$R1" -- ip link set dev vrrp1 address 00:00:5e:00:01:01
-#nsenter --net="$R1" -- ip addr add 10.0.0.1/24 dev vrrp1
-#nsenter --net="$R1" -- ip link set dev vrrp1 up
-#nsenter --net="$R1" -- vrrpd -i vrrp1 -f "/tmp/$NM" -v 1 10.0.0.1 &
-#nsenter --net="$R1" -- vrrpd -i eth1 -f "/tmp/$NM" -v 1 -p 100 10.0.0.1 &
-#echo $! >> "/tmp/$NM/PIDs"
-
 cat <<EOF > "/tmp/$NM/keep-r1.conf"
 vrrp_instance left {
         state MASTER
@@ -230,7 +221,7 @@ echo $! >> "/tmp/$NM/PIDs"
 
 print "$R2: starting up VRRP ..."
 cat <<EOF > "/tmp/$NM/keep-r2.conf"
-vrrp_instance left {
+vrrp_instance right {
         state MASTER
         interface eth5
         virtual_router_id 52
@@ -266,7 +257,7 @@ echo $! >> "/tmp/$NM/PIDs"
 
 print "$R4: starting up VRRP ..."
 cat <<EOF > "/tmp/$NM/keep-r4.conf"
-vrrp_instance left {
+vrrp_instance right {
         state BACKUP
         interface eth8
         virtual_router_id 52
@@ -301,12 +292,6 @@ protocol ospf {
 	};
 	area 0 {
 		interface "eth*" {
-			type broadcast;
-			hello 1;
-			wait  3;
-			dead  5;
-		};
-		interface "vrrp*" {
 			type broadcast;
 			hello 1;
 			wait  3;
