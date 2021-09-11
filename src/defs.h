@@ -126,13 +126,17 @@ typedef void (*ihfunc_t) (int, fd_set *);
  * Various definitions to make it working for different platforms
  */
 /* The old style sockaddr definition doesn't have sa_len */
-#if (defined(BSD) && (BSD >= 199006)) /* sa_len was added with 4.3-Reno */ 
+#if defined(_AIX) || (defined(BSD) && (BSD >= 199006)) /* sa_len was added with 4.3-Reno */
 #define HAVE_SA_LEN
 #endif
 
 /* Versions of Solaris older than 2.6 don't have routing sockets. */
 /* XXX TODO: check FreeBSD version and add all other platforms */
-#if ((defined(SunOS) && SunOS >=56) || (defined FreeBSD) || (defined IRIX) || (defined BSDI) || defined(NetBSD))
+#if defined(__linux__)   || (defined(SunOS) && SunOS >=56) || \
+    defined(IRIX)        ||  defined(__bsdi__)             || \
+    defined(__FreeBSD__) ||  defined(__FreeBSD_kernel__)   || \
+    defined(NetBSD)      ||  defined(__DragonFly__)        || \
+    defined(OpenBSD)
 #define HAVE_ROUTING_SOCKETS
 #endif
 
