@@ -27,4 +27,5 @@ pimdd_SOURCES   += rsrr.c	rsrr_var.h	rsrr.h
 endif
 
 pimctl_SOURCES   = pimctl.c	queue.h
+pimctl_CFLAGS    = -W -Wall -Wextra -Wno-unused
 pimctl_LDADD     = $(LIBS) $(LIBOBJS)
