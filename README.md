@@ -83,7 +83,7 @@ process.  E.g., to install pimd to `/usr` instead of the default
 `/usr/local`, but redirect install to a package directory in `/tmp`:
 
     ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
-	make
+    make
     make DESTDIR=/tmp/pimd-dense-1.0.0 install-strip
 
 
