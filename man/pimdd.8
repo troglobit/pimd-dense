@@ -239,11 +239,15 @@ Main configuration file
 PID file created by
 .Nm
 when it has started up and is ready to receive commands.  Also touched
-after a reload or SIGHUP as an acknowledgement.
+after a reload or SIGHUP as an acknowledgement.  Possible to override
+with
+.Fl p Ar FILE .
 .It Pa /var/run/pimdd.sock
 .Ux Ns -domain
 socket used for communication with
-.Xr pimctl 8
+.Xr pimctl 8 ,
+possible to override with
+.Fl u Ar FILE .
 .El
 .Sh SEE ALSO
 .Xr pimdd.conf 5 ,
@@ -253,8 +257,7 @@ socket used for communication with
 .Xr smcroute 8
 .Pp
 .Nm
-implements PIM-DM according to
-.Lk https://tools.ietf.org/html/draft-ietf-idmr-pim-dm-spec-05 draft-ietf-idmr-pim-dm-spec-05 .
+implements PIM-DM according to an earlier draft version of the standard.
 The newer, and ratified,
 .Lk https://tools.ietf.org/html/rfc3973 RFC3973 ,
 is not yet fully supported.
