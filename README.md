@@ -133,7 +133,7 @@ mrouted is covered by [LICENSE.mrouted](doc/LICENSE.mrouted), Copyright
 
 [mrouted]: https://github.com/troglobit/mrouted
 [pimd]:    https://github.com/troglobit/pimd
-[draft]:   https://datatracker.ietf.org/doc/html/draft-ietf-idmr-pim-sm-spec-05
+[draft]:   https://github.com/troglobit/pimd-dense/blob/master/doc/draft-ietf-idmr-pim-dm-spec-05.txt
 [RFC3973]: https://tools.ietf.org/html/rfc3973
 [License]: https://en.wikipedia.org/wiki/BSD_licenses
 [Badge]:   https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
