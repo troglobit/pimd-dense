@@ -3,7 +3,7 @@ ChangeLog
 
 All notable changes to the project are documented in this file.
 
-[v2.1.0][] - 2021-09-xx
+[v2.1.0][] - 2021-09-12
 -----------------------
 
 ### Changes
@@ -42,11 +42,13 @@ All notable changes to the project are documented in this file.
 - Import safe string API functions from OpenBSD
 - Drop PIM-SM and DVMRP specific debug messages/levels, unused
 - Add systemd unit file, enabled automatically at configure time
-- Add basic man pages for section 8 and 5
+- Add man pages for pimd, pimctl, and pimd.conf in sections 8 and 5
+- Support for building .deb packages for Debian and Ubuntu based systemd
 
 ### Fixes
 - Fix PIM Assert handling, with new `assert-timeout` .conf option
 - Fix `k_del_vif()`, does not work properly in Linux
+- Fix `k_req_incoming()` on FreeBSD
 - Fix 100% CPU usage, refactor linked list handling to use `queue.h`
 - Fix IGMP querier election bug, lost querier "flag" on interface when
   PIM DR election was lost.  Thar draft spec PimDM is built around says
@@ -153,5 +155,6 @@ A new 1.0.x-alpha version number will be assigned upon the initial
 public release of this code.
 
 
-[v2.1.0]: https://github.com/troglobit/pimd-dense/compare/0.2.1.0-beta1...2.1.0
+[UNRELEASED]:     https://github.com/troglobit/pimd-dense/compare/2.1.0...HEAD
+[v2.1.0]:         https://github.com/troglobit/pimd-dense/compare/0.2.1.0-beta1...2.1.0
 [v0.2.1.0-beta1]: https://github.com/troglobit/pimd-dense/compare/0.2.1.0-alpha21...0.2.1.0-beta1
