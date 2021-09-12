@@ -30,12 +30,6 @@ The file format is relatively free-form: whitespace (including newlines)
 is not significant.  However, the order of some statements are
 important, more on this below.
 .Pp
-All
-.Ar <len>
-arguments to an IPv4 address, group or network can also be given in the
-alternative /CIDR format.  E.g.,
-.Ar <group>/<len> .
-.Pp
 By default,
 .Nm pimdd
 runs on all multicast capable interfaces.  The
@@ -43,27 +37,11 @@ runs on all multicast capable interfaces.  The
 setting can be used to control this behavior.
 .Pp
 .Bl -tag -offset indent -width 1n
-.It Cm 
-.It
-.Cm assert-timeout
-.Ar <5-210>
-.It
-.Cm default-route-distance
-.Ar <1-255>
-.It
-.Cm default-route-metric
-.Ar <1-1024>
-.It
-.Cm no phyint
-.It
-.Cm phyint
-.Cm < Ar address | Ar ifname >
-.Bl -item -offset indent
-.Op Cm enable | disable
-.Op Cm igmpv2 | igmpv3
-.Op Cm distance Ar <1-255>
-.Op Cm metric Ar <1-1024>
-.El
+.It Cm assert-timeout Ao Ar 5-210 Ac
+.It Cm default-route-distance Ao Ar 1-255 Ac
+.It Cm default-route-metric Ao Ar 1-1024 Ac
+.It Cm no phyint
+.It Cm phyint Ao Ar address | Ar ifname Ac Oo Cm enable | disable Oc Oo Cm igmpv2 | igmpv3 Oc Oo Cm distance Ao Ar 1-255 Ac Oc Oo Cm metric Ao Ar 1-1024 Ac Oc
 .El
 .Pp
 The PIM assert mechanism arbitrates the forwarder of multicast when
@@ -120,6 +98,7 @@ settings in the configuration file.  Select the interface by its IP
 or name.  If you just want to activate this interface with default
 values, you don't need to put anything else on the line.  However, there
 are some additional settings:
+.Pp
 .Bl -bullet -offset indent -width 1n -compact
 .It
 .Cm enable :
@@ -135,14 +114,14 @@ Do not use this interface in
 Force interface in specific IGMP version.  Default:
 .Cm igmpv3 .
 .It
-.Cm distance Ar <1-255> :
+.Cm distance Ao Ar 1-255 Ac :
 Use this to override the
 .Nm default-route-distance
 (101) on this
 .Nm phyint
 in PIM Assert elections.
 .It
-.Cm metric Ar <1-1024> :
+.Cm metric Ao Ar 1-1024 Ac :
 The cost of sending data through this interface.  Defaults to
 .Nm default-route-metric
 (1024) if not assigned.
