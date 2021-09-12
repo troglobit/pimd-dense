@@ -106,7 +106,7 @@ accept_mtrace(src, dst, group, data, no, datalen)
     }
     else {
 	logit(LOG_WARNING, 0, "%s from %s to %s",
-	    "Non decipherable traceroute request recieved",
+	    "Non decipherable traceroute request received",
 	    inet_fmt(src, s1), inet_fmt(dst, s2));
 	return;
     }
