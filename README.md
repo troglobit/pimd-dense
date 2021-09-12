@@ -9,9 +9,9 @@ pimdd is the dense-mode cousin to [pimd][], the reference implementation
 for [PIM-DM draft 5][draft].  Later revised in [RFC3973][], which pimdd
 does not (yet) fully support.
 
-PIM-DM is very similar to DVRMP ([mrouted][]), they both follow the
-flood-and-prune paradigm, but unlike DVMRP a PIM-DM implementation
-relies on the underlying unicast routes to be established.
+PIM-DM is similar to DVRMP ([mrouted][]), they are both flood-and-prune
+multicast routing protocols, but unlike DVMRP, PIM implementations rely
+on the underlying unicast routes to be established already.
 
 This GitHub project is an attempt at reviving pimdd.  The latest code on
 the master branch has been infused with fresh DNA strands from the
@@ -32,7 +32,16 @@ a proper UNIX daemon:
 
     pimdd
 
-Use the `pimctl` tool (shared with pimd) to query status.
+Use the `pimctl` control tool (shared with pimd) to query status.  The
+project also ships a systemd unit file that allows for customization of
+command line arguments using an environment file: `/etc/default/pimdd`.
+
+See the manual pages for details on command line options, config file
+settings, and the `pimctl` control tool:
+
+  - https://man.troglobit.com/man8/pimdd.8.html
+  - https://man.troglobit.com/man8/pimctl.8.html
+  - https://man.troglobit.com/man5/pimdd.conf.5.html
 
 To help out with development, or tracking down bugs, it is recommended
 to run pimdd in debug mode.  Since there are many debug messages, you
