@@ -1,0 +1,5 @@
+pimd-dense (2.1.0) stable; urgency=low
+
+  * Initial release.
+
+ -- Joachim Wiberg <troglobit@gmail.com>  Sun, 12 Sep 2021 13:36:06 +0200

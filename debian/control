@@ -1,0 +1,32 @@
+Source: pimd-dense
+Section: net
+Priority: optional
+Maintainer: Joachim Wiberg <troglobit@gmail.com>
+Build-Depends: debhelper (>= 10), bison | byacc | btyacc, pkg-config, systemd
+Standards-Version: 4.3.0
+Homepage: https://github.com/troglobit/pimd-dense
+Vcs-Browser: https://github.com/troglobit/pimd-dense
+Vcs-Git: https://github.com/troglobit/pimd-dense.git
+
+Package: pimdd
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base (>= 3.0-6)
+Description: PIM-DM for UNIX
+ pimdd is the dense-mode cousin to pimd, the reference implementation of
+ PIM-DM draft 5, later revised in RFC3973.
+ .
+ PIM-DM is similar to DVRMP (mrouted), they are both flood-and-prune
+ multicast routing protocols, but unlike DVMRP, PIM implementations rely
+ on the underlying unicast routes to be established already.  E.g., with
+ OSPF, RIP, or statically configured routes.
+
+Package: pimctl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Shared control tool for pimd, pimdd, and pim6sd
+ pimctl can be used to query status, debug, restart, and kill a running
+ pimd, pimdd, and pim6sd.
+ .
+ The tool is shared between the different projects, this one is bundled
+ with pimd-dense, but any one of them can be used since they first query
+ available commands from the running daemon.

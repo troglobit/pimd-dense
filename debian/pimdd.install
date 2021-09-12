@@ -1,0 +1,4 @@
+lib/systemd/system/pimdd.service
+usr/sbin/pimdd
+usr/share/man/man8/pimdd.8
+usr/share/man/man5/pimdd.conf.5

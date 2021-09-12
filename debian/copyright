@@ -1,0 +1,131 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: pimd-dense
+Upstream-Contact: troglobit@gmail.com
+Source: https://github.com/troglobit/pimd-dense
+
+Files: *
+Copyright: 1998-2001 University of Southern California/Information Sciences Institute
+Comment: pimd-dense is built on top of an older version of pimd (sparse),
+         so the default/fallback license for all files are the same as pimd.
+	 In many cases the previous Oregon license has been reverted back to
+	 the USC since most of the code from pimd has been grafted onto pimdd
+	 by Joachim Wiberg during the reconstruction effort.  The wonderful
+	 mix with the mrouted code base makes it hard to see the difference,
+	 but most of the configuration, main, and DVMRP specific code is all
+	 that remains of the mrouted code base.   The pimd-dense specifics
+	 are centered around the PIM source files.
+License: PIMD
+
+Files: src/callout.c src/cfparse.y src/dvmrp* src/inet.c src/kern.c src/trace.* src/vif.*
+Copyright: 2002 The Board of Trustees of the Leland Stanford Junior University
+Comment: mrouted was made fully open source by Standford in March 2003 thanks
+         to the effort by the OpenBSD project.  For the full story, see the
+	 commit log for the LICENSE file in the OpenBSD CVS repository:
+	 http://www.openbsd.org/cgi-bin/cvsweb/src/usr.sbin/mrouted/LICENSE
+License: MROUTED
+
+Files: src/defs.h src/main.c src/mrt.* src/pimdd.h src/pim_proto.c src/route.c src/timer.c
+Copyright: 1998 University of Oregon
+License: PIMDD
+
+Files: src/pimctl* src/ipc.c
+Copyright: 2018-2020  Joachim Wiberg <troglobit@gmail.com>
+License: BSD-3-clause
+
+Files: src/netlink.c
+Copyright: Fred Griffoul <griffoul@ccrle.nec.de>
+License: public-domain
+
+Files: lib/strlcpy.c
+Copyright: 1998, 2015 Todd C. Miller <Todd.Miller@courtesan.com>
+License: ISC
+
+Files: lib/strlcat.c
+Copyright: 1998, 2015 Todd C. Miller <Todd.Miller@courtesan.com>
+License: ISC
+
+Files: lib/tempfile.c
+Copyright: 2015-2020 Joachim Wiberg <troglobit@gmail.com>
+License: ISC
+
+Files: debian/*
+Comment: pimdd was packaged by Joachim Wiberg <troglobit@gmail.com> on
+         Sun, 12 Sep 2021 13:46:19 +0200 based on the mrouted package.
+Copyright: 2021 Joachim Wiberg <troglobit@gmail.com>
+License: ISC
+
+License: MROUTED
+ Permission is hereby granted to STANFORD's rights, free of charge, to any
+ person obtaining a copy of this Software and associated documentation files
+ ( "MROUTED"), to deal in MROUTED without restriction, including without
+ limitation the rights to use, copy, modify, merge, publish, distribute,
+ sublicense, and/or sell copies of MROUTED , and to permit persons to whom
+ MROUTED is furnished to do so, subject to the following conditions:
+ 1)      The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the MROUTED .
+ 2)      Neither the STANFORD name nor the names of its contributors may be
+ used in any promotional advertising or other promotional materials to be
+ disseminated to the public or any portion thereof nor to use the name of
+ any STANFORD faculty member, employee, or student, or any trademark,
+ service mark, trade name, or symbol of STANFORD or Stanford Hospitals and
+ Clinics, nor any that is associated with any of them, without STANFORD's
+ prior written consent.  Any use of STANFORD's name shall be limited to
+ statements of fact and shall not imply endorsement of any products or
+ services.
+ 3)      MROUTED IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH MROUTED OR THE USE OR OTHER DEALINGS IN
+ THE MROUTED.
+Comment: The license is 3-clause BSD style license, but is not word-for-word
+         compatible.  Non-printable, or 8-bit, characters have been replaced.
+
+License: PIMD
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+ .
+ 1. Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+ 3. Neither the name of the copyright holders nor the names of its
+    contributors may be used to endorse or promote products derived from this
+    software without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+ LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+License: PIMDD
+ Permission to use, copy, modify, and distribute this software and its
+ documentation in source and binary forms for lawful purposes and without
+ fee is hereby granted, provided that the above copyright notice appear
+ in all copies and that both the copyright notice and this permission
+ notice appear in supporting documentation, and that any documentation,
+ advertising materials, and other materials related to such distribution
+ and use acknowledge that the software was developed by the University of
+ Oregon.  The name of the University of Oregon may not be used to endorse
+ or promote products derived from this software without specific prior
+ written permission.
+ .
+ THE UNIVERSITY OF OREGON DOES NOT MAKE ANY REPRESENTATIONS ABOUT THE
+ SUITABILITY OF THIS SOFTWARE FOR ANY PURPOSE.  THIS SOFTWARE IS PROVIDED
+ "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT.
+ .
+ IN NO EVENT SHALL UO, OR ANY OTHER CONTRIBUTOR BE LIABLE FOR ANY
+ SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES, WHETHER IN CONTRACT,
+ TORT, OR OTHER FORM OF ACTION, ARISING OUT OF OR IN CONNECTION WITH,
+ THE USE OR PERFORMANCE OF THIS SOFTWARE.

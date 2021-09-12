@@ -1,0 +1,11 @@
+*.substvars
+*.log
+*.debhelper
+.debhelper/*
+debhelper-build-stamp
+pimdd/*
+pimctl/*
+tmp/*
+files
+autoreconf.*
+mrouted*.debhelper
