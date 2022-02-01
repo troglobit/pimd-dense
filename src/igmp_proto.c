@@ -179,17 +179,22 @@ accept_membership_query(src, dst, group, tmo, ver)
     }
     
     if (v->uv_querier == NULL || v->uv_querier->al_addr != src) {
-        /*
-         * This might be:
-         * - A query from a new querier, with a lower source address
-         *   than the current querier (who might be me)
-         * - A query from a new router that just started up and doesn't
-         *   know who the querier is.
-         * - A query from the current querier
-         */
-        if (ntohl(src) < (v->uv_querier
-			  ? ntohl(v->uv_querier->al_addr)
-			  : ntohl(v->uv_lcl_addr))) {
+	uint32_t cur = v->uv_querier ? v->uv_querier->al_addr : v->uv_lcl_addr;
+
+	/*
+	 * This might be:
+	 * - A query from a new querier, with a lower source address
+	 *   than the current querier (who might be me)
+	 * - A query from a new router that just started up and doesn't
+	 *   know who the querier is.
+	 * - A proxy query (source address 0.0.0.0), never wins elections
+	 */
+	if (!ntohl(src)) {
+	    logit(LOG_DEBUG, 0, "Ignoring proxy query on %s", v->uv_name);
+	    return;
+	}
+
+	if (ntohl(src) < ntohl(cur)) {
             IF_DEBUG(DEBUG_IGMP)
 		logit(LOG_DEBUG, 0, "new querier %s (was %s) on %s", inet_fmt(src, s1),
 		    v->uv_querier ? inet_fmt(v->uv_querier->al_addr, s2) : "me", v->uv_name);
