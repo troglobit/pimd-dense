@@ -225,9 +225,7 @@ main(argc, argv)
     fd_set rfds, readers;
     int nfds, n, i, secs;
     struct sigaction sa;
-    struct debugname *d;
-    char ch;
-    int rc;
+    int ch, rc;
 
     setlinebuf(stderr);
     snprintf(versionstring, sizeof(versionstring), "%s version %s", PACKAGE_NAME, PACKAGE_VERSION);
