@@ -6,7 +6,7 @@ AM_INIT_AUTOMAKE([1.11 foreign])
 AM_SILENT_RULES([yes])
 
 AC_CONFIG_SRCDIR([src/main.c])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile include/Makefile man/Makefile src/Makefile test/Makefile pimdd.service])
 
 # Check for standard programs, headers, and functions
@@ -46,7 +46,6 @@ esac
 # Required to check for libsystemd-dev
 PKG_PROG_PKG_CONFIG
 
-AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h netinet/pim.h net/if_dl.h sys/time.h sys/ioctl.h linux/netlink.h termios.h])
 AC_CHECK_HEADERS([net/if.h], [], [], [
 #include <stdio.h>
