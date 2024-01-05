@@ -3,6 +3,19 @@ ChangeLog
 
 All notable changes to the project are documented in this file.
 
+
+[v2.1.1][] - 2024-01-05
+-----------------------
+
+### Changes
+- Ignore IGMP proxy queries (source IP 0.0.0.0), they must never win
+  a querier election.
+
+### Fixes
+- Fix #4: wrong type for `getopt()` return value
+- Fix #5: bug in igmpv2/igmpv3 option parser
+
+
 [v2.1.0][] - 2021-09-12
 -----------------------
 
@@ -155,6 +168,7 @@ A new 1.0.x-alpha version number will be assigned upon the initial
 public release of this code.
 
 
-[UNRELEASED]:     https://github.com/troglobit/pimd-dense/compare/2.1.0...HEAD
+[UNRELEASED]:     https://github.com/troglobit/pimd-dense/compare/2.1.1...HEAD
+[v2.1.1]:         https://github.com/troglobit/pimd-dense/compare/2.1.0...2.1.1
 [v2.1.0]:         https://github.com/troglobit/pimd-dense/compare/0.2.1.0-beta1...2.1.0
 [v0.2.1.0-beta1]: https://github.com/troglobit/pimd-dense/compare/0.2.1.0-alpha21...0.2.1.0-beta1
