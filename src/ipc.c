@@ -95,7 +95,7 @@ struct ipcmd {
 
 static char *timetostr(time_t t, char *buf, size_t len)
 {
-	int sec, min, hour, day;
+	time_t sec, min, hour, day;
 	static char tmp[20];
 
 	if (!buf) {
@@ -112,9 +112,9 @@ static char *timetostr(time_t t, char *buf, size_t len)
 	sec  = t;
 
 	if (day)
-		snprintf(buf, len, "%dd%dh%dm%ds", day, hour, min, sec);
+		snprintf(buf, len, "%ldd%ldh%ldm%lds", day, hour, min, sec);
 	else
-		snprintf(buf, len, "%dh%dm%ds", hour, min, sec);
+		snprintf(buf, len, "%ldh%ldm%lds", hour, min, sec);
 
 	return buf;
 }
