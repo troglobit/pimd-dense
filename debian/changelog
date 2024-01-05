@@ -1,3 +1,11 @@
+pimd-dense (2.1.1) stable; urgency=low
+
+  * Ignore IGMP proxy queries (source IP 0.0.0.0), they must never win a querier election
+  * Fix #4: wrong type for getopt() return value
+  * Fix #5: bug in igmpv2/igmpv3 option parser
+
+ -- Joachim Wiberg <troglobit@gmail.com>  Fri, 05 Jan 2024 21:36:14 +0200
+
 pimd-dense (2.1.0) stable; urgency=low
 
   * Initial release.
