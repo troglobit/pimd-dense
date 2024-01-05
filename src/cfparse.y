@@ -299,7 +299,7 @@ static struct keyword {
     { "netmask",                NETMASK },
     { "igmpv1",                 IGMPV1 },
     { "igmpv2",                 IGMPV2 },
-    { "igmpv2",                 IGMPV3 },
+    { "igmpv3",                 IGMPV3 },
     { NULL,                     0 }
 };
 
