@@ -94,7 +94,7 @@ int init_routesock(void)
     }
 
     pid = local.nl_pid;
-    seq = time(NULL);
+    seq = 1;
 
     return 0;
 }
