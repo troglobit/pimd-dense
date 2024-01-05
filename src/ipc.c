@@ -164,9 +164,11 @@ static void check_detail(char *cmd, size_t len)
 		detail = 0;
 }
 
-static int ipc_read(int sd, char *cmd, ssize_t len)
+static int ipc_read(int sd, char *cmd, size_t cmd_len)
 {
-	while ((len = read(sd, cmd, len - 1)) == -1) {
+	ssize_t len;
+
+	while ((len = read(sd, cmd, cmd_len - 1)) == -1) {
 		switch (errno) {
 		case EAGAIN:
 		case EINTR:
