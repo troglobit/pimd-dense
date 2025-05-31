@@ -65,7 +65,7 @@ receive_pim_hello(src, dst, pim_message, datalen)
     vifi_t vifi;
     struct uvif *v;
     pim_nbr_entry_t *nbr, *prev_nbr, *new_nbr;
-    u_int16 holdtime;
+    u_int16 holdtime = PIM_TIMER_HELLO_HOLDTIME;
     u_int8  *data_ptr;
     int state_change;
     srcentry_t *srcentry_ptr;
