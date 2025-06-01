@@ -345,7 +345,7 @@ main(argc, argv)
     } /* End of child process code */
 
     if (log_syslog) {
-	openlog(prognm, LOG_PID, LOG_DAEMON);
+	openlog(ident, LOG_PID, LOG_DAEMON);
 	setlogmask(LOG_UPTO(log_level));
     }
 
