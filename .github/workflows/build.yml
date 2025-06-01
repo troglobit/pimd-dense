@@ -64,6 +64,9 @@ jobs:
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock -h
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock
           sudo ~/tmp/sbin/pimctl -u ~/tmp/foo.sock kill
+      - name: Enable unprivileged userns (unshare)
+        run: |
+          sudo sysctl kernel.apparmor_restrict_unprivileged_userns=0
       - name: Test
         run: |
           make check || (cat test/test-suite.log; false)
