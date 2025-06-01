@@ -195,11 +195,11 @@ echo $! >> "/tmp/$NM/PIDs"
 sleep 1
 
 print "Starting pimd-dense ..."
-nsenter --net="$NS2" -- ../src/pimdd -n -p "/tmp/$NM/r1.pid" -l debug -u "/tmp/$NM/r1.sock" &
+nsenter --net="$NS2" -- ../src/pimdd -n -i r1 -p "/tmp/$NM/r1.pid" -l debug -u "/tmp/$NM/r1.sock" &
 echo $! >> "/tmp/$NM/PIDs"
-nsenter --net="$NS3" -- ../src/pimdd -n -p "/tmp/$NM/r2.pid" -l debug -u "/tmp/$NM/r2.sock" &
+nsenter --net="$NS3" -- ../src/pimdd -n -i r2 -p "/tmp/$NM/r2.pid" -l debug -u "/tmp/$NM/r2.sock" &
 echo $! >> "/tmp/$NM/PIDs"
-nsenter --net="$NS4" -- ../src/pimdd -n -p "/tmp/$NM/r3.pid" -l debug -u "/tmp/$NM/r3.sock" &
+nsenter --net="$NS4" -- ../src/pimdd -n -i r3 -p "/tmp/$NM/r3.pid" -l debug -u "/tmp/$NM/r3.sock" &
 echo $! >> "/tmp/$NM/PIDs"
 sleep 1
 
