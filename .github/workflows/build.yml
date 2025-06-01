@@ -36,7 +36,7 @@ jobs:
         run: |
           set -x
           ./autogen.sh
-          ./configure --prefix= --enable-rsrr --enable-test
+          ./configure --prefix= --enable-test
           make dist && archive=$(ls *.tar.gz)
           if [ -n "$archive" -a -f "$archive" ]; then
             tar xf "$archive"
@@ -45,7 +45,7 @@ jobs:
           fi
           mkdir -p .build/dir
           cd .build/dir
-          ../../configure --prefix= --enable-rsrr --enable-test
+          ../../configure --prefix= --enable-test
           chmod -R a+w .
       - name: Build
         run: |
