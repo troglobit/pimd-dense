@@ -62,6 +62,16 @@ tenacious()
     FAIL "Timeed out $*"
 }
 
+is_running()
+{
+    NS=$1
+    RN=$2
+
+    if ! nsenter --net="$NS" -- ../src/pimctl -u "/tmp/$NM/$RN.sock" show status | grep -q "Daemon PID"; then
+	FAIL "Router $RN is not running!"
+    fi
+}
+
 show_mroute()
 {
     # Show active routes (and counters)

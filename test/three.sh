@@ -226,6 +226,12 @@ nsenter --net="$NS4" -- echo "show ospf int"   | birdc -s "/tmp/$NM/r3-bird.sock
 nsenter --net="$NS4" -- echo "show ospf neigh" | birdc -s "/tmp/$NM/r3-bird.sock"
 nsenter --net="$NS4" -- ip route
 
+print "Verify pimd-dense routers have started ..."
+is_running "$NS2" r1
+is_running "$NS3" r2
+is_running "$NS4" r3
+dprint "OK"
+
 print "Starting emitter ..."
 nsenter --net="$NS5" -- ./mping -qr -d -i eth0 -t 5 -W 30 225.1.2.3 &
 echo $! >> "/tmp/$NM/PIDs"
