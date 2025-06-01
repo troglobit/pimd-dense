@@ -11,6 +11,8 @@ Requires=network-online.target
 Type=simple
 EnvironmentFile=-@SYSCONFDIR@/default/pimd
 ExecStart=@SBINDIR@/pimdd -ns $PIMDD_OPTS
+Restart=always
+RestartSec=2s
 
 [Install]
 WantedBy=multi-user.target
