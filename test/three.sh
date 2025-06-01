@@ -215,8 +215,8 @@ nsenter --net="$NS2" -- echo "show ospf neigh" | birdc -s "/tmp/$NM/r1-bird.sock
 nsenter --net="$NS2" -- ip route
 
 dprint "OSPF State & Routing Table $NS3:"
-nsenter --net="$NS4" -- echo "show ospf state" | birdc -s "/tmp/$NM/r2-bird.sock"
-nsenter --net="$NS4" -- echo "show ospf int"   | birdc -s "/tmp/$NM/r2-bird.sock"
+nsenter --net="$NS3" -- echo "show ospf state" | birdc -s "/tmp/$NM/r2-bird.sock"
+nsenter --net="$NS3" -- echo "show ospf int"   | birdc -s "/tmp/$NM/r2-bird.sock"
 nsenter --net="$NS3" -- echo "show ospf neigh" | birdc -s "/tmp/$NM/r2-bird.sock"
 nsenter --net="$NS3" -- ip route
 
