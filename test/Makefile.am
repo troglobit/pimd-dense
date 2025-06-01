@@ -7,7 +7,7 @@ mping_CFLAGS       = -DVERSION='"1.5"'
 mping_SOURCES      = mping.c
 
 TEST_EXTENSIONS    = .sh
-TESTS_ENVIRONMENT  = unshare -mrun
+TESTS_ENVIRONMENT  = unshare -mrun --map-auto
 
 TESTS              = pod.sh
 TESTS             += shared.sh
